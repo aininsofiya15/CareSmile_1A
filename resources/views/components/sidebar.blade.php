@@ -135,6 +135,21 @@
             </li>
             @endif
 
+            {{-- Schedules --}}
+            <li>
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Schedules</span>
+                    </a>
+                @elseif(Auth::user()->isDentist())
+                    <a href="{{ route('dentist.schedules.index') }}" class="sidebar-link {{ request()->routeIs('dentist.schedules.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>My Schedule</span>
+                    </a>
+                @endif
+            </li>
+
             {{-- Disabled --}}
             <li>
                 <span class="sidebar-link disabled">

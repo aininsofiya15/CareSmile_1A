@@ -4,8 +4,11 @@ namespace App\Models;
 
 use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany; // ✅ ADD THIS
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
+// ✅ ADD THIS
 
 class User extends Authenticatable
 {
@@ -50,5 +53,10 @@ class User extends Authenticatable
     public function hasRole(Role $role): bool
     {
         return $this->role === $role;
+    }
+
+    public function doctorSchedules(): HasMany
+    {
+        return $this->hasMany(DoctorSchedule::class, 'doctor_id');
     }
 }
