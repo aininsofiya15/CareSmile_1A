@@ -1,0 +1,10 @@
+{
+    "agents": [
+        "opencode"
+    ],
+    "guidelines": true,
+    "skills": [
+        "pest-testing",
+        "tailwindcss-development"
+    ]
+}
