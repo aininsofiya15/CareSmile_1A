@@ -1,9 +1,17 @@
 <nav class="navbar navbar-expand-lg {{ request()->routeIs('home') ? 'navbar-home' : 'navbar-inner' }} shadow-sm sticky-top">
     <div class="container">
-        {{-- Logo & Brand --}}
-      <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-    <img src="{{ asset('CareSmile.png') }}" alt="CareSmile Logo" class="navbar-logo">
-</a>
+        <div class="container-fluid px-4">
+        
+        <div class="d-none d-lg-block" style="width: 200px;"></div>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            {{-- Navigation Links - Centered --}}
+            <ul class="navbar-nav mx-auto">
+    
 
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
