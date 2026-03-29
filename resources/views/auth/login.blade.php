@@ -1,54 +1,51 @@
 <x-guest-layout>
     <style>
-        /* The Wide Card Container */
+        /* The Wide Card Container - MADE EVEN BIGGER (1200px) */
         .split-login-container {
             display: flex;
             background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-            max-width: 950px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            max-width: 1200px; /* BIGGER CONTAINER */
             width: 100%;
             margin: 0 auto;
             overflow: hidden;
-            min-height: 550px;
+            min-height: 650px; /* TALLER CONTAINER */
         }
 
         /* Left Side: The Form */
         .login-form-side {
             flex: 1;
-            padding: 4rem 3.5rem;
+            padding: 5rem 5rem; /* More padding so it breathes */
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* Right Side: The Illustration */
+        /* Right Side: The Illustration - CLEAN WHITE BACKGROUND */
         .login-image-side {
             flex: 1.2;
-            /* We use a soft blue gradient here, but you will replace this with your actual image! */
-            background: linear-gradient(135deg, #eef5ff 0%, #d6e8ff 100%);
+            /* Removed the blue gradient, curved borders, and shadows! */
+            background-color: transparent; 
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* This gives it that cool curved overlap effect from your picture */
-            border-radius: 60px 0 0 60px;
-            margin-left: -20px;
-            box-shadow: -10px 0 20px rgba(0,0,0,0.03);
+            padding: 2rem;
         }
 
         /* Typography */
         .login-title {
             font-weight: 800;
             color: #14213d;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-bottom: 0.5rem;
         }
 
         .login-subtitle {
             color: #4b5563;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1rem;
             margin-bottom: 2.5rem;
         }
 
@@ -64,11 +61,12 @@
             border-left: none;
             border-radius: 0 8px 8px 0;
             padding: 0.75rem 0.75rem 0.75rem 0;
+            background-color: transparent;
         }
 
         .form-control.with-icon:focus {
             box-shadow: none;
-            border-color: #dee2e6; /* keep border neutral */
+            border-color: #dee2e6;
         }
 
         .input-group:focus-within {
@@ -82,19 +80,32 @@
             color: #1f6fff;
         }
 
-        /* Button */
+        /* Premium Button */
         .btn-login {
-            background-color: #4361ee;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             border: none;
             border-radius: 8px;
-            padding: 0.8rem;
+            padding: 0.85rem;
             font-weight: 600;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.6);
         }
 
         .btn-login:hover {
-            background-color: #3a56d4;
             transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.8);
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px) scale(1.15); }
+            50% { transform: translateY(-12px) scale(1.15); }
+            100% { transform: translateY(0px) scale(1.15); }
+        }
+
+        .floating-illustration {
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.08));
         }
     </style>
 
@@ -102,8 +113,8 @@
         
         {{-- LEFT SIDE: FORM --}}
         <div class="login-form-side">
-            <h1 class="login-title">Login</h1>
-            <p class="login-subtitle">Welcome to CareSmile Dental Platform</p>
+            <h1 class="login-title">Welcome Back</h1>
+            <p class="login-subtitle">Sign in to CareSmile Dental Platform</p>
 
             @if (session('status'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -151,13 +162,13 @@
 
                 {{-- Login Button --}}
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-login text-white">Login</button>
+                    <button type="submit" class="btn btn-primary btn-login text-white">Log In</button>
                 </div>
                 
                 {{-- Register Link --}}
                 <div class="text-center mt-4">
                     <p class="text-muted" style="font-size: 0.85rem;">
-                        Don't have an account? <a href="{{ route('register') }}" class="text-decoration-none fw-bold">Register</a>
+                        New to CareSmile? <a href="{{ route('register') }}" class="text-decoration-none fw-bold">Sign up here</a>
                     </p>
                 </div>
             </form>
@@ -165,9 +176,7 @@
 
         {{-- RIGHT SIDE: ILLUSTRATION --}}
         <div class="login-image-side">
-            
-            <img src="{{ asset('login.png') }}" alt="Login Image" style="max-width: 80%; height: auto;">
-            
+            <img src="{{ asset('login1.jpg') }}" alt="Login Image" style="max-width: 100%; height: auto;">
         </div>
 
     </div>

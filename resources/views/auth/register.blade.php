@@ -1,53 +1,52 @@
 <x-guest-layout>
     <style>
-        /* The Wide Card Container */
+        /* The Wide Card Container - MADE EVEN BIGGER (1200px) */
         .split-login-container {
             display: flex;
             background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-            max-width: 950px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            max-width: 1200px; /* BIGGER CONTAINER */
             width: 100%;
             margin: 0 auto;
             overflow: hidden;
-            min-height: 600px;
+            min-height: 650px; /* TALLER CONTAINER */
         }
 
         /* Left Side: The Form */
         .login-form-side {
             flex: 1;
-            padding: 3rem 3.5rem;
+            padding: 5rem 5rem; /* More padding so it breathes */
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* Right Side: The Illustration */
+        /* Right Side: The Illustration - CLEAN WHITE BACKGROUND */
         .login-image-side {
             flex: 1.2;
+            /* Removed the blue gradient, curved borders, and shadows! */
+            background-color: transparent; 
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 60px 0 0 60px;
-            margin-left: -20px;
-            box-shadow: -10px 0 20px rgba(0,0,0,0.03);
-            background: linear-gradient(135deg, #eef5ff 0%, #d6e8ff 100%);
+            padding: 2rem;
         }
 
         /* Typography */
         .login-title {
             font-weight: 800;
             color: #14213d;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-bottom: 0.5rem;
         }
 
         .login-subtitle {
             color: #4b5563;
             font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
         }
 
         /* Input Styling with Icons */
@@ -63,6 +62,7 @@
             border-left: none;
             border-radius: 0 8px 8px 0;
             padding: 0.75rem 0.75rem 0.75rem 0;
+            background-color: transparent;
         }
 
         .form-control.with-icon:focus,
@@ -83,20 +83,22 @@
             color: #1f6fff;
         }
 
-        /* Button */
+        /* Premium Button */
         .btn-login {
-            background-color: #4361ee;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             border: none;
             border-radius: 8px;
-            padding: 0.8rem;
+            padding: 0.85rem;
             font-weight: 600;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.6);
         }
 
         .btn-login:hover {
-            background-color: #3a56d4;
             transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.8);
         }
+
     </style>
 
     <div class="split-login-container">
@@ -191,8 +193,8 @@
 
         {{-- RIGHT SIDE: ILLUSTRATION --}}
         <div class="login-image-side">
-            {{-- Reusing the login image to keep the theme consistent! --}}
-            <img src="{{ asset('login.png') }}" alt="Register Image" style="max-width: 80%; height: auto;">
+            {{-- Added the floating animation and made max-width 100% --}}
+            <img src="{{ asset('login1.jpg') }}" alt="Register Image" style="max-width: 100%; height: auto;">
         </div>
 
     </div>
