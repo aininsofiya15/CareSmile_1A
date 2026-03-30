@@ -2,6 +2,7 @@
 
 use App\Enums\Role;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DentistController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -35,6 +36,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/dentist/dashboard', [DentistController::class, 'dashboard'])
         ->middleware('role:'.Role::Dentist->value)
         ->name('dentist.dashboard');
+
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::get('/appointments/create', [AppointmentController::class, 'create']);
+
+    Route::post('/appointments/store', [AppointmentController::class, 'store']);
 });
+
+Route::get('/reschedule', function () {
+    return view('appointments/reschedule');
+})->name('home');
+
+Route::get('/management', function () {
+    return view('appointments/manage');
+})->name('about');
 
 require __DIR__.'/auth.php';
