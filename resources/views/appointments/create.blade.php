@@ -1,90 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Book Appointment</title>
-    <style>
-        body {
-            font-family: Arial;
-            background-color: #f4f6f9;
-        }
+@extends('layouts.app')
 
-        .container {
-            width: 400px;
-            margin: 60px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
+@section('content')
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+<style>
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-light: #eef5ff;
+        --text-dark: #14213d;
+        --text-muted: #6c7a92;
+        --card-border: rgba(31, 111, 255, 0.08);
+        --shadow-soft: 0 10px 30px rgba(20, 33, 61, 0.08);
+        --radius-lg: 16px;
+    }
 
-        label {
-            display: block;
-            margin-top: 10px;
-        }
+    .card-custom {
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg);
+        background: #fff;
+        box-shadow: var(--shadow-soft);
+    }
 
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
+    .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
 
-        button {
-            margin-top: 15px;
-            width: 100%;
-            padding: 10px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+    }
 
-        button:hover {
-            background-color: #2980b9;
-        }
+    .btn-primary-custom {
+        background: var(--brand-blue);
+        color: white;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        border: none;
+    }
+</style>
 
-        .success {
-            color: green;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Book Appointment</h2>
-
-    @if(session('success'))
-        <div class="success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <form method="POST" action="/appointments/store">
-        @csrf
-
-        <label>Date:</label>
-        <input type="date" name="date" required>
-
-        <label>Time:</label>
-        <input type="time" name="time" required>
-
-        <label>Service:</label>
-        <select name="service">
-            <option>Scaling</option>
-            <option>Extraction</option>
-            <option>Whitening</option>
-        </select>
-
-        <button type="submit">Book Appointment</button>
-    </form>
+<div class="page-header">
+    <h1 class="page-title">Book Appointment</h1>
 </div>
 
-</body>
-</html>
+<div class="card-custom">
+    <div class="card-body">
+
+        <form action="/appointments/store" method="POST">
+            @csrf
+
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Time</label>
+                <input type="time" name="time" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Service</label>
+                <select name="service" class="form-select">
+                    <option>Scaling</option>
+                    <option>Extraction</option>
+                    <option>Whitening</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary-custom">
+                Book Appointment
+            </button>
+        </form>
+
+    </div>
+</div>
+
+@endsection
