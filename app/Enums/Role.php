@@ -11,6 +11,7 @@ enum Role: string
     public function label(): string
     {
         return match ($this) {
+            
             self::Admin => 'Administrator',
             self::Patient => 'Patient',
             self::Dentist => 'Dentist',
