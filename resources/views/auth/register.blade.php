@@ -160,19 +160,36 @@
                         <input type="password" class="form-control with-icon @error('password') is-invalid @enderror" 
                                id="password" name="password" placeholder="Password" required>
                     </div>
+                    
+                    {{-- ✅ SQA ADDITION: Password Rules Hint --}}
+                    <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                        <i class="fas fa-shield-alt me-1 text-primary"></i> Must be at least 8 characters, with 1 uppercase, 1 number, and 1 symbol.
+                    </div>
+
                     @error('password')
                         <div class="text-danger small mt-1 fw-semibold">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Confirm Password --}}
-                <div class="mb-4">
+                <div class="mb-3"> {{-- Changed margin bottom slightly to fit the checkbox --}}
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
                         <input type="password" class="form-control with-icon @error('password_confirmation') is-invalid @enderror" 
                                id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required>
                     </div>
                     @error('password_confirmation')
+                        <div class="text-danger small mt-1 fw-semibold">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- ✅ SQA ADDITION: Privacy Policy Checkbox --}}
+                <div class="mb-4 form-check text-start">
+                    <input type="checkbox" class="form-check-input @error('terms') is-invalid @enderror" id="terms" name="terms" required>
+                    <label class="form-check-label text-muted" for="terms" style="font-size: 0.85rem;">
+                        I agree to the <a href="#" class="text-decoration-none fw-bold">Terms of Service</a> and <a href="#" class="text-decoration-none fw-bold">Privacy Policy</a> regarding my medical data.
+                    </label>
+                    @error('terms')
                         <div class="text-danger small mt-1 fw-semibold">{{ $message }}</div>
                     @enderror
                 </div>

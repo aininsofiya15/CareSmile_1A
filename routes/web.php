@@ -25,9 +25,13 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:'.Role::Admin->value)
         ->name('admin.dashboard');
 
+    Route::get('/admin/profile', [AdminController::class, 'profile'])
+        ->middleware('role:'.Role::Admin->value)
+        ->name('admin.profile');
+
     Route::get('/admin/patients', function () {
         return view('admin.patients');
-    })->middleware('role:'.Role::Admin->value)->name('admin.patients');
+        })->middleware('role:'.Role::Admin->value)->name('admin.patients');
 
     Route::get('/admin/schedules', [DoctorScheduleController::class, 'index'])
         ->middleware('role:'.Role::Admin->value)
@@ -64,10 +68,18 @@ Route::middleware('auth')->group(function () {
      Route::get('/patient/profile', [PatientController::class, 'profile'])
         ->middleware('role:'.Role::Patient->value)
         ->name('patient.profile');
+    
+    Route::put('/patient/profile/update', [PatientController::class, 'updateProfile'])
+        ->middleware('role:'.Role::Patient->value)
+        ->name('patient.profile.update');
 
     Route::get('/dentist/dashboard', [DentistController::class, 'dashboard'])
         ->middleware('role:'.Role::Dentist->value)
         ->name('dentist.dashboard');
+    
+    Route::get('/dentist/profile', [DentistController::class, 'profile'])
+        ->middleware('role:'.Role::Dentist->value)
+        ->name('dentist.profile');
 
     Route::get('/dentist/schedules', [DoctorScheduleController::class, 'index'])
         ->middleware('role:'.Role::Dentist->value)

@@ -65,9 +65,19 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="{{ route('patient.profile') }}">
-                                    <i class="bi bi-person me-2"></i>Profile
-                                </a>
+                                @if(Auth::user()->isPatient())
+                                    <a class="dropdown-item" href="{{ route('patient.profile') }}">
+                                        <i class="bi bi-person me-2"></i>Profile
+                                    </a>
+                                @elseif(Auth::user()->isDentist())
+                                    <a class="dropdown-item" href="{{ route('dentist.profile') }}">
+                                        <i class="bi bi-person me-2"></i>Profile
+                                    </a>
+                                @elseif(Auth::user()->isAdmin())
+                                    <a class="dropdown-item" href="{{ route('admin.profile') }}">
+                                        <i class="bi bi-person me-2"></i>Profile
+                                    </a>
+                                @endif
                             </li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">

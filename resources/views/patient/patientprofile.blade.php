@@ -72,6 +72,7 @@
         justify-content: center;
         font-size: 2.5rem;
         margin: 0 auto 1rem auto;
+        text-transform: uppercase;
     }
 </style>
 
@@ -85,16 +86,17 @@
             
             {{-- Identity Card --}}
             <div class="card patient-card text-center p-4">
-                <div class="avatar-circle">
-                    <i class="far fa-user"></i>
+                {{-- Dynamically pulls the first letter of their name --}}
+                <div class="profile-page-avatar">
+                    {{ substr($user->name, 0, 1) }}
                 </div>
-                <h4 class="fw-bold mb-1">Ahmad Bin Abdullah</h4>
-                <p class="text-muted mb-3">Patient ID: #CS-8492</p>
+                {{-- Dynamically pulls their actual name --}}
+                <h4 class="fw-bold mb-1">{{ $user->name }}</h4>
+                <p class="text-muted mb-3">Patient ID: #CS-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</p>
                 <span class="badge bg-success rounded-pill px-3 py-2 mb-3" style="font-weight: 500;">Active Account</span>
-                <button class="btn btn-patient-outline w-100 mt-2">Update Photo</button>
             </div>
 
-            {{-- Account Security --}}
+            {{-- Account Security (UI Mockup for now) --}}
             <div class="card patient-card">
                 <div class="card-header card-header-light">
                     <i class="fas fa-lock me-2 text-muted"></i> Security
@@ -114,72 +116,79 @@
 
         </div>
 
-        {{-- RIGHT COLUMN: Forms --}}
+        {{-- RIGHT COLUMN: THE DATA FORM --}}
         <div class="col-lg-8">
             
-            {{-- Personal Information Form --}}
-            <div class="card patient-card mb-4">
-                <div class="card-header card-header-light d-flex justify-content-between align-items-center">
-                    <span><i class="far fa-id-card me-2 text-muted"></i> Personal Information</span>
-                    <button class="btn btn-sm btn-patient-outline" style="padding: 0.2rem 1rem;">Edit</button>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold">Full Name</label>
-                            <input type="text" class="form-control" value="Ahmad Bin Abdullah" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold">Email Address</label>
-                            <input type="email" class="form-control" value="ahmad@example.com" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold">Phone Number</label>
-                            <input type="text" class="form-control" value="+60 12-345 6789">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold">Date of Birth</label>
-                            <input type="date" class="form-control" value="1995-05-15">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Home Address</label>
-                            <textarea class="form-control" rows="2">123 Jalan Ampang, Kuala Lumpur</textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{-- We wrap BOTH cards in one form so they save together --}}
+            <form action="{{ route('patient.profile.update') }}" method="POST">
+                @csrf
+                @method('PUT')
 
-            {{-- Medical Context Form --}}
-            <div class="card patient-card">
-                <div class="card-header card-header-light d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-file-medical me-2 text-muted"></i> Medical Context</span>
-                    <button class="btn btn-sm btn-patient-outline" style="padding: 0.2rem 1rem;">Edit</button>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Known Drug Allergies</label>
-                            <input type="text" class="form-control" value="Penicillin, Amoxicillin" placeholder="List any allergies to medication">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Current Medications</label>
-                            <textarea class="form-control" rows="2" placeholder="List any daily medications">None</textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold">Emergency Contact Name</label>
-                            <input type="text" class="form-control" value="Siti Binti Ali (Wife)">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold">Emergency Contact Phone</label>
-                            <input type="text" class="form-control" value="+60 19-876 5432">
+                {{-- Personal Information Form --}}
+                <div class="card patient-card mb-4">
+                    <div class="card-header card-header-light">
+                        <i class="far fa-id-card me-2 text-muted"></i> Personal Information
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Full Name</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->name }}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Email Address</label>
+                                <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Phone Number</label>
+                                <input type="text" name="phone_number" class="form-control" value="{{ old('phone_number', $profile->phone_number) }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Date of Birth</label>
+                                <input type="date" name="dob" class="form-control" value="{{ old('dob', $profile->dob) }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small fw-bold">Home Address</label>
+                                <textarea name="address" class="form-control" rows="2">{{ old('address', $profile->address) }}</textarea>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="d-flex justify-content-end mt-4">
-                        <button class="btn btn-patient-primary">Save Medical Info</button>
+                </div>
+
+                {{-- Medical Context Form --}}
+                <div class="card patient-card">
+                    <div class="card-header card-header-light">
+                        <i class="fas fa-file-medical me-2 text-muted"></i> Medical Context
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label text-muted small fw-bold">Known Drug Allergies</label>
+                                <input type="text" name="allergies" class="form-control" value="{{ old('allergies', $profile->allergies) }}" placeholder="e.g., Penicillin, Latex">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small fw-bold">Current Medications</label>
+                                <textarea name="medications" class="form-control" rows="2" placeholder="List any daily medications">{{ old('medications', $profile->medications) }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Emergency Contact Name</label>
+                                <input type="text" name="emergency_contact_name" class="form-control" value="{{ old('emergency_contact_name', $profile->emergency_contact_name) }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Emergency Contact Phone</label>
+                                <input type="text" name="emergency_contact_phone" class="form-control" value="{{ old('emergency_contact_phone', $profile->emergency_contact_phone) }}">
+                            </div>
+                        </div>
+                        
+                        {{-- ONE Save Button for the whole form --}}
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-patient-primary">
+                                <i class="fas fa-save me-2"></i> Save All Information
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
         </div>
     </div>
