@@ -54,7 +54,7 @@
                 @else
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                            <span class="avatar-circle">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                            <span class="avatar-circle d-flex align-items-center justify-content-center text-uppercase">{{ substr(Auth::user()->name, 0, 1) }}</span>
                             <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
@@ -65,7 +65,7 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                <a class="dropdown-item" href="{{ route('patient.profile') }}">
                                     <i class="bi bi-person me-2"></i>Profile
                                 </a>
                             </li>

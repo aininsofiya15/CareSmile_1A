@@ -60,6 +60,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/patient/dashboard', [PatientController::class, 'dashboard'])
         ->middleware('role:'.Role::Patient->value)
         ->name('patient.dashboard');
+    
+     Route::get('/patient/profile', [PatientController::class, 'profile'])
+        ->middleware('role:'.Role::Patient->value)
+        ->name('patient.profile');
 
     Route::get('/dentist/dashboard', [DentistController::class, 'dashboard'])
         ->middleware('role:'.Role::Dentist->value)
