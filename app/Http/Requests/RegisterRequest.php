@@ -19,9 +19,8 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'role' => ['required', new Enum(Role::class)],
             
-            // 1. ADDED: The Privacy Policy Checkbox Rule
+            // 1. The Privacy Policy Checkbox Rule
             'terms' => ['accepted'], 
 
             // 2. UPDATED: The Strict SQA Password Rule

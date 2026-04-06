@@ -8,6 +8,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// --- Public Routes ---
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -16,74 +17,56 @@ Route::get('/about', function () {
     return view('pages.about');
 })->name('about');
 
+// --- Authenticated Routes ---
 Route::middleware('auth')->group(function () {
+    
+    // Shared Profile (Breeze Defaults)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.dashboard');
+    // ==========================================
+    // ADMIN ROUTES (Role: admin)
+    // ==========================================
 
-    Route::get('/admin/profile', [AdminController::class, 'profile'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.profile');
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
 
-    Route::get('/admin/patients', function () {
-        return view('admin.patients');
-        })->middleware('role:'.Role::Admin->value)->name('admin.patients');
+        // Patient Management
+        Route::get('/patients', [AdminController::class, 'managePatients'])->name('patients'); // This is admin.patients
+        Route::get('/patients/create', [AdminController::class, 'createPatient'])->name('patients.create');
+        Route::post('/patients/store', [AdminController::class, 'storePatient'])->name('patients.store');
 
-    Route::get('/admin/schedules', [DoctorScheduleController::class, 'index'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.index');
+        // --- ADD THESE 4 LINES TO FIX THE CRASH ---
+        Route::get('/patients/{patient}', [AdminController::class, 'show'])->name('patients.show');
+        Route::get('/patients/{patient}/edit', [AdminController::class, 'edit'])->name('patients.edit');
+        Route::put('/patients/{patient}', [AdminController::class, 'update'])->name('patients.update');
+        Route::delete('/patients/{patient}', [AdminController::class, 'destroy'])->name('patients.destroy');
 
-    Route::get('/admin/schedules/create', [DoctorScheduleController::class, 'create'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.create');
+        // Schedule Management
+        Route::resource('schedules', DoctorScheduleController::class);
+    });
 
-    Route::post('/admin/schedules', [DoctorScheduleController::class, 'store'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.store');
+    // ==========================================
+    // PATIENT ROUTES (Role: patient)
+    // ==========================================
 
-    Route::get('/admin/schedules/{schedule}/edit', [DoctorScheduleController::class, 'edit'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.edit');
+    Route::middleware('role:patient')->prefix('patient')->name('patient.')->group(function () {
+        Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profile', [PatientController::class, 'profile'])->name('profile');
+        Route::put('/profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
+    });
 
-    Route::put('/admin/schedules/{schedule}', [DoctorScheduleController::class, 'update'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.update');
-
-    Route::delete('/admin/schedules/{schedule}', [DoctorScheduleController::class, 'destroy'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.destroy');
-
-    Route::get('/admin/schedules/{schedule}', [DoctorScheduleController::class, 'show'])
-        ->middleware('role:'.Role::Admin->value)
-        ->name('admin.schedules.show');
-
-    Route::get('/patient/dashboard', [PatientController::class, 'dashboard'])
-        ->middleware('role:'.Role::Patient->value)
-        ->name('patient.dashboard');
+    // ==========================================
+    // DENTIST ROUTES (Role: dentist)
+    // ==========================================
     
-     Route::get('/patient/profile', [PatientController::class, 'profile'])
-        ->middleware('role:'.Role::Patient->value)
-        ->name('patient.profile');
-    
-    Route::put('/patient/profile/update', [PatientController::class, 'updateProfile'])
-        ->middleware('role:'.Role::Patient->value)
-        ->name('patient.profile.update');
-
-    Route::get('/dentist/dashboard', [DentistController::class, 'dashboard'])
-        ->middleware('role:'.Role::Dentist->value)
-        ->name('dentist.dashboard');
-    
-    Route::get('/dentist/profile', [DentistController::class, 'profile'])
-        ->middleware('role:'.Role::Dentist->value)
-        ->name('dentist.profile');
-
-    Route::get('/dentist/schedules', [DoctorScheduleController::class, 'index'])
-        ->middleware('role:'.Role::Dentist->value)
-        ->name('dentist.schedules.index');
+    Route::middleware('role:dentist')->prefix('dentist')->name('dentist.')->group(function () {
+        Route::get('/dashboard', [DentistController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profile', [DentistController::class, 'profile'])->name('profile');
+        Route::get('/schedules', [DoctorScheduleController::class, 'index'])->name('schedules.index');
+    });
 });
 
 require __DIR__.'/auth.php';

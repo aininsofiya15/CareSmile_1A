@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
-use App\Models\User;
-use App\Models\PatientProfile; 
+use App\Models\User; 
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -22,26 +21,25 @@ class RegisteredUserController extends Controller
 
     public function store(RegisterRequest $request): RedirectResponse
     {
-        // 1. Save the role as a simple string, not an Enum object
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+        ]);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role, 
+            'role' => Role::Patient, // ✅ Force every public registration to be a Patient
         ]);
-
-        // 2. Compare it using the Enum's string value (->value)
-        if ($user->role === Role::Patient->value) {
-            PatientProfile::create([
-                'user_id' => $user->id,
-            ]);
-        }
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect()->intended($this->redirectPath($user));
+        // Redirect them to the Patient Dashboard
+        return redirect(route('patient.dashboard', absolute: false));
     }
 
     protected function redirectPath(User $user): string

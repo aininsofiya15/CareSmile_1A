@@ -1,25 +1,19 @@
 <nav class="navbar navbar-expand-lg {{ request()->routeIs('home') ? 'navbar-home' : 'navbar-inner' }} shadow-sm sticky-top">
     <div class="container">
-        <div class="container-fluid px-4">
+        {{-- Brand/Logo (Optional: replace div with your actual logo) --}}
+        <a class="navbar-brand d-lg-none" href="{{ route('home') }}">CareSmile</a>
         
-        <div class="d-none d-lg-block" style="width: 200px;"></div>
+        <div class="d-none d-lg-block" style="width: 200px;">
+            </div>
 
+        {{-- Mobile Toggler (Only one needed!) --}}
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
             {{-- Navigation Links - Centered --}}
-            <ul class="navbar-nav mx-auto">
-    
-
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            {{-- Navigation Links - Centered --}}
-            <ul class="navbar-nav mx-auto">
+            <ul class="navbar-nav mx-auto text-center">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
                 </li>
@@ -36,7 +30,7 @@
 
             {{-- Right Side: Theme Toggle & Auth --}}
             <ul class="navbar-nav ms-auto align-items-center gap-2">
-                {{-- Theme Toggle Button --}}
+                {{-- Theme Toggle --}}
                 <li class="nav-item">
                     <button class="btn btn-link nav-link p-2 rounded-circle" onclick="toggleTheme()" id="theme-toggle" title="Toggle Dark/Light Mode" style="text-decoration: none;">
                         <span id="theme-icon-light" class="theme-icon">🌙</span>
@@ -54,7 +48,9 @@
                 @else
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                            <span class="avatar-circle d-flex align-items-center justify-content-center text-uppercase">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                            <span class="avatar-circle d-flex align-items-center justify-content-center text-uppercase">
+                                {{ substr(Auth::user()->name, 0, 1) }}
+                            </span>
                             <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
@@ -64,21 +60,21 @@
                                 </span>
                             </li>
                             <li><hr class="dropdown-divider"></li>
+                            
+                            {{-- Unified Dynamic Profile Link --}}
                             <li>
-                                @if(Auth::user()->isPatient())
-                                    <a class="dropdown-item" href="{{ route('patient.profile') }}">
-                                        <i class="bi bi-person me-2"></i>Profile
-                                    </a>
-                                @elseif(Auth::user()->isDentist())
-                                    <a class="dropdown-item" href="{{ route('dentist.profile') }}">
-                                        <i class="bi bi-person me-2"></i>Profile
-                                    </a>
-                                @elseif(Auth::user()->isAdmin())
-                                    <a class="dropdown-item" href="{{ route('admin.profile') }}">
-                                        <i class="bi bi-person me-2"></i>Profile
-                                    </a>
-                                @endif
+                                @php
+                                    $profileRoute = match(Auth::user()->role) {
+                                        \App\Enums\Role::Admin   => 'admin.profile',
+                                        \App\Enums\Role::Dentist => 'dentist.profile',
+                                        default                  => 'patient.profile',
+                                    };
+                                @endphp
+                                <a class="dropdown-item" href="{{ route($profileRoute) }}">
+                                    <i class="bi bi-person me-2"></i>Profile
+                                </a>
                             </li>
+
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
