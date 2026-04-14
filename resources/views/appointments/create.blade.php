@@ -13,6 +13,16 @@
         --radius-lg: 16px;
     }
 
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
     .card-custom {
         border: 1px solid var(--card-border);
         border-radius: var(--radius-lg);

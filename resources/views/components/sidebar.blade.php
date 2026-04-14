@@ -11,7 +11,7 @@
         flex-shrink: 0;
     }
 
-    
+
     .sidebar-header {
         height: 76px; /* Matches the height of the top navbar */
         display: flex;
@@ -22,7 +22,7 @@
 
     .sidebar-menu {
         list-style: none;
-        padding: 3rem 1rem 1.5rem 1rem; 
+        padding: 3rem 1rem 1.5rem 1rem;
         margin: 0;
     }
 
@@ -101,7 +101,7 @@
                 <img src="{{ asset('CareSmile.png') }}" alt="CareSmile Logo" style="height: 90px;">
             </a>
         </div>
-        
+
         {{-- Navigation --}}
         <ul class="sidebar-menu flex-grow-1">
 
@@ -136,11 +136,13 @@
             @endif
 
             {{-- Disabled --}}
+
             <li>
-                <span class="sidebar-link disabled">
+                <a href="{{ route('appointments') }}"
+                class="sidebar-link {{ request()->routeIs('appointments') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Appointments</span>
-                </span>
+                </a>
             </li>
 
             <li>

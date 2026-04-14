@@ -3,6 +3,16 @@
 @section('content')
 
 <style>
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
     .table-custom {
         width: 100%;
         border-collapse: collapse;
@@ -30,6 +40,14 @@
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         padding: 20px;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .p-0 {
+        padding: 0;
     }
 
     .btn-action {

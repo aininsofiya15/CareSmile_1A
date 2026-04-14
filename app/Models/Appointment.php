@@ -18,4 +18,9 @@ class Appointment extends Model
         'status',
         'reschedule_status',
     ];
+
+    public function patient()
+    {
+        return $this->belongsTo(User::class, 'patient_id');
+    }
 }

@@ -37,18 +37,32 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:'.Role::Dentist->value)
         ->name('dentist.dashboard');
 
-    Route::get('/appointments', [AppointmentController::class, 'index']);
-    Route::get('/appointments/create', [AppointmentController::class, 'create']);
+    Route::middleware(['auth', 'role:'.Role::Patient->value])->group(function () {
+        Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
+        Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+        Route::post('/appointments/store', [AppointmentController::class, 'store']);
+    });
 
-    Route::post('/appointments/store', [AppointmentController::class, 'store']);
+    // Route::get('/appointments', [AppointmentController::class, 'index'])
+    //     ->name('appointments');
+    // Route::get('/appointments/create', [AppointmentController::class, 'create'])
+    //     ->name('appointments.create');
+
+    // Route::post('/appointments/store', [AppointmentController::class, 'store']);
+
+    Route::get('/reschedule', function () {
+        return view('appointments/reschedule');
+    });
+
+    Route::get('/management', function () {
+        return view('appointments/admin');
+    });
+
+    Route::get('/appointments/{id}/reschedule', [AppointmentController::class, 'showReschedule'])->name('appointments.reschedule');
+
+    Route::post('/appointments/{id}/reschedule', [AppointmentController::class, 'submitReschedule'])->name('appointments.reschedule.submit');
+
+    Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
 });
-
-Route::get('/reschedule', function () {
-    return view('appointments/reschedule');
-})->name('home');
-
-Route::get('/management', function () {
-    return view('appointments/manage');
-})->name('about');
 
 require __DIR__.'/auth.php';

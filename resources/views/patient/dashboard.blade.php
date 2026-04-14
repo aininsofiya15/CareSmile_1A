@@ -9,7 +9,9 @@
             <div class="card-body">
                 <h5 class="card-title">My Appointments</h5>
                 <p class="card-text">View and manage your appointments</p>
-                <a href="#" class="btn btn-primary disabled">Book Appointment</a>
+                <a href="{{ route('appointments.create') }}" class="btn btn-primary">
+                    Book Appointment
+                </a>
             </div>
         </div>
     </div>
@@ -29,7 +31,20 @@
         <h5>Upcoming Appointments</h5>
     </div>
     <div class="card-body">
-        <p class="text-muted">No upcoming appointments</p>
+        {{-- <p class="text-muted">No upcoming appointments</p> --}}
+
+        @if($upcomingAppointments->isEmpty())
+            <p class="text-muted">No upcoming appointments</p>
+        @else
+            <ul>
+                @foreach($upcomingAppointments as $a)
+                    <li>
+                        {{ $a->appointment_date }} - {{ $a->service }}
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+
     </div>
 </div>
 @endsection
