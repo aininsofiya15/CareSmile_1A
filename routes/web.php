@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function () {
 
         // Schedule Management
         Route::resource('schedules', DoctorScheduleController::class);
+
+        // Dentist 
+        Route::get('/dentists', [AdminController::class, 'manageDentists'])->name('dentists');
     });
 
     // ==========================================

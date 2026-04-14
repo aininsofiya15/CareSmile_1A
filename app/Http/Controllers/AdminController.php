@@ -131,4 +131,13 @@ class AdminController extends Controller
         return redirect()->route('admin.patients')->with('success', 'Patient record deleted successfully.'); 
     }
 
+    public function manageDentists()
+{
+    // This fetches users who have the role of 'dentist'
+    // Adjust 'role' and 'dentist' based on your actual database column names
+    $dentists = \App\Models\User::where('role', 'dentist')->get();
+
+    return view('admin.dentists.index', compact('dentists'));
+}
+
 }
