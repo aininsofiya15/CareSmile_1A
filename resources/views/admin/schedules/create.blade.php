@@ -29,6 +29,7 @@
         border-radius: var(--radius-lg);
         background: #fff;
         box-shadow: var(--shadow-soft);
+        padding: 2.5rem; 
     }
 
     .form-label {
