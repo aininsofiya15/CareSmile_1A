@@ -160,10 +160,10 @@
 
             {{-- Services (Static/Disabled for now) --}}
             <li>
-                <span class="sidebar-link disabled">
-                    <i class="fas fa-tooth"></i>
-                    <span>Services</span>
-                </span>
+                 <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+        <i class="fas fa-tooth"></i>
+        <span>Services</span>
+    </a>
             </li>
 
             {{-- Records (Static/Disabled for now) --}}

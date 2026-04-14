@@ -7,6 +7,9 @@ use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\DashboardController;
+
 
 // --- Public Routes ---
 Route::get('/', function () {
@@ -32,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
+
+        // Add this line inside your admin routes group
+        Route::resource('services', App\Http\Controllers\Admin\ServiceController::class);
 
         // Patient Management
         Route::get('/patients', [AdminController::class, 'managePatients'])->name('patients'); // This is admin.patients
