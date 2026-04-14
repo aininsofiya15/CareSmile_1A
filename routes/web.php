@@ -55,6 +55,11 @@ Route::middleware('auth')->group(function () {
 
         // Dentist 
         Route::get('/dentists', [AdminController::class, 'manageDentists'])->name('dentists');
+        
+        Route::get('/dentists', [AdminController::class, 'manageDentists'])->name('dentists');
+        Route::get('/dentists/create', [AdminController::class, 'createDentist'])->name('dentists.create');
+        Route::post('/dentists/store', [AdminController::class, 'storeDentist'])->name('dentists.store');
+
     });
 
     // ==========================================
