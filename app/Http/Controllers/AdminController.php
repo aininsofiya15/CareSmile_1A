@@ -132,12 +132,34 @@ class AdminController extends Controller
     }
 
     public function manageDentists()
-{
-    // This fetches users who have the role of 'dentist'
-    // Adjust 'role' and 'dentist' based on your actual database column names
-    $dentists = \App\Models\User::where('role', 'dentist')->get();
+    {
+        $dentists = User::where('role', Role::Dentist)->get();
+        return view('admin.dentists.index', compact('dentists'));
+    }
 
-    return view('admin.dentists.index', compact('dentists'));
-}
+    // Show the 'Create' form
+    public function createDentist()
+    {
+        return view('admin.dentists.create');
+    }
 
+    // Save the new dentist to database
+    public function storeDentist(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => Role::Dentist,
+        ]);
+
+        return redirect()->route('admin.dentists')->with('success', 'Dentist account created!');
+
+    }
 }
