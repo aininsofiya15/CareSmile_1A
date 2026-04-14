@@ -25,18 +25,6 @@
         background: #f8f9fa;
     }
     
-    .service-card {
-        border: 1px solid rgba(31, 111, 255, 0.1);
-        border-radius: 16px;
-        transition: all 0.2s;
-        margin-bottom: 1rem;
-    }
-    
-    .service-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(31, 111, 255, 0.1);
-    }
-    
     .price-badge {
         font-size: 1.3rem;
         font-weight: 700;
@@ -78,6 +66,8 @@
         padding: 0.3rem 0.8rem;
         font-size: 0.8rem;
         transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
     }
     
     .btn-edit:hover {
@@ -93,15 +83,20 @@
         padding: 0.3rem 0.8rem;
         font-size: 0.8rem;
         transition: all 0.2s;
+        cursor: pointer;
     }
     
     .btn-delete:hover {
         background: #dc2626;
         color: white;
     }
+    
+    .content-wrapper {
+        min-height: calc(100vh - 200px);
+    }
 </style>
 
-<div class="container-fluid py-3">
+<div class="container-fluid py-3 content-wrapper">
     {{-- Header --}}
     <div class="services-header d-flex justify-content-between align-items-center">
         <div>
@@ -133,7 +128,7 @@
     {{-- Services Table --}}
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3">
-            <h5 class="fw-bold mb-0">All Services</h5>
+            <h5 class="fw-bold mb-0"><i class="fas fa-list me-2"></i>All Services</h5>
         </div>
         <div class="card-body p-0">
             @if($services->count() > 0)
@@ -169,11 +164,12 @@
                                     <a href="{{ route('admin.services.edit', $service) }}" class="btn-edit me-1">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    <form action="{{ route('admin.services.destroy', $service) }}" method="POST" class="d-inline" 
-                                          onsubmit="return confirm('Are you sure you want to delete {{ $service->name }}?');">
+                                    
+                                    {{-- WORKING DELETE FORM --}}
+                                    <form action="{{ route('admin.services.destroy', $service) }}" method="POST" style="display: inline-block;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-delete">
+                                        <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete {{ addslashes($service->name) }}?');">
                                             <i class="fas fa-trash-alt"></i> Delete
                                         </button>
                                     </form>
@@ -181,7 +177,7 @@
                             </tr>
                             @endforeach
                         </tbody>
-                    }$
+                    </table>
                 </div>
                 <div class="px-4 py-3">
                     {{ $services->links() }}

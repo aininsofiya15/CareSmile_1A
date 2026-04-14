@@ -11,15 +11,13 @@ class ServiceController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        //$this->middleware('admin');
-           $this->middleware(function ($request, $next) {
+        $this->middleware(function ($request, $next) {
             if (!auth()->user() || !auth()->user()->isAdmin()) {
                 abort(403, 'Unauthorized access. Admin only.');
             }
             return $next($request);
         });
     }
-    
 
     public function index()
     {
@@ -71,11 +69,9 @@ class ServiceController extends Controller
 
     public function destroy(Service $service)
     {
-        if ($service->appointments && $service->appointments()->count() > 0) {
-            return redirect()->route('admin.services.index')
-                ->with('error', 'Cannot delete this service because it has existing appointments.');
-        }
-
+        // REMOVE the appointment check since Appointment model doesn't exist yet
+        // Just delete the service directly
+        
         $service->delete();
 
         return redirect()->route('admin.services.index')
