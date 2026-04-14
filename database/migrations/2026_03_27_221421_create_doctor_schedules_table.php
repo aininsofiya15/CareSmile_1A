@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('doctor_schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dentist_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('doctor_id')->constrained('users')->onDelete('cascade');
             $table->date('working_date');
             $table->time('start_time');
             $table->time('end_time');
@@ -22,6 +22,9 @@ return new class extends Migration
             $table->integer('slot_duration')->default(30);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->text('notes')->nullable();
+
+
         });
     }
 

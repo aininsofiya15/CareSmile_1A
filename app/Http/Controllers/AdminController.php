@@ -149,17 +149,22 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'phone_number' => 'required|string|max:15',
+            'specialization' => 'required|string',
+            'gender' => 'required|in:Male,Female',
             'password' => 'required|min:8|confirmed',
         ]);
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'specialization' => $request->specialization,
+            'gender' => $request->gender,
             'password' => Hash::make($request->password),
             'role' => Role::Dentist,
         ]);
 
         return redirect()->route('admin.dentists')->with('success', 'Dentist account created!');
-
     }
 }
