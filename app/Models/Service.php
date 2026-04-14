@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
 {
-    use SoftDeletes;
-
+    protected $table = 'services';
+    
     protected $fillable = [
         'name', 'description', 'price', 'duration_minutes', 'is_active'
     ];
@@ -18,11 +17,13 @@ class Service extends Model
         'is_active' => 'boolean',
     ];
 
-    public function appointments()
-    {
-        return $this->hasMany(Appointment::class);
-    }
+    // REMOVE or COMMENT OUT this method since Appointment model doesn't exist yet
+    // public function appointments()
+    // {
+    //     return $this->hasMany(Appointment::class);
+    // }
 
+    // Scope for active services
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

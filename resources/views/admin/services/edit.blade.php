@@ -79,17 +79,9 @@
         </div>
         
         <div class="form-body">
-            @if($service->appointments && $service->appointments()->count() > 0)
-            <div class="warning-box">
-                <i class="fas fa-exclamation-triangle me-2" style="color: #f59e0b;"></i>
-                <strong>Note:</strong> This service has {{ $service->appointments()->count() }} appointment(s). 
-                Changing the name or price will affect existing appointment records.
-            </div>
-            @endif
-            
             <form action="{{ route('admin.services.update', $service) }}" method="POST">
                 @csrf
-                @method('PUT')
+                @method('PUT')  {{-- THIS IS IMPORTANT FOR UPDATE --}}
                 
                 <div class="row">
                     <div class="col-md-6 mb-4">
