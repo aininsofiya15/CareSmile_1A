@@ -16,6 +16,7 @@
             @include('components.sidebar')
         @endauth
 
+
         {{-- Main Content Area --}}
         <div class="flex-grow-1 @auth() @else w-100 @endauth">
             {{-- Navbar --}}
