@@ -58,11 +58,12 @@
 <div class="card-custom">
     <div class="card-body">
 
-        <form>
+        <form method="POST" action="{{ url('/appointments/'.$appointment->id.'/reschedule') }}">
+            @csrf
             <div class="mb-3">
                 <label class="form-label">New Date</label>
                 {{-- <input type="date" class="form-control"> --}}
-                <input type="date" name="date" class="form-control"
+                <input type="date" name="date" class="form-control" min="{{ date('Y-m-d') }}"
                     value="{{ $appointment->appointment_date }}">
             </div>
 
@@ -74,7 +75,7 @@
             </div>
 
             <button class="btn-primary-custom">
-                Submit Request
+                Submit
             </button>
         </form>
 

@@ -138,11 +138,19 @@
             {{-- Disabled --}}
 
             <li>
-                <a href="{{ route('appointments') }}"
-                class="sidebar-link {{ request()->routeIs('appointments') ? 'active' : '' }}">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Appointments</span>
-                </a>
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.appointments') }}"
+                    class="sidebar-link {{ request()->routeIs('admin.appointments') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                @else
+                    <a href="{{ route('appointments') }}"
+                    class="sidebar-link {{ request()->routeIs('appointments') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                @endif
             </li>
 
             <li>

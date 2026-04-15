@@ -21,9 +21,7 @@ return new class extends Migration {
 
             $table->string('service'); // scaling, extraction etc
 
-            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
-
-            $table->enum('reschedule_status', ['none', 'pending', 'approved', 'rejected'])->default('none');
+            $table->enum('status', ['scheduled', 'completed', 'cancelled', 'no_show'])->default('scheduled');
 
             $table->timestamps();
         });

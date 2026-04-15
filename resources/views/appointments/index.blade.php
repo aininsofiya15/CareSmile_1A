@@ -73,17 +73,22 @@
         opacity: 0.8;
     }
 
-    .status-pending {
-        color: orange;
+    .status-scheduled {
+        color: blue;
         font-weight: 500;
     }
 
-    .status-approved {
+    .status-completed {
         color: green;
     }
 
-    .status-cancelleds{
+    .status-cancelled {
         color: red;
+    }
+
+    .status-no_show {
+        color: orange;
+        font-weight: 500;
     }
 </style>
 
@@ -137,7 +142,7 @@
                     </td> --}}
 
                     <td>
-                        @if($a->status !== 'cancelled' && $a->status !== 'completed')
+                        @if($a->status !== 'cancelled' && $a->status !== 'completed' && $a->status !== 'no_show')
 
                             <a href="{{ route('appointments.reschedule', $a->id) }}" class="btn-action btn-edit">
                                 Reschedule

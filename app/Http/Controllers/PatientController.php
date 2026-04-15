@@ -11,6 +11,7 @@ class PatientController extends Controller
     {
         $upcomingAppointments = Appointment::where('patient_id', Auth::id())
             ->where('appointment_date', '>=', now()->toDateString())
+            ->where('status', 'scheduled')
             ->get();
 
         return view('patient.dashboard', compact('upcomingAppointments'));

@@ -16,7 +16,6 @@ class Appointment extends Model
         'appointment_time',
         'service',
         'status',
-        'reschedule_status',
     ];
 
     public function patient()

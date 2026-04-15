@@ -38,31 +38,34 @@ Route::middleware('auth')->group(function () {
         ->name('dentist.dashboard');
 
     Route::middleware(['auth', 'role:'.Role::Patient->value])->group(function () {
-        Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
-        Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+        Route::get('/appointments', [AppointmentController::class, 'index'])
+            ->name('appointments');
+
+        Route::get('/appointments/create', [AppointmentController::class, 'create'])
+            ->name('appointments.create');
+
         Route::post('/appointments/store', [AppointmentController::class, 'store']);
+
+        Route::get('/appointments/{id}/reschedule', [AppointmentController::class, 'showReschedule'])
+            ->name('appointments.reschedule');
+
+        Route::post('/appointments/{id}/reschedule', [AppointmentController::class, 'submitReschedule'])
+            ->name('appointments.reschedule.submit');
+
+        Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])
+            ->name('appointments.cancel');
     });
 
-    // Route::get('/appointments', [AppointmentController::class, 'index'])
-    //     ->name('appointments');
-    // Route::get('/appointments/create', [AppointmentController::class, 'create'])
-    //     ->name('appointments.create');
+    Route::middleware(['auth', 'role:'.Role::Admin->value])->group(function () {
+        Route::get('/admin/appointments', [AppointmentController::class, 'adminIndex'])
+            ->name('admin.appointments');
 
-    // Route::post('/appointments/store', [AppointmentController::class, 'store']);
+        Route::post('/appointments/{id}/complete', [AppointmentController::class, 'markCompleted'])
+            ->name('appointments.complete');
 
-    Route::get('/reschedule', function () {
-        return view('appointments/reschedule');
+        Route::post('/appointments/{id}/no-show', [AppointmentController::class, 'markNoShow'])
+            ->name('appointments.no_show');
     });
-
-    Route::get('/management', function () {
-        return view('appointments/admin');
-    });
-
-    Route::get('/appointments/{id}/reschedule', [AppointmentController::class, 'showReschedule'])->name('appointments.reschedule');
-
-    Route::post('/appointments/{id}/reschedule', [AppointmentController::class, 'submitReschedule'])->name('appointments.reschedule.submit');
-
-    Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
 });
 
 require __DIR__.'/auth.php';

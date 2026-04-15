@@ -61,12 +61,29 @@
 
             <div class="mb-3">
                 <label class="form-label">Date</label>
-                <input type="date" name="date" class="form-control" required>
+                <input type="date" name="date" class="form-control" min="{{ date('Y-m-d') }}" required>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Time</label>
-                <input type="time" name="time" class="form-control" required>
+
+                <select name="time" class="form-select" required>
+                    <option value="">Select Time</option>
+
+                    <option value="09:00">09:00 AM</option>
+                    <option value="09:30">09:30 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="11:30">11:30 AM</option>
+
+                    <option value="14:00">02:00 PM</option>
+                    <option value="14:30">02:30 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="15:30">03:30 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="16:30">04:30 PM</option>
+                </select>
             </div>
 
             <div class="mb-3">
