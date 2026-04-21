@@ -115,7 +115,7 @@
             <p class="mb-0 text-white" style="max-width: 600px; opacity: 0.9;">Manage your dental appointments, track your oral health records, and access your treatment history all in one place.</p>
         </div>
         <div>
-            <a href="#" class="btn-white shadow-sm"><i class="fas fa-plus me-2"></i>New Appointment</a>
+            <a href="{{ route('patient.appointments.create') }}" class="btn-white shadow-sm"><i class="fas fa-plus me-2"></i>New Appointment</a>
         </div>
     </div>
 
@@ -127,8 +127,17 @@
                     <i class="far fa-calendar-alt"></i>
                 </div>
                 <h6 class="fw-bold text-muted mb-2">Next Appointment</h6>
-                <h2 class="fw-black text-dark mb-2" style="font-weight: 800;">Not Scheduled</h2>
-                <p class="text-muted small mb-0">You have no upcoming visits.</p>
+                @if($nextAppointment)
+                    <h2 class="fw-black text-dark mb-2">
+                        {{ \Carbon\Carbon::parse($nextAppointment->appointment_date)->format('d M Y') }}
+                    </h2>
+                    <p class="text-muted small mb-0">
+                        {{ $nextAppointment->appointment_time }} - {{ $nextAppointment->service }}
+                    </p>
+                @else
+                    <h2 class="fw-black text-dark mb-2">Not Scheduled</h2>
+                    <p class="text-muted small mb-0">You have no upcoming visits.</p>
+                @endif
             </div>
         </div>
 
@@ -138,7 +147,9 @@
                     <i class="fas fa-tooth"></i>
                 </div>
                 <h6 class="fw-bold text-muted mb-2">Total Visits</h6>
-                <h1 class="fw-black text-dark mb-2" style="font-size: 3rem; font-weight: 800;">0</h1>
+                <h1 class="fw-black text-dark mb-2" style="font-size: 3rem; font-weight: 800;">
+                    {{ $totalVisits }}
+                </h1>
                 <p class="text-muted small mb-0">Past completed treatments.</p>
             </div>
         </div>
@@ -168,7 +179,7 @@
                 <h6 class="fw-bold fs-5">Book Visit</h6>
                 <p class="text-muted small mb-4">Schedule a new checkup or treatment.</p>
                 <div class="mt-auto d-grid">
-                    <a href="#" class="btn-blue-light">Book Now</a>
+                    <a href="{{ route('patient.appointments.create') }}" class="btn-blue-light">Book Now</a>
                 </div>
             </div>
         </div>

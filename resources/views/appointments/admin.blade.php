@@ -134,7 +134,7 @@
                         @if($a->status === 'scheduled')
 
                             {{-- Complete --}}
-                            <form action="{{ route('appointments.complete', $a->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('admin.appointments.complete', $a->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button class="btn-action btn-complete"
                                     onclick="return confirm('Mark this appointment as completed?')">
@@ -143,7 +143,7 @@
                             </form>
 
                             {{-- No-show --}}
-                            <form action="{{ route('appointments.no_show', $a->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('admin.appointments.no_show', $a->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button class="btn-action btn-delete"
                                     onclick="return confirm('Mark as no-show?')">

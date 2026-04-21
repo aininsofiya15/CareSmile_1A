@@ -159,8 +159,8 @@
                         <span>Appointments</span>
                     </a>
                 @else
-                    <a href="{{ route('appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('appointments') ? 'active' : '' }}">
+                    <a href="{{ route('patient.appointments') }}"
+                    class="sidebar-link {{ request()->routeIs('patient.appointments*') ? 'active' : '' }}">
                         <i class="fas fa-calendar-check"></i>
                         <span>Appointments</span>
                     </a>

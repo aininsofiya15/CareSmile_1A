@@ -13,12 +13,34 @@ class PatientController extends Controller
 {
     public function dashboard()
     {
-        $upcomingAppointments = Appointment::where('patient_id', Auth::id())
+        $userId = Auth::id();
+
+        // 1️⃣ Upcoming appointments (list)
+        $upcomingAppointments = Appointment::where('patient_id', $userId)
             ->where('appointment_date', '>=', now()->toDateString())
             ->where('status', 'scheduled')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
             ->get();
 
-        return view('patient.dashboard', compact('upcomingAppointments'));
+        // 2️⃣ Next appointment (single)
+        $nextAppointment = Appointment::where('patient_id', $userId)
+            ->where('appointment_date', '>=', now()->toDateString())
+            ->where('status', 'scheduled')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->first();
+
+        // 3️⃣ Total visits (completed only)
+        $totalVisits = Appointment::where('patient_id', $userId)
+            ->where('status', 'completed')
+            ->count();
+
+        return view('patient.dashboard', compact(
+            'upcomingAppointments',
+            'nextAppointment',
+            'totalVisits'
+        ));
     }
 
     public function profile()

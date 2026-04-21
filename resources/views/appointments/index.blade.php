@@ -100,7 +100,7 @@
     <div class="card-body p-0">
 
         <div style="margin-bottom: 15px;">
-            <a href="{{ route('appointments.create') }}" class="btn-action btn-edit">
+            <a href="{{ route('patient.appointments.create') }}" class="btn-action btn-edit">
                 + Book New Appointment
             </a>
         </div>
@@ -144,11 +144,11 @@
                     <td>
                         @if($a->status !== 'cancelled' && $a->status !== 'completed' && $a->status !== 'no_show')
 
-                            <a href="{{ route('appointments.reschedule', $a->id) }}" class="btn-action btn-edit">
+                            <a href="{{ route('patient.appointments.reschedule', $a->id) }}" class="btn-action btn-edit">
                                 Reschedule
                             </a>
 
-                            <form action="{{ route('appointments.cancel', $a->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('patient.appointments.cancel', $a->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button type="submit" class="btn-action btn-delete" onclick="return confirm('Are you sure you want to cancel this appointment?')">
                                     Cancel

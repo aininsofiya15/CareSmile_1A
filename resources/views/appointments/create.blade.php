@@ -47,6 +47,20 @@
         padding: 0.75rem 1.5rem;
         border: none;
     }
+
+    .btn-secondary-custom {
+        background-color: #6c757d;
+        color: white;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-secondary-custom:hover {
+        opacity: 0.9;
+    }
 </style>
 
 <div class="page-header">
@@ -56,7 +70,7 @@
 <div class="card-custom">
     <div class="card-body">
 
-        <form action="/appointments/store" method="POST">
+        <form action="{{ route('patient.appointments.store') }}" method="POST">
             @csrf
 
             <div class="mb-3">
@@ -95,9 +109,18 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn-primary-custom">
+            {{-- <button type="submit" class="btn-primary-custom">
                 Book Appointment
-            </button>
+            </button> --}}
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn-primary-custom">
+                    Book Appointment
+                </button>
+
+                <a href="{{ route('patient.appointments') }}" class="btn-secondary-custom">
+                    Cancel
+                </a>
+            </div>
         </form>
 
     </div>

@@ -29,7 +29,7 @@ class AppointmentController extends Controller
             'service' => $request->service,
         ]);
 
-        return redirect()->route('appointments')->with('success', 'Appointment booked!');
+        return redirect()->route('patient.appointments')->with('success', 'Appointment booked!');
     }
 
     public function showReschedule($id)
@@ -48,7 +48,7 @@ class AppointmentController extends Controller
 
         $appointment->save();
 
-        return redirect()->route('appointments')->with('success', 'Appointment updated!');
+        return redirect()->route('patient.appointments')->with('success', 'Appointment updated!');
     }
 
     public function cancel($id)
@@ -58,7 +58,7 @@ class AppointmentController extends Controller
         $appointment->status = 'cancelled';
         $appointment->save();
 
-        return redirect()->route('appointments')->with('success', 'Appointment cancelled!');
+        return redirect()->route('patient.appointments')->with('success', 'Appointment cancelled!');
     }
 
     // ADMIN
