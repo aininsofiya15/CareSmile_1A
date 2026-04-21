@@ -1,7 +1,7 @@
 @if($errors->any())
     <div class="container mt-3">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Please fix the following errors:</strong>
+            <strong>Errors:</strong>
             <ul class="mb-0 mt-2">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
