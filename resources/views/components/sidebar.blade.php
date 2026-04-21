@@ -20,7 +20,7 @@
 
     .sidebar-menu {
         list-style: none;
-        padding: 2rem 1rem 1.5rem 1rem; 
+        padding: 2rem 1rem 1.5rem 1rem;
         margin: 0;
     }
 
@@ -98,7 +98,7 @@
                 <img src="{{ asset('CareSmile.png') }}" alt="CareSmile Logo" style="height: 60px;">
             </a>
         </div>
-        
+
         {{-- Navigation --}}
         <ul class="sidebar-menu flex-grow-1">
 
@@ -109,7 +109,7 @@
                     if(Auth::user()->isAdmin()) $dashboardRoute = 'admin.dashboard';
                     elseif(Auth::user()->isDentist()) $dashboardRoute = 'dentist.dashboard';
                 @endphp
-                
+
                 <a href="{{ route($dashboardRoute) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i>
                     <span>Dashboard</span>
@@ -152,18 +152,27 @@
 
             {{-- Appointments (Static/Disabled for now) --}}
             <li>
-                <span class="sidebar-link disabled">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Appointments</span>
-                </span>
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.appointments') }}"
+                    class="sidebar-link {{ request()->routeIs('admin.appointments') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                @else
+                    <a href="{{ route('patient.appointments') }}"
+                    class="sidebar-link {{ request()->routeIs('patient.appointments*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                @endif
             </li>
 
             {{-- Services (Static/Disabled for now) --}}
             <li>
-                 <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
-        <i class="fas fa-tooth"></i>
-        <span>Services</span>
-    </a>
+                <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+                    <i class="fas fa-tooth"></i>
+                    <span>Services</span>
+                </a>
             </li>
 
             {{-- Records (Static/Disabled for now) --}}
