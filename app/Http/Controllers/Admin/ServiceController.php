@@ -5,17 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Enums\Role;
+use Illuminate\Support\Facades\Auth; 
 
 class ServiceController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+
         $this->middleware(function ($request, $next) {
-            if (!auth()->user() || !auth()->user()->isAdmin()) {
-                abort(403, 'Unauthorized access. Admin only.');
-            }
-            return $next($request);
+        /** @var \App\Models\User $user */
+            $user = Auth::user(); 
+                if (!$user || !$user->isAdmin()) {
+                    abort(403, 'Unauthorized access. Admin only.');
+                }
+                return $next($request);
         });
     }
 

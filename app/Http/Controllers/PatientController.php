@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
-// THESE ARE THE "MISSING LINKS" - MAKE SURE ALL 4 ARE HERE!
 use App\Models\Appointment;
 use App\Models\PatientProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class PatientController extends Controller
 {
@@ -74,7 +72,6 @@ class PatientController extends Controller
             'emergency_contact_phone' => 'nullable|string',
         ]);
 
-        // This is the magic line that saves the data
         $user->patientProfile()->updateOrCreate(
             ['user_id' => $user->id],
             $validated
