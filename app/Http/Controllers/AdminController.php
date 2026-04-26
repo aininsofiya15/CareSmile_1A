@@ -8,12 +8,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
-        return view('admin.dashboard');
+        // 1. Count Total Patients
+        $totalPatients = User::where('role', Role::Patient)->count();
+
+        // 2. Count Total Dentists
+        $totalDentists = User::where('role', Role::Dentist)->count();
+
+        // 3. Count Today's Appointments
+        $todayAppointments = 0;
+
+        return view('admin.dashboard', compact('totalPatients', 'totalDentists', 'todayAppointments'));
     }
 
     public function profile()

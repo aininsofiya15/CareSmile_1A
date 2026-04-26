@@ -22,8 +22,6 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -35,18 +33,21 @@ class LoginRequest extends FormRequest
 
     /**
      * Attempt to authenticate the request's credentials.
-     *
-     * @throws ValidationException
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
+        $maxAttempts = 5;
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // Calculate how many tries are left
+            $remaining = RateLimiter::remaining($this->throttleKey(), $maxAttempts);
+
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => "These credentials do not match our records. You have $remaining attempts remaining.",
             ]);
         }
 
@@ -55,12 +56,9 @@ class LoginRequest extends FormRequest
 
     /**
      * Ensure the login request is not rate limited.
-     *
-     * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
-        // The '5' here is the number of attempts before lockout
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
@@ -70,8 +68,8 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            // This is the message that will show in your Blade file
-            'email' => trans('auth.throttle', [
+            // This is the "Throttle" error. It triggers the 'throttle' key check in your Blade.
+            'throttle' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),

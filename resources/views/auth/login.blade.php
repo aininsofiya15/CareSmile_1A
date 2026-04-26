@@ -149,16 +149,19 @@
             @if ($errors->any())
                 <div class="error-alert">
                     @if ($errors->has('throttle'))
-                        {{-- Icon for too many attempts (Lockout) --}}
-                        <i class="fas fa-user-clock" style="color: #ef4444; font-size: 1.2rem;"></i>
+                        {{-- Locked out icon --}}
+                        <i class="fas fa-user-shield" style="color: #ef4444; font-size: 1.2rem;"></i>
                     @else
-                        {{-- Icon for standard login error --}}
-                        <i class="fas fa-exclamation-circle" style="color: #ef4444; font-size: 1.2rem;"></i>
+                        {{-- Standard warning icon --}}
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1.2rem;"></i>
                     @endif
                     
-                    <p class="error-message">
-                        {{ $errors->first() }}
-                    </p>
+                    <div>
+                        <p class="error-message">
+                            {{ $errors->first() }}
+                        </p>
+                        
+                    </div>
                 </div>
             @endif
 

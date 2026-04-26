@@ -284,7 +284,7 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <p class="stat-label mb-2">Total Patients</p>
-                    <h2 class="stat-value mb-2">0</h2>
+                        <h2 class="stat-value mb-2">{{ $totalPatients }}</h2>
                     <p class="stat-note mb-0">Registered patients in the system</p>
                 </div>
             </div>
@@ -297,7 +297,7 @@
                         <i class="fas fa-user-doctor"></i>
                     </div>
                     <p class="stat-label mb-2">Total Dentists</p>
-                    <h2 class="stat-value mb-2">0</h2>
+                        <h2 class="stat-value mb-2">{{ $totalDentists }}</h2>
                     <p class="stat-note mb-0">Active dentists available for appointments</p>
                 </div>
             </div>
@@ -338,14 +338,13 @@
                 </div>
 
                 <div class="col-md-6 col-lg-3">
-                    <div class="quick-action-box quick-action-disabled">
+                    <a href="{{ route('admin.dentists') }}" class="quick-action-box">
                         <div class="quick-action-icon mb-3">
                             <i class="fas fa-stethoscope"></i>
                         </div>
                         <h6 class="quick-action-title mb-2">Manage Dentists</h6>
                         <p class="quick-action-text mb-0">Add and manage dentist profiles in the next module.</p>
-                        <span class="mini-badge">Coming Soon</span>
-                    </div>
+                        </a>
                 </div>
 
                 <div class="col-md-6 col-lg-3">

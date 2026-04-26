@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-// THESE ARE THE "MISSING LINKS" - MAKE SURE ALL 4 ARE HERE!
 use App\Enums\Role;
 use App\Models\PatientProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class PatientController extends Controller
 {
@@ -50,5 +51,21 @@ class PatientController extends Controller
         );
 
         return redirect()->back()->with('success', 'Profile updated successfully!');
+    }
+
+    // app/Http/Controllers/PatientController.php
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password changed successfully!');
     }
 }

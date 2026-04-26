@@ -35,30 +35,21 @@
         color: white;
     }
 
-    .btn-patient-outline {
-        background-color: transparent;
-        color: #4361ee;
-        border: 1px solid #4361ee;
-        border-radius: 8px;
-        padding: 0.6rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-
-    .btn-patient-outline:hover {
-        background-color: #f8fafc;
-    }
-
-    /* Form Styling */
-    .form-control, .form-select {
+    .form-control {
         border-radius: 8px;
         padding: 0.6rem 1rem;
         border: 1px solid #d1d5db;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus {
         border-color: #4361ee;
         box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+
+    /* Fix for Eye Icon Button alignment */
+    .input-group .btn {
+        border-color: #d1d5db;
+        z-index: 0;
     }
 
     .profile-page-avatar {
@@ -78,53 +69,84 @@
 
 <div class="container-fluid py-3">
     
-    <h2 class="fw-bold mb-4" style="color: #111827;">My Profile</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0" style="color: #111827;">My Profile</h2>
+        @if(session('success'))
+            <div class="alert alert-success py-2 px-3 mb-0 rounded-pill" style="font-size: 0.9rem;">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            </div>
+        @endif
+    </div>
 
     <div class="row g-4">
-        {{-- LEFT COLUMN: Identity & Settings --}}
+        {{-- LEFT COLUMN: Identity & Security --}}
         <div class="col-lg-4">
             
             {{-- Identity Card --}}
             <div class="card patient-card text-center p-4">
-                {{-- Dynamically pulls the first letter of their name --}}
                 <div class="profile-page-avatar">
                     {{ substr($user->name, 0, 1) }}
                 </div>
-                {{-- Dynamically pulls their actual name --}}
                 <h4 class="fw-bold mb-1">{{ $user->name }}</h4>
                 <p class="text-muted mb-3">Patient ID: #CS-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</p>
-                <span class="badge bg-success rounded-pill px-3 py-2 mb-3" style="font-weight: 500;">Active Account</span>
+                <span class="badge bg-success rounded-pill px-3 py-2 mb-3" style="font-weight: 500; width: fit-content; margin: 0 auto;">Active Account</span>
             </div>
 
-            {{-- Account Security (UI Mockup for now) --}}
+            {{-- Account Security Card --}}
             <div class="card patient-card">
                 <div class="card-header card-header-light">
-                    <i class="fas fa-lock me-2 text-muted"></i> Security
+                    <i class="fas fa-lock me-2 text-muted"></i> Password
                 </div>
                 <div class="card-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">Current Password</label>
-                        <input type="password" class="form-control" placeholder="••••••••">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">New Password</label>
-                        <input type="password" class="form-control" placeholder="••••••••">
-                    </div>
-                    <button class="btn btn-patient-primary w-100 mt-2">Change Password</button>
+                    <form action="{{ route('patient.password.update') }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Current Password</label>
+                            <div class="input-group">
+                                <input type="password" name="current_password" id="current_password" class="form-control @error('current_password') is-invalid @enderror" placeholder="••••••••" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">New Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="••••••••" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Confirm New Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirmation">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-patient-primary w-100 mt-2">Change Password</button>
+                    </form>
                 </div>
             </div>
-
-        </div>
+        </div> {{-- FIXED: Added closing div for col-lg-4 --}}
 
         {{-- RIGHT COLUMN: THE DATA FORM --}}
         <div class="col-lg-8">
-            
-            {{-- We wrap BOTH cards in one form so they save together --}}
             <form action="{{ route('patient.profile.update') }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                {{-- Personal Information Form --}}
+                {{-- Personal Information Card --}}
                 <div class="card patient-card mb-4">
                     <div class="card-header card-header-light">
                         <i class="far fa-id-card me-2 text-muted"></i> Personal Information
@@ -155,7 +177,7 @@
                     </div>
                 </div>
 
-                {{-- Medical Context Form --}}
+                {{-- Medical Context Card --}}
                 <div class="card patient-card">
                     <div class="card-header card-header-light">
                         <i class="fas fa-file-medical me-2 text-muted"></i> Medical Context
@@ -180,7 +202,6 @@
                             </div>
                         </div>
                         
-                        {{-- ONE Save Button for the whole form --}}
                         <div class="d-flex justify-content-end mt-4">
                             <button type="submit" class="btn btn-patient-primary">
                                 <i class="fas fa-save me-2"></i> Save All Information
@@ -189,8 +210,27 @@
                     </div>
                 </div>
             </form>
-
-        </div>
-    </div>
+        </div> {{-- FIXED: Closing div for col-lg-8 --}}
+    </div> {{-- FIXED: Closing div for row --}}
 </div>
+
+<script>
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+</script>
 @endsection

@@ -109,7 +109,7 @@
         {{-- FORM SIDE --}}
         <div class="login-form-side">
             <h1 class="login-title">Patient Sign Up</h1>
-            <p class="login-subtitle">Create your CareSmile medical account</p>
+            <p class="login-subtitle">Create your CareSmile account</p>
 
             <form method="POST" action="{{ route('register') }}">
                 @csrf

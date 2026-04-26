@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/patients/{patient}/edit', [AdminController::class, 'edit'])->name('patients.edit');
         Route::put('/patients/{patient}', [AdminController::class, 'update'])->name('patients.update');
         Route::delete('/patients/{patient}', [AdminController::class, 'destroy'])->name('patients.destroy');
-
+        
         // Schedule Management
         Route::resource('schedules', DoctorScheduleController::class);
 
@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [PatientController::class, 'profile'])->name('profile');
         Route::put('/profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password/update', [PatientController::class, 'updatePassword'])->name('password.update');
     });
 
     // ==========================================
