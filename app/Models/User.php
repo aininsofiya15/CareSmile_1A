@@ -13,7 +13,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     protected $fillable = [
         'name',
@@ -69,5 +70,10 @@ class User extends Authenticatable
     public function patientProfile(): HasOne
     {
         return $this->hasOne(PatientProfile::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'patient_id');
     }
 }

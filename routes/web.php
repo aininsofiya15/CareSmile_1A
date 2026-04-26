@@ -1,15 +1,14 @@
 <?php
 
 use App\Enums\Role;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DentistController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\ServiceController;
-use App\Http\Controllers\Admin\DashboardController;
-
 
 // --- Public Routes ---
 Route::get('/', function () {
@@ -22,7 +21,6 @@ Route::get('/about', function () {
 
 // --- Authenticated Routes ---
 Route::middleware('auth')->group(function () {
-    
     // Shared Profile (Breeze Defaults)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -37,10 +35,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
 
         // Add this line inside your admin routes group
-        Route::resource('services', App\Http\Controllers\Admin\ServiceController::class);
+        Route::resource('services', ServiceController::class);
 
         // Patient Management
-        Route::get('/patients', [AdminController::class, 'managePatients'])->name('patients'); // This is admin.patients
+        Route::get('/patients', [AdminController::class, 'managePatients'])->name('patients');
         Route::get('/patients/create', [AdminController::class, 'createPatient'])->name('patients.create');
         Route::post('/patients/store', [AdminController::class, 'storePatient'])->name('patients.store');
 
@@ -53,13 +51,15 @@ Route::middleware('auth')->group(function () {
         // Schedule Management
         Route::resource('schedules', DoctorScheduleController::class);
 
-        // Dentist 
-        Route::get('/dentists', [AdminController::class, 'manageDentists'])->name('dentists');
-        
+        // Dentist
         Route::get('/dentists', [AdminController::class, 'manageDentists'])->name('dentists');
         Route::get('/dentists/create', [AdminController::class, 'createDentist'])->name('dentists.create');
         Route::post('/dentists/store', [AdminController::class, 'storeDentist'])->name('dentists.store');
 
+        // Appointment Management (Admin)
+        Route::get('/appointments', [AppointmentController::class, 'adminIndex'])->name('appointments');
+        Route::post('/appointments/{id}/complete', [AppointmentController::class, 'markCompleted'])->name('appointments.complete');
+        Route::post('/appointments/{id}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no_show');
     });
 
     // ==========================================
@@ -71,12 +71,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [PatientController::class, 'profile'])->name('profile');
         Route::put('/profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
         Route::put('/password/update', [PatientController::class, 'updatePassword'])->name('password.update');
+
+        // Appointments
+        Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
+        Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+        Route::post('/appointments/store', [AppointmentController::class, 'store'])->name('appointments.store');
+        Route::get('/appointments/{id}/reschedule', [AppointmentController::class, 'showReschedule'])->name('appointments.reschedule');
+        Route::post('/appointments/{id}/reschedule', [AppointmentController::class, 'submitReschedule'])->name('appointments.reschedule.submit');
+        Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
     });
 
     // ==========================================
     // DENTIST ROUTES (Role: dentist)
     // ==========================================
-    
+
     Route::middleware('role:dentist')->prefix('dentist')->name('dentist.')->group(function () {
         Route::get('/dashboard', [DentistController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [DentistController::class, 'profile'])->name('profile');

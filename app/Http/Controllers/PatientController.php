@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
+// THESE ARE THE "MISSING LINKS" - MAKE SURE ALL 4 ARE HERE!
+use App\Models\Appointment;
 use App\Models\PatientProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +15,34 @@ class PatientController extends Controller
 {
     public function dashboard()
     {
-        return view('patient.dashboard');
+        $userId = Auth::id();
+
+        // 1️⃣ Upcoming appointments (list)
+        $upcomingAppointments = Appointment::where('patient_id', $userId)
+            ->where('appointment_date', '>=', now()->toDateString())
+            ->where('status', 'scheduled')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->get();
+
+        // 2️⃣ Next appointment (single)
+        $nextAppointment = Appointment::where('patient_id', $userId)
+            ->where('appointment_date', '>=', now()->toDateString())
+            ->where('status', 'scheduled')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->first();
+
+        // 3️⃣ Total visits (completed only)
+        $totalVisits = Appointment::where('patient_id', $userId)
+            ->where('status', 'completed')
+            ->count();
+
+        return view('patient.dashboard', compact(
+            'upcomingAppointments',
+            'nextAppointment',
+            'totalVisits'
+        ));
     }
 
     public function profile()
@@ -23,6 +52,7 @@ class PatientController extends Controller
         // SQA Tip: We use the value of the Enum to match the database string
         if ($user->role->value === Role::Patient->value) {
             $profile = $user->patientProfile ?? new PatientProfile();
+
             return view('patient.patientprofile', compact('user', 'profile'));
         }
 
