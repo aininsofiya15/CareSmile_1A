@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-    /* Reusing the CareSmile Patient Theme */
+    /* CareSmile Patient Theme */
     .patient-card {
         border: 1px solid #e5e7eb;
         border-radius: 16px;
@@ -27,29 +27,24 @@
         border-radius: 8px;
         padding: 0.6rem 1.5rem;
         font-weight: 600;
-        transition: background-color 0.2s;
+        transition: all 0.2s;
     }
 
     .btn-patient-primary:hover {
         background-color: #3a56d4;
-        color: white;
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
     }
 
     .form-control {
         border-radius: 8px;
         padding: 0.6rem 1rem;
         border: 1px solid #d1d5db;
+        background-color: #ffffff;
     }
 
     .form-control:focus {
         border-color: #4361ee;
-        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-    }
-
-    /* Fix for Eye Icon Button alignment */
-    .input-group .btn {
-        border-color: #d1d5db;
-        z-index: 0;
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.1);
     }
 
     .profile-page-avatar {
@@ -63,90 +58,66 @@
         justify-content: center;
         font-size: 2.5rem;
         margin: 0 auto 1rem auto;
-        text-transform: uppercase;
     }
 </style>
 
 <div class="container-fluid py-3">
     
+    {{-- Header Section --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0" style="color: #111827;">My Profile</h2>
-        @if(session('success'))
-            <div class="alert alert-success py-2 px-3 mb-0 rounded-pill" style="font-size: 0.9rem;">
-                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-            </div>
-        @endif
+        <div>
+            <h2 class="fw-bold mb-0" style="color: #111827;">My Profile</h2>
+            <p class="text-muted small mb-0">Manage your personal and medical information</p>
+        </div>
+        
     </div>
 
     <div class="row g-4">
-        {{-- LEFT COLUMN: Identity & Security --}}
+        {{-- LEFT COLUMN: Identity & Password --}}
         <div class="col-lg-4">
-            
-            {{-- Identity Card --}}
             <div class="card patient-card text-center p-4">
                 <div class="profile-page-avatar">
-                    {{ substr($user->name, 0, 1) }}
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
                 <h4 class="fw-bold mb-1">{{ $user->name }}</h4>
                 <p class="text-muted mb-3">Patient ID: #CS-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</p>
-                <span class="badge bg-success rounded-pill px-3 py-2 mb-3" style="font-weight: 500; width: fit-content; margin: 0 auto;">Active Account</span>
+                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-0" style="width: fit-content; margin: 0 auto;">Active Account</span>
             </div>
 
-            {{-- Account Security Card --}}
             <div class="card patient-card">
                 <div class="card-header card-header-light">
-                    <i class="fas fa-lock me-2 text-muted"></i> Password
+                    <i class="fas fa-lock me-2 text-muted"></i> Security Settings
                 </div>
                 <div class="card-body p-4">
                     <form action="{{ route('patient.password.update') }}" method="POST">
                         @csrf
                         @method('PUT')
-
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Current Password</label>
-                            <div class="input-group">
-                                <input type="password" name="current_password" id="current_password" class="form-control @error('current_password') is-invalid @enderror" placeholder="••••••••" required>
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
+                            <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
+                            @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">New Password</label>
-                            <div class="input-group">
-                                <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="••••••••" required>
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
+                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Confirm New Password</label>
-                            <div class="input-group">
-                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••" required>
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirmation">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
+                            <input type="password" name="password_confirmation" class="form-control" required>
                         </div>
-
-                        <button type="submit" class="btn btn-patient-primary w-100 mt-2">Change Password</button>
+                        <button type="submit" class="btn btn-patient-primary w-100">Update Password</button>
                     </form>
                 </div>
             </div>
-        </div> {{-- FIXED: Added closing div for col-lg-4 --}}
+        </div>
 
-        {{-- RIGHT COLUMN: THE DATA FORM --}}
+        {{-- RIGHT COLUMN: Data Entry --}}
         <div class="col-lg-8">
             <form action="{{ route('patient.profile.update') }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                {{-- Personal Information Card --}}
+                {{-- Section 1: Personal --}}
                 <div class="card patient-card mb-4">
                     <div class="card-header card-header-light">
                         <i class="far fa-id-card me-2 text-muted"></i> Personal Information
@@ -163,21 +134,28 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">Phone Number</label>
-                                <input type="text" name="phone_number" class="form-control" value="{{ old('phone_number', $profile->phone_number) }}">
+                                {{-- PATTERN TACTIC: Enforce dash --}}
+                                <input type="text" name="phone_number" 
+                                       class="form-control @error('phone_number') is-invalid @enderror" 
+                                       value="{{ old('phone_number', $profile->phone_number ?? '') }}"
+                                       placeholder="e.g. 012-3456789"
+                                       pattern="01[0-9]-[0-9]{7,8}"
+                                       title="Format: 01X-XXXXXXX" required>
+                                @error('phone_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">Date of Birth</label>
-                                <input type="date" name="dob" class="form-control" value="{{ old('dob', $profile->dob) }}">
+                                <input type="date" name="dob" class="form-control" value="{{ old('dob', $profile->dob ?? '') }}" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-muted small fw-bold">Home Address</label>
-                                <textarea name="address" class="form-control" rows="2">{{ old('address', $profile->address) }}</textarea>
+                                <textarea name="address" class="form-control" rows="2" required placeholder="Full home address...">{{ old('address', $profile->address ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Medical Context Card --}}
+                {{-- Section 2: Medical Context (Scenario 3) --}}
                 <div class="card patient-card">
                     <div class="card-header card-header-light">
                         <i class="fas fa-file-medical me-2 text-muted"></i> Medical Context
@@ -186,51 +164,43 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label text-muted small fw-bold">Known Drug Allergies</label>
-                                <input type="text" name="allergies" class="form-control" value="{{ old('allergies', $profile->allergies) }}" placeholder="e.g., Penicillin, Latex">
+                                {{-- MAXLENGTH TACTIC: Enforce 100 char limit --}}
+                                <input type="text" name="allergies" 
+                                       class="form-control @error('allergies') is-invalid @enderror" 
+                                       maxlength="100"
+                                       value="{{ old('allergies', $profile->allergies ?? '') }}" 
+                                       placeholder="e.g. Penicillin, Latex (Max 100 characters)">
+                                <small class="text-muted">Requirement: Max 100 characters.</small>
+                                @error('allergies') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-muted small fw-bold">Current Medications</label>
-                                <textarea name="medications" class="form-control" rows="2" placeholder="List any daily medications">{{ old('medications', $profile->medications) }}</textarea>
+                                <textarea name="medications" class="form-control" rows="2" placeholder="e.g. Metformin 500mg daily">{{ old('medications', $profile->medications ?? '') }}</textarea>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">Emergency Contact Name</label>
-                                <input type="text" name="emergency_contact_name" class="form-control" value="{{ old('emergency_contact_name', $profile->emergency_contact_name) }}">
+                                <input type="text" name="emergency_contact_name" class="form-control" value="{{ old('emergency_contact_name', $profile->emergency_contact_name ?? '') }}" placeholder="Name of next of kin">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">Emergency Contact Phone</label>
-                                <input type="text" name="emergency_contact_phone" class="form-control" value="{{ old('emergency_contact_phone', $profile->emergency_contact_phone) }}">
+                                <input type="text" name="emergency_contact_phone" 
+                                       class="form-control" 
+                                       placeholder="e.g. 01X-XXXXXXX"
+                                       pattern="01[0-9]-[0-9]{7,8}"
+                                       value="{{ old('emergency_contact_phone', $profile->emergency_contact_phone ?? '') }}">
                             </div>
                         </div>
                         
                         <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn-patient-primary">
+                            {{-- STIMULUS: User clicks "Save All Information" --}}
+                            <button type="submit" class="btn btn-patient-primary px-5 py-2 shadow-sm">
                                 <i class="fas fa-save me-2"></i> Save All Information
                             </button>
                         </div>
                     </div>
                 </div>
             </form>
-        </div> {{-- FIXED: Closing div for col-lg-8 --}}
-    </div> {{-- FIXED: Closing div for row --}}
+        </div>
+    </div>
 </div>
-
-<script>
-    document.querySelectorAll('.toggle-password').forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const input = document.getElementById(targetId);
-            const icon = this.querySelector('i');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
-</script>
 @endsection

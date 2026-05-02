@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/dentists', [AdminController::class, 'manageDentists'])->name('dentists');
         Route::get('/dentists/create', [AdminController::class, 'createDentist'])->name('dentists.create');
         Route::post('/dentists/store', [AdminController::class, 'storeDentist'])->name('dentists.store');
+        Route::get('/dentists/{dentist}/edit', [AdminController::class, 'editDentist'])->name('dentists.edit');
+        Route::put('/dentists/{dentist}', [AdminController::class, 'updateDentist'])->name('dentists.update');
+        Route::delete('/dentists/{dentist}', [AdminController::class, 'destroyDentist'])->name('dentists.destroy');
 
         // Appointment Management (Admin)
         Route::get('/appointments', [AppointmentController::class, 'adminIndex'])->name('appointments');

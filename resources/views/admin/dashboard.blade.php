@@ -359,14 +359,8 @@
                 </div>
 
                 <div class="col-md-6 col-lg-3">
-                    <div class="quick-action-box quick-action-disabled">
-                        <div class="quick-action-icon mb-3">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h6 class="quick-action-title mb-2">View Reports</h6>
-                        <p class="quick-action-text mb-0">Track clinic performance and activity insights soon.</p>
-                        <span class="mini-badge">Coming Soon</span>
-                    </div>
+                    
+                
                 </div>
             </div>
         </div>

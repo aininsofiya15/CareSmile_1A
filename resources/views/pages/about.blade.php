@@ -35,7 +35,6 @@
                     <div class="card-body">
                         <h3 class="card-title">Contact Information</h3>
                         <p class="card-text">
-                            <strong>Address:</strong> 123 Dental Street, Healthcare City<br>
                             <strong>Phone:</strong> (123) 456-7890<br>
                             <strong>Email:</strong> info@caresmile.com<br>
                             <strong>Hours:</strong> Monday - Friday: 8:00 AM - 6:00 PM

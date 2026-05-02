@@ -39,10 +39,6 @@
                 <h6 class="fw-bold mb-3">Contact Us</h6>
                 <ul class="list-unstyled text-muted small footer-contact">
                     <li class="mb-2">
-                        <i class="bi bi-geo-alt me-2"></i>
-                        123 Dental Street, Healthcare City
-                    </li>
-                    <li class="mb-2">
                         <i class="bi bi-telephone me-2"></i>
                         (123) 456-7890
                     </li>

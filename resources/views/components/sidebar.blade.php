@@ -175,21 +175,7 @@
                 </a>
             </li>
 
-            {{-- Records (Static/Disabled for now) --}}
-            <li>
-                <span class="sidebar-link disabled">
-                    <i class="fas fa-file-medical"></i>
-                    <span>Records</span>
-                </span>
-            </li>
 
-            {{-- Reports (Static/Disabled for now) --}}
-            <li>
-                <span class="sidebar-link disabled">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Reports</span>
-                </span>
-            </li>
         </ul>
 
         <div class="sidebar-footer">

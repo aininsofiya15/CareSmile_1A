@@ -32,11 +32,26 @@ class AdminController extends Controller
         return view('admin.profile', compact('user'));
     }
 
-    public function managePatients()
+    public function managePatients(Request $request)
     {
-        // Fetching only patients, ordered by newest first
-        $patients = User::where('role', Role::Patient)->latest()->get();
-        return view('admin.patient.listpatient', compact('patients'));
+        // 1. Get the search query from the request
+        $search = $request->input('search');
+
+        // 2. Start the query for patients
+        $query = User::where('role', Role::Patient);
+
+        // 3. If there is a search term, apply the filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // 4. Fetch the results
+        $patients = $query->latest()->get();
+
+        return view('admin.patient.listpatient', compact('patients', 'search'));
     }
 
     public function createPatient()
@@ -141,10 +156,25 @@ class AdminController extends Controller
         return redirect()->route('admin.patients')->with('success', 'Patient record deleted successfully.'); 
     }
 
-    public function manageDentists()
+    public function manageDentists(Request $request)
     {
-        $dentists = User::where('role', Role::Dentist)->get();
-        return view('admin.dentists.index', compact('dentists'));
+        $search = $request->input('search');
+
+        // Start query for users with the Dentist role
+        $query = User::where('role', Role::Dentist);
+
+        // Apply search filter if a search term is provided
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%")
+                ->orWhere('specialization', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $dentists = $query->get();
+
+        return view('admin.dentists.index', compact('dentists', 'search'));
     }
 
     // Show the 'Create' form
@@ -177,4 +207,37 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dentists')->with('success', 'Dentist account created!');
     }
-}
+    
+    public function editDentist(User $dentist)
+        {
+            if ($dentist->role !== Role::Dentist) abort(403);
+            return view('admin.dentists.editprofile', compact('dentist'));
+        }
+
+        public function updateDentist(Request $request, User $dentist)
+        {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $dentist->id,
+                'phone_number' => 'required|string|max:20',
+                'specialization' => 'required|string',
+            ]);
+
+            $dentist->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'specialization' => $request->specialization,
+            ]);
+
+            return redirect()->route('admin.dentists')->with('success', 'Staff profile updated successfully!');
+        }
+
+        // This is for the delete button you added earlier
+        public function destroyDentist(User $dentist)
+        {
+            if ($dentist->role !== Role::Dentist) abort(403);
+            $dentist->delete();
+            return redirect()->route('admin.dentists')->with('success', 'Staff account removed.');
+        }
+} // <--- This is th

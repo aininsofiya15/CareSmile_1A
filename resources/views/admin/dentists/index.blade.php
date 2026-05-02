@@ -34,7 +34,7 @@
     /* 4. Square Card Styling */
     .dentist-card {
         background: #f8fafc;
-        width: 260px; /* Perfect square-ish width */
+        width: 260px; 
         border-radius: 24px;
         padding: 24px;
         transition: all 0.3s ease;
@@ -79,14 +79,23 @@
     /* 6. Action Buttons */
     .btn-action-group {
         display: flex;
-        gap: 8px;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
         width: 100%;
         margin-top: auto;
         padding-top: 15px;
         border-top: 1px dashed #e2e8f0;
     }
 
+    .btn-action-group form {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
     .btn-edit-staff {
+        flex: 1;
         background: #ffffff;
         color: #1e293b;
         border: 1px solid #e2e8f0;
@@ -94,9 +103,14 @@
         font-size: 0.8rem;
         padding: 10px;
         border-radius: 12px;
-        flex-grow: 1;
         text-align: center;
         text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-edit-staff:hover {
+        background: #f1f5f9;
+        color: #1f6fff;
     }
 
     .btn-delete-staff {
@@ -109,6 +123,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .btn-delete-staff:hover {
+        background: #fecaca;
+        transform: scale(1.05);
     }
 
     .footer-text {
@@ -131,11 +151,38 @@
     {{-- The Big Workspace Container --}}
     <div class="workspace-container">
         
-        {{-- Inner Header with Search --}}
+        {{-- Inner Header with Functional Search --}}
         <div class="workspace-header">
-            <h5 class="font-weight-bold mb-0 text-dark">Active Professional Staff</h5>
-            <div class="input-group" style="max-width: 300px;">
-                <input type="text" class="form-control" placeholder="Search by name..." style="border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0;">
+            <h5 class="font-weight-bold mb-0 text-dark">
+                @if(request('search'))
+                    Search Results for "{{ request('search') }}"
+                @else
+                    Active Professional Staff
+                @endif
+            </h5>
+            
+            <div class="d-flex align-items-center gap-3">
+                @if(request('search'))
+                    <a href="{{ route('admin.dentists') }}" class="text-primary small font-weight-bold text-decoration-none">
+                        <i class="fas fa-times-circle mr-1"></i> Clear Search
+                    </a>
+                @endif
+                
+                <form action="{{ route('admin.dentists') }}" method="GET" class="m-0">
+                    <div class="input-group" style="max-width: 320px;">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control border-right-0" 
+                               placeholder="Search by name " 
+                               value="{{ request('search') }}"
+                               style="border-radius: 12px 0 0 12px; background: #f8fafc; border: 1px solid #e2e8f0; height: 45px;">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary px-3" type="submit" style="border-radius: 0 12px 12px 0; background: #1f6fff; border: 1px solid #1f6fff;">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -159,15 +206,26 @@
 
                     {{-- Action Buttons --}}
                     <div class="btn-action-group">
-                        <a href="#" class="btn-edit-staff">Edit Profile</a>
-                        <button class="btn-delete-staff">
-                            <i class="fas fa-trash-alt fa-sm"></i>
-                        </button>
+                        <a href="{{ route('admin.dentists.edit', $dentist->id) }}" class="btn-edit-staff">Edit Profile</a>
+                        
+                        <form action="{{ route('admin.dentists.destroy', $dentist->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this staff record?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-delete-staff">
+                                <i class="fas fa-trash-alt fa-sm"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             @empty
                 <div class="text-center py-5 w-100">
-                    <p class="text-muted">No dentists registered in the system.</p>
+                    <div class="mb-3 text-muted opacity-25">
+                        <i class="fas fa-search fa-4x"></i>
+                    </div>
+                    <p class="text-muted">No dentists found matching your criteria.</p>
+                    @if(request('search'))
+                        <a href="{{ route('admin.dentists') }}" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">View All Staff</a>
+                    @endif
                 </div>
             @endforelse
         </div>
