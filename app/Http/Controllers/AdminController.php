@@ -188,24 +188,25 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone_number' => 'required|string|max:15',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone_number' => 'required|string',
+            'gender' => 'required|string',
             'specialization' => 'required|string',
-            'gender' => 'required|in:Male,Female',
-            'password' => 'required|min:8|confirmed',
+            // Remove 'confirmed' since we only have one field now
+            'password' => 'required|string|min:8', 
         ]);
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
-            'specialization' => $request->specialization,
             'gender' => $request->gender,
+            'specialization' => $request->specialization,
             'password' => Hash::make($request->password),
             'role' => Role::Dentist,
         ]);
 
-        return redirect()->route('admin.dentists')->with('success', 'Dentist account created!');
+        return redirect()->route('admin.dentists')->with('success', 'Staff account created successfully!');
     }
     
     public function editDentist(User $dentist)

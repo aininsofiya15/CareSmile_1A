@@ -37,6 +37,12 @@
         padding: 0.75rem 1rem;
         border: 1px solid #e2e8f0;
         background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+    .form-control-custom:focus {
+        background-color: #fff;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
     }
     .btn-save {
         background: #4361ee;
@@ -45,18 +51,19 @@
         padding: 0.75rem 2rem;
         font-weight: 600;
         border: none;
+        transition: all 0.3s;
+    }
+    .btn-save:hover {
+        background: #3751d4;
+        transform: translateY(-2px);
+        color: white;
     }
 </style>
 
 <div class="container-fluid py-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-0">Edit Staff Profile</h2>
-            <p class="text-muted small">Update professional details for {{ $dentist->name }}</p>
-        </div>
-        <a href="{{ route('admin.dentists') }}" class="btn btn-white shadow-sm border px-4 rounded-pill">
-            <i class="fas fa-arrow-left me-2"></i>Back to Directory
-        </a>
+    <div class="mb-4 px-2">
+        <h2 class="fw-bold text-dark mb-0">Edit Staff Profile</h2>
+        <p class="text-muted small">Update professional details for {{ $dentist->name }}</p>
     </div>
 
     <form action="{{ route('admin.dentists.update', $dentist->id) }}" method="POST">
@@ -88,31 +95,43 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label class="form-label-custom">Full Name</label>
-                                <input type="text" name="name" class="form-control form-control-custom" value="{{ $dentist->name }}" required>
+                                <input type="text" name="name" class="form-control form-control-custom w-100" value="{{ $dentist->name }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">Email Address</label>
-                                <input type="email" name="email" class="form-control form-control-custom" value="{{ $dentist->email }}" required>
+                                <input type="email" name="email" class="form-control form-control-custom w-100" value="{{ $dentist->email }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">Phone Number</label>
-                                <input type="text" name="phone_number" class="form-control form-control-custom" value="{{ $dentist->phone_number }}" required>
+                                <input type="text" name="phone_number" class="form-control form-control-custom w-100" 
+                                       value="{{ $dentist->phone_number }}" 
+                                       placeholder="01X-XXXXXXX" 
+                                       pattern="01[0-9]-[0-9]{7,8}" 
+                                       required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">Specialization</label>
-                                <select name="specialization" class="form-select form-control-custom">
+                                <select name="specialization" class="form-select form-control-custom w-100">
                                     <option value="General Dentistry" {{ $dentist->specialization == 'General Dentistry' ? 'selected' : '' }}>General Dentistry</option>
                                     <option value="Orthodontics" {{ $dentist->specialization == 'Orthodontics' ? 'selected' : '' }}>Orthodontics</option>
                                     <option value="Periodontics" {{ $dentist->specialization == 'Periodontics' ? 'selected' : '' }}>Periodontics</option>
+                                    <option value="Pediatric Dentistry" {{ $dentist->specialization == 'Pediatric Dentistry' ? 'selected' : '' }}>Pediatric Dentistry</option>
+                                    <option value="Oral Surgery" {{ $dentist->specialization == 'Oral Surgery' ? 'selected' : '' }}>Oral Surgery</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="mt-5 pt-3 border-top d-flex justify-content-end gap-2">
-                            <button type="reset" class="btn btn-light px-4 rounded-pill">Reset Changes</button>
-                            <button type="submit" class="btn btn-save shadow">
-                                <i class="fas fa-save me-2"></i>Update Staff Account
-                            </button>
+                        {{-- Action Buttons at the Bottom --}}
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-between align-items-center">
+                            <a href="{{ route('admin.dentists') }}" class="text-muted font-weight-bold text-decoration-none">
+                                <i class="fas fa-arrow-left mr-1"></i> Back to Directory
+                            </a>
+                            <div class="d-flex gap-2">
+                                <button type="reset" class="btn btn-light px-4 rounded-pill fw-bold">Reset Changes</button>
+                                <button type="submit" class="btn btn-save shadow">
+                                    <i class="fas fa-save me-2"></i>Update Staff Account
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
