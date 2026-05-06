@@ -26,7 +26,7 @@
         /* Right Side: The Illustration - BLENDED WHITE */
         .login-image-side {
             flex: 1.2;
-            background-color: #ffffff; 
+            background-color: #ffffff;
             position: relative;
             display: flex;
             align-items: center;
@@ -75,15 +75,15 @@
         /* Strength Bar */
         .strength-meter { height: 6px; background-color: #e5e7eb; border-radius: 3px; margin: 10px 0; overflow: hidden; display: none; }
         #strength-bar { height: 100%; width: 0%; transition: all 0.3s ease; }
-        
+
         /* Checklist Popup */
-        #password-checklist { 
-            display: none; 
-            background: #f9fafb; 
-            border: 1px solid #e5e7eb; 
-            border-radius: 12px; 
-            padding: 15px; 
-            margin-top: 5px; 
+        #password-checklist {
+            display: none;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 5px;
             margin-bottom: 15px;
         }
         .check-item { font-size: 0.8rem; color: #9ca3af; margin-bottom: 4px; display: flex; align-items: center; }
@@ -113,6 +113,16 @@
 
             <form method="POST" action="{{ route('register') }}">
                 @csrf
+
+                @if ($errors->any())
+                    <div style="color:red;">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 {{-- Name --}}
                 <div class="custom-input-group">
@@ -168,7 +178,7 @@
 
                 <div class="text-center mt-3">
                     <p class="text-muted" style="font-size: 0.85rem;">
-                        Already have an account? 
+                        Already have an account?
                         <a href="{{ route('login') }}" class="text-decoration-none fw-bold" style="color: #2563eb;">Log in here</a>
                     </p>
                 </div>
@@ -199,7 +209,7 @@
             const checklist = document.getElementById('password-checklist');
             const meter = document.getElementById('meter-container');
             const bar = document.getElementById('strength-bar');
-            
+
             if (pass.length > 0) {
                 checklist.style.display = 'block';
                 meter.style.display = 'block';
