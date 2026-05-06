@@ -3,66 +3,43 @@
 @section('content')
 
 <style>
-    .page-header {
-        margin-bottom: 20px;
-    }
+.page-header { margin-bottom: 20px; }
+.page-title { font-size: 28px; font-weight: 600; color: #1f2937; }
 
-    .page-title {
-        font-size: 28px;
-        font-weight: 600;
-        color: #1f2937;
-    }
+.card-custom {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+}
 
-    .card-custom {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        padding: 20px;
-    }
+.form-label { font-weight: 500; }
+.form-select { padding: 8px 10px; border-radius: 6px; }
 
-    .mb-3 {
-        margin-bottom: 16px;
-    }
+.btn-primary-custom {
+    background-color: #3b82f6;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+}
 
-    .form-label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 500;
-    }
+.btn-secondary-custom {
+    background-color: #6c757d;
+    color: white;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+}
 
-    .form-control {
-        width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-    }
-
-    .btn-primary-custom {
-        background-color: #3b82f6;
-        color: white;
-        padding: 8px 14px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .btn-primary-custom:hover {
-        opacity: 0.9;
-    }
-
-    .btn-secondary-custom {
-        background-color: #6c757d;
-        color: white;
-        border-radius: 12px;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-secondary-custom:hover {
-        opacity: 0.9;
-    }
+.current-info {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #0369a1;
+}
 </style>
 
 <div class="page-header">
@@ -70,55 +47,112 @@
 </div>
 
 <div class="card-custom">
-    <div class="card-body">
 
-        {{-- <form method="POST" action="{{ url('/appointments/'.$appointment->id.'/reschedule') }}"> --}}
-        <form method="POST" action="{{ route('patient.appointments.reschedule.submit', $appointment->id) }}">
-            @csrf
-            <div class="mb-3">
-                <label class="form-label">New Date</label>
-                {{-- <input type="date" class="form-control"> --}}
-                <input type="date" name="date" class="form-control" min="{{ date('Y-m-d') }}"
-                    value="{{ $appointment->appointment_date }}">
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">New Time</label>
-                {{-- <input type="time" class="form-control"> --}}
-                <select name="time" class="form-select" required>
-                        <option value="">Select Time</option>
-
-                        <option value="09:00" {{ $appointment->appointment_time == '09:00:00' ? 'selected' : '' }}>09:00 AM</option>
-                        <option value="09:30" {{ $appointment->appointment_time == '09:30:00' ? 'selected' : '' }}>09:30 AM</option>
-                        <option value="10:00" {{ $appointment->appointment_time == '10:00:00' ? 'selected' : '' }}>10:00 AM</option>
-                        <option value="10:30" {{ $appointment->appointment_time == '10:30:00' ? 'selected' : '' }}>10:30 AM</option>
-                        <option value="11:00" {{ $appointment->appointment_time == '11:00:00' ? 'selected' : '' }}>11:00 AM</option>
-                        <option value="11:30" {{ $appointment->appointment_time == '11:30:00' ? 'selected' : '' }}>11:30 AM</option>
-
-                        <option value="14:00" {{ $appointment->appointment_time == '14:00:00' ? 'selected' : '' }}>02:00 PM</option>
-                        <option value="14:30" {{ $appointment->appointment_time == '14:30:00' ? 'selected' : '' }}>02:30 PM</option>
-                        <option value="15:00" {{ $appointment->appointment_time == '15:00:00' ? 'selected' : '' }}>03:00 PM</option>
-                        <option value="15:30" {{ $appointment->appointment_time == '15:30:00' ? 'selected' : '' }}>03:30 PM</option>
-                        <option value="16:00" {{ $appointment->appointment_time == '16:00:00' ? 'selected' : '' }}>04:00 PM</option>
-                        <option value="16:30" {{ $appointment->appointment_time == '16:30:00' ? 'selected' : '' }}>04:30 PM</option>
-                    </select>
-            </div>
-
-            {{-- <button class="btn-primary-custom">
-                Submit
-            </button> --}}
-            <div class="mt-3 d-flex gap-2">
-                <button type="submit" class="btn-primary-custom">
-                    Submit
-                </button>
-
-                <a href="{{ route('patient.appointments') }}" class="btn-secondary-custom">
-                    Cancel
-                </a>
-            </div>
-        </form>
-
+    {{-- CURRENT INFO --}}
+    <div class="current-info">
+        <strong>Current Appointment:</strong>
+        {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d M Y') }}
+        at {{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}
+        — {{ $appointment->service }}
     </div>
+
+    {{-- ERROR --}}
+    @if($errors->any())
+        <div style="background:#fee2e2; padding:10px; margin-bottom:10px;">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('patient.appointments.reschedule.submit', $appointment->id) }}">
+        @csrf
+
+        {{-- STEP 1: DATE --}}
+        <div class="mb-3">
+            <label class="form-label">Select New Date</label>
+            <select id="date-select" class="form-select">
+                <option value="">-- Select Date --</option>
+                @foreach($availableSchedules->groupBy('working_date') as $date => $schedules)
+                    <option value="{{ $date }}">
+                        {{ \Carbon\Carbon::parse($date)->format('d M Y (l)') }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- STEP 2: SLOT --}}
+        <div class="mb-3">
+            <label class="form-label">Available Time Slot</label>
+            <select name="slot_id" id="slot-select" class="form-select" required>
+                <option value="">-- Select Date First --</option>
+            </select>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn-primary-custom">
+                Confirm Reschedule
+            </button>
+            <a href="{{ route('patient.appointments') }}" class="btn-secondary-custom">
+                Cancel
+            </a>
+        </div>
+
+    </form>
 </div>
+
+{{-- SAME JS AS CREATE --}}
+<script>
+document.getElementById('date-select').addEventListener('change', function () {
+
+    let date = this.value;
+    let slotSelect = document.getElementById('slot-select');
+
+    slotSelect.innerHTML = '<option value="">Loading...</option>';
+
+    if (!date) {
+        slotSelect.innerHTML = '<option value="">-- Select Date First --</option>';
+        return;
+    }
+
+    fetch(`/get-slots/${date}`)
+        .then(res => res.json())
+        .then(data => {
+
+            let options = '<option value="">-- Select Time Slot --</option>';
+
+            if (data.length === 0) {
+                options = '<option value="">No slots available</option>';
+            }
+
+            data.forEach(schedule => {
+                schedule.slots.forEach(slot => {
+
+                    let start = formatTime(slot.start_time);
+                    let end   = formatTime(slot.end_time);
+
+                    options += `
+                        <option value="${slot.id}">
+                            Dr. ${schedule.doctor.name} — ${start} to ${end}
+                        </option>
+                    `;
+                });
+            });
+
+            slotSelect.innerHTML = options;
+        })
+        .catch(() => {
+            slotSelect.innerHTML = '<option>Error loading slots</option>';
+        });
+});
+
+function formatTime(timeStr) {
+    let [h, m] = timeStr.split(':');
+    let hour = parseInt(h);
+    let ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${String(hour).padStart(2,'0')}:${m} ${ampm}`;
+}
+</script>
 
 @endsection
