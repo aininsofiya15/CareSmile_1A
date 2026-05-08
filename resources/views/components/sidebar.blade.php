@@ -6,7 +6,7 @@
         min-height: 100vh;
         box-shadow: 4px 0 15px rgba(0,0,0,0.03);
         display: flex;
-        flex-direction: column;
+        flex-direction: column; /* Keeps elements stacked */
         flex-shrink: 0;
     }
 
@@ -20,8 +20,10 @@
 
     .sidebar-menu {
         list-style: none;
-        padding: 2rem 1rem 1.5rem 1rem;
+        padding: 1.5rem 1rem;
         margin: 0;
+        /* flex-grow-1 pushes everything below it to the bottom */
+        flex-grow: 1; 
     }
 
     .sidebar-menu li {
@@ -38,6 +40,10 @@
         border-radius: 12px;
         font-weight: 600;
         transition: all 0.25s ease;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
     }
 
     .sidebar-link:hover, .sidebar-link.active {
@@ -45,21 +51,16 @@
         color: #1f6fff;
     }
 
-    .sidebar-link i {
-        font-size: 1.1rem;
-        width: 24px;
-        text-align: center;
-    }
-
-    .sidebar-link.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    .sidebar-link.text-danger:hover {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545 !important;
     }
 
     .sidebar-footer {
-        margin-top: auto;
         padding: 1.5rem 1rem;
         border-top: 1px solid rgba(31, 111, 255, 0.1);
+        /* This ensures the footer stays at the very bottom */
+        margin-top: auto; 
     }
 
     .user-box {
@@ -92,92 +93,71 @@
 <aside class="app-sidebar">
     <div class="sidebar-inner d-flex flex-column h-100">
 
-        {{-- Logo / Header --}}
         <div class="sidebar-header">
             <a href="{{ route('home') }}">
                 <img src="{{ asset('CareSmile.png') }}" alt="CareSmile Logo" style="height: 60px;">
             </a>
         </div>
 
-        {{-- Navigation --}}
-        <ul class="sidebar-menu flex-grow-1">
-
-            {{-- Dynamic Dashboard Link based on Role --}}
+        {{-- Navigation Area --}}
+        <ul class="sidebar-menu">
+            {{-- Dashboard --}}
             <li>
                 @php
-                    $dashboardRoute = 'patient.dashboard';
-                    if(Auth::user()->isAdmin()) $dashboardRoute = 'admin.dashboard';
-                    elseif(Auth::user()->isDentist()) $dashboardRoute = 'dentist.dashboard';
+                    $dashboardRoute = match(Auth::user()->role) {
+                        \App\Enums\Role::Admin   => 'admin.dashboard',
+                        \App\Enums\Role::Dentist => 'dentist.dashboard',
+                        default                  => 'patient.dashboard',
+                    };
                 @endphp
-
-                <a href="{{ route($dashboardRoute) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
+                <a href="{{ route($dashboardRoute) }}" class="sidebar-link {{ request()->routeIs('*.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
-            {{-- Admin Only Section --}}
+            {{-- Conditional Links --}}
             @if(Auth::user()->isAdmin())
-                {{-- Dentists Management --}}
-                <li>
-                    <a href="{{ route('admin.dentists') }}" class="sidebar-link {{ request()->routeIs('admin.dentists*') ? 'active' : '' }}">
-                        <i class="fas fa-user-md"></i>
-                        <span>Dentists</span>
-                    </a>
-                </li>
-
-                {{-- Patients Management --}}
-                <li>
-                    <a href="{{ route('admin.patients') }}" class="sidebar-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}">
-                        <i class="fas fa-users"></i>
-                        <span>Patients</span>
-                    </a>
-                </li>
+                <li><a href="{{ route('admin.dentists') }}" class="sidebar-link {{ request()->routeIs('admin.dentists*') ? 'active' : '' }}"><i class="fas fa-user-md"></i><span>Dentists</span></a></li>
+                <li><a href="{{ route('admin.patients') }}" class="sidebar-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}"><i class="fas fa-users"></i><span>Patients</span></a></li>
             @endif
 
-            {{-- Schedules Section --}}
             <li>
-                @if(Auth::user()->isAdmin())
-                    <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Schedules</span>
-                    </a>
-                @elseif(Auth::user()->isDentist())
-                    <a href="{{ route('dentist.schedules.index') }}" class="sidebar-link {{ request()->routeIs('dentist.schedules.*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>My Schedule</span>
-                    </a>
-                @endif
-            </li>
-
-            {{-- Appointments (Static/Disabled for now) --}}
-            <li>
-                @if(Auth::user()->isAdmin())
-                    <a href="{{ route('admin.appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('admin.appointments') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Appointments</span>
-                    </a>
-                @else
-                    <a href="{{ route('patient.appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('patient.appointments*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Appointments</span>
-                    </a>
-                @endif
-            </li>
-
-            {{-- Services (Static/Disabled for now) --}}
-            <li>
-                <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
-                    <i class="fas fa-tooth"></i>
-                    <span>Services</span>
+                @php $apptRoute = Auth::user()->isAdmin() ? 'admin.appointments' : 'patient.appointments'; @endphp
+                <a href="{{ route($apptRoute) }}" class="sidebar-link {{ request()->routeIs('*.appointments*') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Appointments</span>
                 </a>
             </li>
 
+            {{-- Profile Link --}}
+            <li>
+                @php
+                    $profileRoute = match(Auth::user()->role) {
+                        \App\Enums\Role::Admin   => 'admin.profile',
+                        \App\Enums\Role::Dentist => 'dentist.profile',
+                        default                  => 'patient.profile',
+                    };
+                @endphp
+                <a href="{{ route($profileRoute) }}" class="sidebar-link {{ request()->routeIs('*.profile') ? 'active' : '' }}">
+                    <i class="fas fa-user-circle"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
 
+            {{-- Logout --}}
+            <li>
+                <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form">
+                    @csrf
+                    <button type="submit" class="sidebar-link text-danger">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </li>
         </ul>
 
+        {{-- Fixed User Footer at the very bottom --}}
         <div class="sidebar-footer">
             <div class="user-box">
                 <div class="user-avatar">
@@ -185,8 +165,7 @@
                 </div>
                 <div>
                     <div class="user-name">{{ Auth::user()->name }}</div>
-                    {{-- Access the ->value or ->name property of the Enum --}}
-                    <small class="text-muted">{{ ucfirst(Auth::user()->role->value) }}</small>
+                    <small class="text-muted">{{ Auth::user()->role->label() }}</small>
                 </div>
             </div>
         </div>

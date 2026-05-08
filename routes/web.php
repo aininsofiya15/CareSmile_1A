@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/patients', [AdminController::class, 'managePatients'])->name('patients');
         Route::get('/patients/create', [AdminController::class, 'createPatient'])->name('patients.create');
         Route::post('/patients/store', [AdminController::class, 'storePatient'])->name('patients.store');
-
+        Route::put('/patients/{id}/reset-password', [AdminController::class, 'resetPassword'])->name('patients.reset-password');
         // --- ADD THESE 4 LINES TO FIX THE CRASH ---
         Route::get('/patients/{patient}', [AdminController::class, 'show'])->name('patients.show');
         Route::get('/patients/{patient}/edit', [AdminController::class, 'edit'])->name('patients.edit');
@@ -71,9 +71,9 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:patient')->prefix('patient')->name('patient.')->group(function () {
         Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard');
-        Route::get('/profile', [PatientController::class, 'profile'])->name('profile');
-        Route::put('/profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
-        Route::put('/password/update', [PatientController::class, 'updatePassword'])->name('password.update');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+        Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
 
         // Appointments
         Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
@@ -92,6 +92,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DentistController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [DentistController::class, 'profile'])->name('profile');
         Route::get('/schedules', [DoctorScheduleController::class, 'index'])->name('schedules.index');
+        Route::put('/profile/update', [DentistController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password/update', [DentistController::class, 'updatePassword'])->name('password.update');
+
     });
 });
 

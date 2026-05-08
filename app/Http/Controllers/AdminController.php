@@ -241,4 +241,16 @@ class AdminController extends Controller
             $dentist->delete();
             return redirect()->route('admin.dentists')->with('success', 'Staff account removed.');
         }
-} // <--- This is th
+
+        public function resetPassword($id)
+        {
+            $user = User::findOrFail($id);
+            
+            $user->update([
+                'password' => Hash::make('CareSmile2026!')
+            ]);
+
+            return back()->with('success', 'Password has been reset to: CareSmile2026!');
+        }
+
+} // End of Class

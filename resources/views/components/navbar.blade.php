@@ -1,12 +1,9 @@
 <nav class="navbar navbar-expand-lg {{ request()->routeIs('home') ? 'navbar-home' : 'navbar-inner' }} shadow-sm sticky-top">
     <div class="container">
-        {{-- Brand/Logo (Optional: replace div with your actual logo) --}}
         <a class="navbar-brand d-lg-none" href="{{ route('home') }}">CareSmile</a>
         
-        <div class="d-none d-lg-block" style="width: 200px;">
-            </div>
+        <div class="d-none d-lg-block" style="width: 200px;"></div>
 
-        {{-- Mobile Toggler (Only one needed!) --}}
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -17,20 +14,29 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
                 </li>
+
+                {{-- Dynamic Dashboard Link (Only for Logged In Users) --}}
+                @auth
+                    <li class="nav-item">
+                        @php
+                            $dashboardRoute = match(Auth::user()->role) {
+                                \App\Enums\Role::Admin   => 'admin.dashboard',
+                                \App\Enums\Role::Dentist => 'dentist.dashboard',
+                                default                  => 'patient.dashboard',
+                            };
+                        @endphp
+                        <a class="nav-link {{ request()->routeIs('*.dashboard') ? 'active' : '' }}" href="{{ route($dashboardRoute) }}">Dashboard</a>
+                    </li>
+                @endauth
+
                 <li class="nav-item">
-                    <a class="nav-link" href="#services">Services</a>
+                    <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">About</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('about') }}">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#contact">Contact</a>
-                </li>
+                
             </ul>
 
             {{-- Right Side: Theme Toggle & Auth --}}
             <ul class="navbar-nav ms-auto align-items-center gap-2">
-                {{-- Theme Toggle --}}
                 <li class="nav-item">
                     <button class="btn btn-link nav-link p-2 rounded-circle" onclick="toggleTheme()" id="theme-toggle" title="Toggle Dark/Light Mode" style="text-decoration: none;">
                         <span id="theme-icon-light" class="theme-icon">🌙</span>
@@ -61,7 +67,7 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             
-                            {{-- Unified Dynamic Profile Link --}}
+                            {{-- Dynamic Profile Link --}}
                             <li>
                                 @php
                                     $profileRoute = match(Auth::user()->role) {
@@ -70,7 +76,7 @@
                                         default                  => 'patient.profile',
                                     };
                                 @endphp
-                                <a class="dropdown-item" href="{{ route($profileRoute) }}">
+                                <a class="dropdown-item {{ request()->routeIs('*.profile') ? 'active' : '' }}" href="{{ route($profileRoute) }}">
                                     <i class="bi bi-person me-2"></i>Profile
                                 </a>
                             </li>
@@ -78,7 +84,7 @@
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">
+                                    <button type="submit" class="dropdown-item text-danger">
                                         <i class="bi bi-box-arrow-right me-2"></i>Logout
                                     </button>
                                 </form>
