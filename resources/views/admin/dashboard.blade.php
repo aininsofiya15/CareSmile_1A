@@ -192,16 +192,6 @@
         border-color: rgba(31, 111, 255, 0.22);
     }
 
-    .quick-action-disabled {
-        opacity: 0.78;
-        cursor: not-allowed;
-    }
-
-    .quick-action-disabled:hover {
-        transform: none;
-        box-shadow: 0 8px 24px rgba(20, 33, 61, 0.05);
-    }
-
     .quick-action-icon {
         width: 52px;
         height: 52px;
@@ -224,33 +214,6 @@
         font-size: 0.95rem;
         color: var(--text-muted);
         line-height: 1.6;
-    }
-
-    .mini-badge {
-        display: inline-block;
-        margin-top: 0.8rem;
-        padding: 0.35rem 0.7rem;
-        border-radius: 999px;
-        background: rgba(31, 111, 255, 0.08);
-        color: var(--brand-blue);
-        font-size: 0.78rem;
-        font-weight: 700;
-    }
-
-    @media (max-width: 768px) {
-        .admin-dashboard {
-            padding: 1rem;
-        }
-
-        .dashboard-hero {
-            padding: 1.5rem;
-            border-radius: 24px;
-        }
-
-        .dashboard-action-card .card-body,
-        .dashboard-stat-card .card-body {
-            padding: 1.25rem;
-        }
     }
 </style>
 
@@ -284,7 +247,7 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <p class="stat-label mb-2">Total Patients</p>
-                        <h2 class="stat-value mb-2">{{ $totalPatients }}</h2>
+                    <h2 class="stat-value mb-2">{{ $totalPatients }}</h2>
                     <p class="stat-note mb-0">Registered patients in the system</p>
                 </div>
             </div>
@@ -297,7 +260,7 @@
                         <i class="fas fa-user-doctor"></i>
                     </div>
                     <p class="stat-label mb-2">Total Dentists</p>
-                        <h2 class="stat-value mb-2">{{ $totalDentists }}</h2>
+                    <h2 class="stat-value mb-2">{{ $totalDentists }}</h2>
                     <p class="stat-note mb-0">Active dentists available for appointments</p>
                 </div>
             </div>
@@ -326,7 +289,8 @@
                 </div>
             </div>
 
-            <div class="row g-3">
+            {{-- UPDATED: Centered 3 boxes --}}
+            <div class="row g-3 justify-content-center">
                 <div class="col-md-6 col-lg-3">
                     <a href="{{ route('admin.patients') }}" class="quick-action-box">
                         <div class="quick-action-icon mb-3">
@@ -343,24 +307,18 @@
                             <i class="fas fa-stethoscope"></i>
                         </div>
                         <h6 class="quick-action-title mb-2">Manage Dentists</h6>
-                        <p class="quick-action-text mb-0">Add and manage dentist profiles in the next module.</p>
-                        </a>
+                        <p class="quick-action-text mb-0">Add and manage dentist profiles in the system.</p>
+                    </a>
                 </div>
 
                 <div class="col-md-6 col-lg-3">
-                    <div class="quick-action-box quick-action-disabled">
+                    <a href="{{ route('admin.services.index') }}" class="quick-action-box">
                         <div class="quick-action-icon mb-3">
                             <i class="fas fa-file-medical"></i>
                         </div>
                         <h6 class="quick-action-title mb-2">Manage Services</h6>
-                        <p class="quick-action-text mb-0">Update clinic services and treatment options later.</p>
-                        <span class="mini-badge">Coming Soon</span>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-3">
-                    
-                
+                        <p class="quick-action-text mb-0">Update clinic services and treatment options.</p>
+                    </a>
                 </div>
             </div>
         </div>

@@ -54,13 +54,6 @@
 <div class="container-fluid py-3">
     <h2 class="fw-bold mb-4" style="color: #111827;">Staff Settings</h2>
 
-    {{-- Alert Section --}}
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">
-            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-        </div>
-    @endif
-
     <div class="row g-4">
         {{-- LEFT COLUMN: Avatar & Security --}}
         <div class="col-lg-4">

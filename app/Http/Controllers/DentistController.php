@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request; // Added back for updates
 use Illuminate\View\View;
 use App\Models\User;
 
@@ -65,25 +66,13 @@ class DentistController extends Controller
             ->get();
 
         $serviceDurations = $this->serviceDurationsFor(
-            $weeklyAppointments
-                ->merge($upcomingAppointments)
-                ->pluck('service')
-                ->filter()
-                ->unique()
-                ->values()
-                ->all()
+            $weeklyAppointments->merge($upcomingAppointments)->pluck('service')->filter()->unique()->values()->all()
         );
 
-        $schedulesByDate = $weeklySchedules->groupBy(
-            fn (DoctorSchedule $schedule): string => $this->scheduleDate($schedule)
-        );
-
-        $appointmentsByDate = $weeklyAppointments->groupBy(
-            fn (Appointment $appointment): string => $this->appointmentDate($appointment)
-        );
+        $schedulesByDate = $weeklySchedules->groupBy(fn ($s) => $this->scheduleDate($s));
+        $appointmentsByDate = $weeklyAppointments->groupBy(fn ($a) => $this->appointmentDate($a));
 
         $weekDays = collect();
-
         for ($dayOffset = 0; $dayOffset < 7; $dayOffset++) {
             $date = $weekStart->copy()->addDays($dayOffset);
             $dateString = $date->toDateString();
@@ -91,7 +80,7 @@ class DentistController extends Controller
             $dayAppointments = $appointmentsByDate->get($dateString, collect())->values();
             
             $scheduleCards = $daySchedules
-                ->map(fn (DoctorSchedule $schedule): array => $this->formatScheduleCard($schedule, $dayAppointments, $serviceDurations))
+                ->map(fn ($s) => $this->formatScheduleCard($s, $dayAppointments, $serviceDurations))
                 ->values();
                 
             $dayTotalSlots = $scheduleCards->sum('total_slots');
@@ -122,9 +111,7 @@ class DentistController extends Controller
         $overallWorkloadSummary = $this->scheduleUtilizationService->getDentistWorkloadSummary($dentist->id);
 
         $dashboardStats = [
-            'today_working_hours' => $todaySchedule && $todaySchedule['has_schedule']
-                ? collect($todaySchedule['schedules'])->pluck('working_hours')->implode(' / ')
-                : 'No schedule',
+            'today_working_hours' => $todaySchedule && $todaySchedule['has_schedule'] ? collect($todaySchedule['schedules'])->pluck('working_hours')->implode(' / ') : 'No schedule',
             'today_appointments' => $todaySchedule['appointments_count'] ?? 0,
             'today_available_slots' => $todaySchedule['available_slots'] ?? 0,
             'weekly_schedules' => $weeklySchedules->count(),
@@ -151,11 +138,8 @@ class DentistController extends Controller
             'workload_fully_booked_schedules' => $overallWorkloadSummary['fully_booked_schedules'],
         ];
 
-        $upcomingAppointmentCards = $upcomingAppointments
-            ->map(fn (Appointment $appointment): array => $this->formatAppointmentCard($appointment, $serviceDurations))
-            ->values();
+        $upcomingAppointmentCards = $upcomingAppointments->map(fn ($a) => $this->formatAppointmentCard($a, $serviceDurations))->values();
 
-        // Now we return everything at the end
         return view('dentist.dashboard', [
             'dashboardStats' => $dashboardStats,
             'todaySchedule' => $todaySchedule,
@@ -170,7 +154,33 @@ class DentistController extends Controller
     public function profile(): View
     {
         $user = Auth::user();
-        return view('dentist.profile', compact('user'));
+        return view('dentist.dentist_profile', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone_number' => ['nullable', 'string', 'max:20'],
+            'gender' => ['nullable', 'string'],
+            'specialization' => ['required', 'string', 'in:General Dentistry,Orthodontics,Periodontics,Pediatric Dentistry,Oral Surgery'],
+        ]);
+        $user->update($validated);
+        return back()->with('success', 'Professional profile updated successfully!');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+        $request->user()->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        ]);
+        return back()->with('success', 'Security credentials updated successfully!');
     }
 
     public function appointments(): View
@@ -196,29 +206,18 @@ class DentistController extends Controller
         $utilizationSummary = $this->scheduleUtilizationService->getScheduleUtilizationSummary($schedule);
 
         $scheduleAppointments = $appointmentsForDate
-            ->filter(function (Appointment $appointment) use ($scheduleStart, $scheduleEnd, $serviceDurations): bool {
-                [$appointmentStart, $appointmentEnd] = $this->appointmentRange($appointment, $serviceDurations);
-                return $this->timeRangesOverlap($appointmentStart, $appointmentEnd, $scheduleStart, $scheduleEnd);
-            })
-            ->values();
+            ->filter(function ($a) use ($scheduleStart, $scheduleEnd, $serviceDurations) {
+                [$start, $end] = $this->appointmentRange($a, $serviceDurations);
+                return $this->timeRangesOverlap($start, $end, $scheduleStart, $scheduleEnd);
+            })->values();
 
         return [
             'id' => $schedule->id,
             'working_date' => $date,
             'working_hours' => $scheduleStart->format('h:i A').' - '.$scheduleEnd->format('h:i A'),
-            'start_time' => $scheduleStart->format('h:i A'),
-            'end_time' => $scheduleEnd->format('h:i A'),
-            'break_time' => $schedule->break_start && $schedule->break_end
-                ? Carbon::parse($date.' '.$this->timeString($schedule->break_start))->format('h:i A').' - '.Carbon::parse($date.' '.$this->timeString($schedule->break_end))->format('h:i A')
-                : 'No break',
-            'slot_duration' => (int) $schedule->slot_duration,
-            'status' => $schedule->statusLabel(),
-            'status_class' => $schedule->statusBadgeClass(),
-            'is_bookable' => $schedule->isBookable(),
             'total_slots' => $utilizationSummary['total_slots'],
             'booked_slots' => $utilizationSummary['booked_slots'],
             'available_slots' => $schedule->isBookable() ? $utilizationSummary['remaining_slots'] : 0,
-            'booked_appointments' => $scheduleAppointments->count(),
             'utilization_percentage' => $utilizationSummary['utilization_percentage'],
             'utilization_label' => $utilizationSummary['utilization_label'],
             'utilization_class' => $utilizationSummary['utilization_class'],
@@ -227,13 +226,11 @@ class DentistController extends Controller
 
     private function formatAppointmentCard(Appointment $appointment, array $serviceDurations): array
     {
-        [$appointmentStart, $appointmentEnd] = $this->appointmentRange($appointment, $serviceDurations);
+        [$start, $end] = $this->appointmentRange($appointment, $serviceDurations);
         return [
             'patient_name' => $appointment->patient?->name ?? 'N/A',
-            'appointment_date' => $appointmentStart->format('M d, Y'),
-            'appointment_day' => $appointmentStart->format('l'),
-            'appointment_start_time' => $appointmentStart->format('h:i A'),
-            'appointment_end_time' => $appointmentEnd->format('h:i A'),
+            'appointment_date' => $start->format('M d, Y'),
+            'appointment_start_time' => $start->format('h:i A'),
             'service' => $appointment->service ?: 'N/A',
             'status' => ucfirst(str_replace('_', ' ', $appointment->status ?: 'scheduled')),
         ];
@@ -241,12 +238,11 @@ class DentistController extends Controller
 
     private function appointmentRange(Appointment $appointment, array $serviceDurations): array
     {
-        $appointmentStart = Carbon::parse($this->appointmentDate($appointment).' '.$this->timeString($appointment->appointment_time));
-        $appointmentEnd = $appointment->end_time
+        $start = Carbon::parse($this->appointmentDate($appointment).' '.$this->timeString($appointment->appointment_time));
+        $end = $appointment->end_time
             ? Carbon::parse($this->appointmentDate($appointment).' '.$this->timeString($appointment->end_time))
-            : $appointmentStart->copy()->addMinutes($serviceDurations[$appointment->service] ?? 1);
-
-        return [$appointmentStart, $appointmentEnd];
+            : $start->copy()->addMinutes($serviceDurations[$appointment->service] ?? 1);
+        return [$start, $end];
     }
 
     private function timeRangesOverlap(Carbon $firstStart, Carbon $firstEnd, Carbon $secondStart, Carbon $secondEnd): bool
@@ -256,30 +252,21 @@ class DentistController extends Controller
 
     private function serviceDurationsFor(array $serviceNames): array
     {
-        return Service::whereIn('name', $serviceNames)
-            ->pluck('duration_minutes', 'name')
-            ->map(fn ($duration): int => (int) $duration)
-            ->all();
+        return Service::whereIn('name', $serviceNames)->pluck('duration_minutes', 'name')->map(fn ($d) => (int) $d)->all();
     }
 
     private function scheduleDate(DoctorSchedule $schedule): string
     {
-        return $schedule->working_date instanceof CarbonInterface 
-            ? $schedule->working_date->toDateString() 
-            : Carbon::parse($schedule->working_date)->toDateString();
+        return $schedule->working_date instanceof CarbonInterface ? $schedule->working_date->toDateString() : Carbon::parse($schedule->working_date)->toDateString();
     }
 
     private function appointmentDate(Appointment $appointment): string
     {
-        return $appointment->appointment_date instanceof CarbonInterface 
-            ? $appointment->appointment_date->toDateString() 
-            : Carbon::parse($appointment->appointment_date)->toDateString();
+        return $appointment->appointment_date instanceof CarbonInterface ? $appointment->appointment_date->toDateString() : Carbon::parse($appointment->appointment_date)->toDateString();
     }
 
     private function timeString(mixed $time): string
     {
-        return $time instanceof CarbonInterface 
-            ? $time->format('H:i:s') 
-            : Carbon::parse((string) $time)->format('H:i:s');
+        return $time instanceof CarbonInterface ? $time->format('H:i:s') : Carbon::parse((string) $time)->format('H:i:s');
     }
 }
