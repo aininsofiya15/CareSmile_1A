@@ -3,270 +3,326 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\DoctorSchedule;
+use App\Models\ScheduleSlot;
+use App\Models\Service;
+use App\Services\ScheduleSlotService;
+use App\Services\ScheduleStatusService;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class AppointmentController extends Controller
 {
-    public function index()
+    public function __construct(
+        private ScheduleStatusService $scheduleStatusService,
+        private ScheduleSlotService $scheduleSlotService
+    ) {}
+
+    public function index(): View
     {
-        $appointments = Appointment::where('patient_id', Auth::id())->get();
+        $appointments = Appointment::where('patient_id', Auth::id())
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->get();
 
         return view('appointments.index', compact('appointments'));
     }
 
-    public function create()
+    public function create(): View
     {
-        // 从数据库读取 active services
-        $services = \App\Models\Service::where('is_active', true)->get();
+        $services = Service::active()
+            ->orderBy('name')
+            ->get();
 
-        // 读取有 available slots 的日期（未来日期）
-        $availableSchedules = \App\Models\DoctorSchedule::with(['slots' => function ($q) {
-            $q->where('is_available', true);
-        }, 'doctor'])
-            ->where('working_date', '>=', now()->toDateString())
+        $availableSchedules = DoctorSchedule::with('doctor')
+            ->whereDate('working_date', '>=', now()->toDateString())
+            ->where('status', DoctorSchedule::STATUS_ACTIVE)
             ->where('is_active', true)
+            ->orderBy('working_date')
+            ->orderBy('start_time')
             ->get();
 
         return view('appointments.create', compact('services', 'availableSchedules'));
     }
 
-    // public function store(Request $request)
-    // {
-    //     // Validation
-    //     $validated = $request->validate([
-    //         'date' => 'required|date|after_or_equal:today',
-    //         'time' => 'required',
-    //         'service' => 'required|string',
-    //     ]);
-
-    //     // 🚫 double booking check
-    //     $exists = Appointment::where('appointment_date', $validated['date'])
-    //         ->where('appointment_time', $validated['time'])
-    //         ->where('status', 'scheduled')
-    //         ->exists();
-
-    //     if ($exists) {
-    //         return back()->withErrors([
-    //             'time' => 'This time slot is already booked. Please choose another time.',
-    //         ])->withInput();
-    //     }
-
-    //     Appointment::create([
-    //         'patient_id' => Auth::id(),
-    //         'appointment_date' => $validated['date'],
-    //         'appointment_time' => $validated['time'],
-    //         'service' => $validated['service'],
-    //     ]);
-
-    //     return redirect()->route('patient.appointments')
-    //         ->with('success', 'Appointment booked!');
-    // }
-
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'service_id' => [
+                'required',
+                Rule::exists('services', 'id')->where('is_active', true),
+            ],
             'slot_id' => 'required|exists:schedule_slots,id',
-            'service' => 'required|exists:services,name',
-        ]);
+        ], $this->bookingValidationMessages());
 
-        // 找到这个 slot
-        $slot = \App\Models\ScheduleSlot::with('schedule')->findOrFail($validated['slot_id']);
+        $service = Service::active()->find($validated['service_id']);
+        $slot = ScheduleSlot::with('schedule')->findOrFail($validated['slot_id']);
 
-        // 检查 slot 是否还 available
-        if (!$slot->is_available) {
+        if (! $service || ! $slot->schedule) {
             return back()->withErrors([
-                'slot_id' => 'This time slot is already booked. Please choose another time.',
+                'time_slot' => 'Please select a valid service, date, and time slot.',
             ])->withInput();
         }
 
-        $service = \App\Models\Service::where('name', $validated['service'])->first();
-        $slot = \App\Models\ScheduleSlot::with('schedule')->findOrFail($validated['slot_id']);
+        [$startTime, $endTime] = $this->scheduleSlotService->appointmentRangeForSlot($slot, $service);
+        $rangeError = $this->scheduleSlotService->validateAppointmentRange($slot->schedule, $startTime, $endTime);
 
-        // 计算 slot duration（分钟）
-        $slotDuration = \Carbon\Carbon::parse($slot->start_time)
-            ->diffInMinutes(\Carbon\Carbon::parse($slot->end_time));
-
-        if ($service->duration_minutes > $slotDuration) {
-            return back()->withErrors([
-                'slot_id' => 'Selected time slot is too short for this service.',
-            ])->withInput();
+        if ($rangeError) {
+            return back()->withErrors($rangeError)->withInput();
         }
 
-        // 创建 appointment
         Appointment::create([
             'patient_id' => Auth::id(),
             'doctor_id' => $slot->schedule->doctor_id,
-            'appointment_date' => $slot->schedule->working_date,
-            'appointment_time' => $slot->start_time,
-            'service' => $validated['service'],
+            'appointment_date' => $this->scheduleDate($slot->schedule),
+            'appointment_time' => $startTime->format('H:i:s'),
+            'end_time' => $endTime->format('H:i:s'),
+            'service' => $service->name,
+            'status' => 'scheduled',
         ]);
 
-        // 把 slot 标记为 unavailable
-        $slot->book();
+        $this->scheduleStatusService->updateScheduleStatusAfterBooking($slot->schedule);
 
         return redirect()->route('patient.appointments')
             ->with('success', 'Appointment booked!');
     }
 
-    // public function showReschedule($id)
-    // {
-    //     $appointment = Appointment::where('id', $id)
-    //         ->where('patient_id', Auth::id())
-    //         ->firstOrFail();
-
-    //     return view('appointments.reschedule', compact('appointment'));
-    // }
-
-    public function showReschedule($id)
+    public function showReschedule(int $id): View
     {
         $appointment = Appointment::where('id', $id)
             ->where('patient_id', Auth::id())
             ->firstOrFail();
 
-        // 读取有 available slots 的 schedules（同样逻辑）
-        $availableSchedules = \App\Models\DoctorSchedule::with(['slots' => function ($q) {
-            $q->where('is_available', true);
-        }, 'doctor'])
-            ->where('working_date', '>=', now()->toDateString())
+        $service = Service::where('name', $appointment->service)->first();
+
+        $availableSchedules = DoctorSchedule::with('doctor')
+            ->whereDate('working_date', '>=', now()->toDateString())
+            ->where('status', DoctorSchedule::STATUS_ACTIVE)
             ->where('is_active', true)
+            ->orderBy('working_date')
+            ->orderBy('start_time')
             ->get();
 
-        return view('appointments.reschedule', compact('appointment', 'availableSchedules'));
+        return view('appointments.reschedule', compact('appointment', 'availableSchedules', 'service'));
     }
 
-    // public function submitReschedule(Request $request, $id)
-    // {
-    //     $appointment = Appointment::where('id', $id)
-    //         ->where('patient_id', Auth::id())
-    //         ->firstOrFail();
-
-    //     $appointment->appointment_date = $request->date;
-    //     $appointment->appointment_time = $request->time;
-    //     $appointment->save();
-
-    //     return redirect()->route('patient.appointments')
-    //         ->with('success', 'Appointment updated!');
-    // }
-
-    public function submitReschedule(Request $request, $id)
+    public function submitReschedule(Request $request, int $id): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'slot_id' => 'required|exists:schedule_slots,id',
-        ]);
+        ], $this->bookingValidationMessages());
 
         $appointment = Appointment::where('id', $id)
             ->where('patient_id', Auth::id())
             ->firstOrFail();
 
-        // Step 1: 释放旧的 slot
-        $oldSlot = \App\Models\ScheduleSlot::where('start_time', $appointment->appointment_time)
-            ->whereHas('schedule', function ($q) use ($appointment) {
-                $q->where('doctor_id', $appointment->doctor_id)
-                ->where('working_date', $appointment->appointment_date);
-            })
-            ->first();
+        $service = Service::where('name', $appointment->service)->first();
+        $newSlot = ScheduleSlot::with('schedule')->findOrFail($validated['slot_id']);
 
-        if ($oldSlot) {
-            $oldSlot->release(); // is_available = true
-        }
-
-        // Step 2: 占用新的 slot
-        $newSlot = \App\Models\ScheduleSlot::with('schedule')->findOrFail($request->slot_id);
-
-        if (!$newSlot->is_available) {
+        if (! $service || ! $newSlot->schedule) {
             return back()->withErrors([
-                'slot_id' => 'This time slot is already booked. Please choose another.',
+                'time_slot' => 'Please select a valid service, date, and time slot.',
             ])->withInput();
         }
 
-        // Step 3: 更新 appointment
-        $appointment->appointment_date = $newSlot->schedule->working_date;
-        $appointment->appointment_time = $newSlot->start_time;
-        $appointment->doctor_id = $newSlot->schedule->doctor_id;
-        $appointment->save();
+        [$startTime, $endTime] = $this->scheduleSlotService->appointmentRangeForSlot($newSlot, $service);
+        $rangeError = $this->scheduleSlotService->validateAppointmentRange($newSlot->schedule, $startTime, $endTime, $appointment->id);
 
-        // Step 4: 标记新 slot 为 unavailable
-        $newSlot->book();
+        if ($rangeError) {
+            return back()->withErrors($rangeError)->withInput();
+        }
+
+        $oldSchedule = DoctorSchedule::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('working_date', $this->appointmentDate($appointment))
+            ->first();
+
+        $appointment->update([
+            'appointment_date' => $this->scheduleDate($newSlot->schedule),
+            'appointment_time' => $startTime->format('H:i:s'),
+            'end_time' => $endTime->format('H:i:s'),
+            'doctor_id' => $newSlot->schedule->doctor_id,
+        ]);
+
+        if ($oldSchedule) {
+            $this->scheduleStatusService->refreshScheduleAvailability($oldSchedule);
+        }
+
+        if (! $oldSchedule || $oldSchedule->id !== $newSlot->schedule->id) {
+            $this->scheduleStatusService->updateScheduleStatusAfterBooking($newSlot->schedule);
+        }
 
         return redirect()->route('patient.appointments')
             ->with('success', 'Appointment rescheduled successfully!');
     }
 
-    // public function cancel($id)
-    // {
-    //     $appointment = Appointment::where('id', $id)
-    //         ->where('patient_id', Auth::id())
-    //         ->firstOrFail();
-
-    //     $appointment->status = 'cancelled';
-    //     $appointment->save();
-
-    //     return redirect()->route('patient.appointments')
-    //         ->with('success', 'Appointment cancelled!');
-    // }
-
-    public function cancel($id)
+    public function cancel(int $id): RedirectResponse
     {
         $appointment = Appointment::where('id', $id)
             ->where('patient_id', Auth::id())
             ->firstOrFail();
 
-        $appointment->status = 'cancelled';
-        $appointment->save();
+        $appointment->update([
+            'status' => 'cancelled',
+        ]);
 
-        // 释放 slot，让其他人可以预约
-        $slot = \App\Models\ScheduleSlot::where('schedule_id', function ($q) use ($appointment) {
-            $q->select('id')
-            ->from('doctor_schedules')
-            ->where('doctor_id', $appointment->doctor_id)
-            ->where('working_date', $appointment->appointment_date);
-        })
-            ->where('start_time', $appointment->appointment_time)
+        $schedule = DoctorSchedule::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('working_date', $this->appointmentDate($appointment))
             ->first();
 
-        if ($slot) {
-            $slot->release();
+        if ($schedule) {
+            $this->scheduleStatusService->refreshScheduleAvailability($schedule);
         }
 
         return redirect()->route('patient.appointments')
             ->with('success', 'Appointment cancelled!');
     }
 
-    // ADMIN
-    public function adminIndex(Request $request)
+    public function adminIndex(Request $request): View
     {
         $query = Appointment::with('patient');
 
         if ($request->status && $request->status !== 'all') {
             $query->where('status', $request->status);
-        } elseif (!$request->status) {
-            // default
+        } elseif (! $request->status) {
             $query->where('status', 'scheduled');
         }
 
-        $appointments = $query->get();
+        $appointments = $query
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->get();
 
         return view('appointments.admin', compact('appointments'));
     }
 
-    public function markCompleted($id)
+    public function markCompleted(int $id): RedirectResponse
     {
         $appointment = Appointment::findOrFail($id);
 
-        $appointment->status = 'completed';
-        $appointment->save();
+        $appointment->update([
+            'status' => 'completed',
+        ]);
+
+        $schedule = DoctorSchedule::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('working_date', $this->appointmentDate($appointment))
+            ->first();
+
+        if ($schedule) {
+            $this->scheduleStatusService->refreshScheduleAvailability($schedule);
+        }
 
         return back()->with('success', 'Marked as completed');
     }
 
-    public function markNoShow($id)
+    public function markNoShow(int $id): RedirectResponse
     {
         $appointment = Appointment::findOrFail($id);
 
-        $appointment->status = 'no_show';
-        $appointment->save();
+        $appointment->update([
+            'status' => 'no_show',
+        ]);
+
+        $schedule = DoctorSchedule::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('working_date', $this->appointmentDate($appointment))
+            ->first();
+
+        if ($schedule) {
+            $this->scheduleStatusService->refreshScheduleAvailability($schedule);
+        }
 
         return back()->with('success', 'Marked as no-show');
+    }
+
+    public function availableSlots(Request $request, string $date): JsonResponse
+    {
+        $service = Service::active()->find($request->query('service_id'));
+
+        if (! $service) {
+            return response()->json([]);
+        }
+
+        $ignoreAppointmentId = null;
+
+        if ($request->query('appointment_id')) {
+            $appointment = Appointment::where('id', $request->query('appointment_id'))
+                ->where('patient_id', Auth::id())
+                ->first();
+
+            $ignoreAppointmentId = $appointment?->id;
+        }
+
+        $schedules = DoctorSchedule::with([
+            'doctor',
+            'slots' => fn ($query) => $query->orderBy('start_time'),
+        ])
+            ->whereDate('working_date', $date)
+            ->where('status', DoctorSchedule::STATUS_ACTIVE)
+            ->where('is_active', true)
+            ->orderBy('start_time')
+            ->get()
+            ->filter(function (DoctorSchedule $schedule) use ($service, $ignoreAppointmentId): bool {
+                $availableSlots = $this->scheduleSlotService->getAvailableSlots($schedule, $service, $ignoreAppointmentId)
+                    ->map(function (ScheduleSlot $slot) use ($service): ScheduleSlot {
+                        [$startTime, $endTime] = $this->scheduleSlotService->appointmentRangeForSlot($slot, $service);
+                        $slot->setAttribute('start_time', $this->timeString($startTime));
+                        $slot->setAttribute('end_time', $this->timeString($slot->end_time));
+                        $slot->setAttribute('appointment_end_time', $endTime->format('H:i:s'));
+
+                        return $slot;
+                    });
+
+                $schedule->setRelation('slots', $availableSlots);
+
+                return $availableSlots->isNotEmpty();
+            })
+            ->values();
+
+        return response()->json($schedules);
+    }
+
+    private function scheduleDate(DoctorSchedule $schedule): string
+    {
+        if ($schedule->working_date instanceof CarbonInterface) {
+            return $schedule->working_date->toDateString();
+        }
+
+        return Carbon::parse($schedule->working_date)->toDateString();
+    }
+
+    private function appointmentDate(Appointment $appointment): string
+    {
+        if ($appointment->appointment_date instanceof CarbonInterface) {
+            return $appointment->appointment_date->toDateString();
+        }
+
+        return Carbon::parse($appointment->appointment_date)->toDateString();
+    }
+
+    private function timeString(mixed $time): string
+    {
+        if ($time instanceof CarbonInterface) {
+            return $time->format('H:i:s');
+        }
+
+        return Carbon::parse((string) $time)->format('H:i:s');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function bookingValidationMessages(): array
+    {
+        return [
+            'service_id.required' => 'Please select a valid service, date, and time slot.',
+            'service_id.exists' => 'Please select a valid service, date, and time slot.',
+            'slot_id.required' => 'Please select a valid service, date, and time slot.',
+            'slot_id.exists' => 'Please select a valid service, date, and time slot.',
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ScheduleSlotService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class DoctorSchedule extends Model
 {
     use HasFactory;
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_INACTIVE = 'inactive';
+
+    public const STATUS_FULLY_BOOKED = 'fully_booked';
+
+    public const STATUS_UNAVAILABLE = 'unavailable';
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +33,8 @@ class DoctorSchedule extends Model
         'slot_duration',
         'notes',
         'is_active',
+        'status',
+        'status_updated_automatically',
     ];
 
     /**
@@ -38,7 +49,74 @@ class DoctorSchedule extends Model
             'break_start' => 'datetime:H:i',
             'break_end' => 'datetime:H:i',
             'is_active' => 'boolean',
+            'status_updated_automatically' => 'boolean',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            self::STATUS_ACTIVE,
+            self::STATUS_INACTIVE,
+            self::STATUS_FULLY_BOOKED,
+            self::STATUS_UNAVAILABLE,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_ACTIVE => 'Active',
+            self::STATUS_INACTIVE => 'Inactive',
+            self::STATUS_FULLY_BOOKED => 'Fully Booked',
+            self::STATUS_UNAVAILABLE => 'Unavailable',
+        ];
+    }
+
+    public function statusLabel(): string
+    {
+        return self::statusOptions()[$this->status] ?? 'Active';
+    }
+
+    public function statusBadgeClass(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'status-active',
+            self::STATUS_FULLY_BOOKED => 'status-fully-booked',
+            self::STATUS_UNAVAILABLE => 'status-unavailable',
+            default => 'status-inactive',
+        };
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isActiveStatus(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isBookable(): bool
+    {
+        return $this->isActiveStatus() && (bool) $this->is_active;
+    }
+
+    public function isFullyBooked(): bool
+    {
+        return $this->status === self::STATUS_FULLY_BOOKED;
+    }
+
+    public function isUnavailable(): bool
+    {
+        return $this->status === self::STATUS_UNAVAILABLE;
     }
 
     /**
@@ -74,59 +152,7 @@ class DoctorSchedule extends Model
      */
     public function generateSlots(): void
     {
-        // Step 1: Remove old slots before generating new ones
-        ScheduleSlot::where('schedule_id', $this->id)->delete();
-
-        // Step 2: Parse times for calculation
-        $currentSlotStart = strtotime($this->start_time);
-        $workEnd = strtotime($this->end_time);
-        $slotDurationSeconds = $this->slot_duration * 60; // Convert minutes to seconds
-
-        // Step 3: Parse break times if provided
-        $breakStart = null;
-        $breakEnd = null;
-
-        if ($this->break_start && $this->break_end) {
-            $breakStart = strtotime($this->break_start);
-            $breakEnd = strtotime($this->break_end);
-        }
-
-        // Step 4: Generate slots
-        while ($currentSlotStart < $workEnd) {
-            $currentSlotEnd = $currentSlotStart + $slotDurationSeconds;
-
-            // Don't create slot if it extends beyond work hours
-            if ($currentSlotEnd > $workEnd) {
-                break;
-            }
-
-            // Check if this slot falls within break time
-            $shouldCreateSlot = true;
-
-            if ($breakStart !== null && $breakEnd !== null) {
-                // Skip slot if it starts during break OR overlaps with break
-                if (
-                    ($currentSlotStart >= $breakStart && $currentSlotStart < $breakEnd) ||
-                    ($currentSlotEnd > $breakStart && $currentSlotEnd <= $breakEnd) ||
-                    ($currentSlotStart <= $breakStart && $currentSlotEnd >= $breakEnd)
-                ) {
-                    $shouldCreateSlot = false;
-                }
-            }
-
-            // Create the slot if it's valid
-            if ($shouldCreateSlot) {
-                ScheduleSlot::create([
-                    'schedule_id' => $this->id,
-                    'start_time' => date('H:i:s', $currentSlotStart),
-                    'end_time' => date('H:i:s', $currentSlotEnd),
-                    'is_available' => true,
-                ]);
-            }
-
-            // Move to next slot
-            $currentSlotStart = $currentSlotEnd;
-        }
+        app(ScheduleSlotService::class)->generateSlots($this);
     }
 
     /**
