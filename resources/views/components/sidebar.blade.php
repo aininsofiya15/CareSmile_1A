@@ -6,7 +6,7 @@
         min-height: 100vh;
         box-shadow: 4px 0 15px rgba(0,0,0,0.03);
         display: flex;
-        flex-direction: column; /* Keeps elements stacked */
+        flex-direction: column;
         flex-shrink: 0;
     }
 
@@ -22,7 +22,6 @@
         list-style: none;
         padding: 1.5rem 1rem;
         margin: 0;
-        /* flex-grow-1 pushes everything below it to the bottom */
         flex-grow: 1; 
     }
 
@@ -59,7 +58,6 @@
     .sidebar-footer {
         padding: 1.5rem 1rem;
         border-top: 1px solid rgba(31, 111, 255, 0.1);
-        /* This ensures the footer stays at the very bottom */
         margin-top: auto; 
     }
 
@@ -99,9 +97,8 @@
             </a>
         </div>
 
-        {{-- Navigation Area --}}
         <ul class="sidebar-menu">
-            {{-- Dashboard --}}
+            {{-- 1. Dashboard --}}
             <li>
                 @php
                     $dashboardRoute = match(Auth::user()->role) {
@@ -116,62 +113,61 @@
                 </a>
             </li>
 
-            {{-- Conditional Links --}}
+            {{-- 2. Admin Only: User Management --}}
             @if(Auth::user()->isAdmin())
-                <li><a href="{{ route('admin.dentists') }}" class="sidebar-link {{ request()->routeIs('admin.dentists*') ? 'active' : '' }}"><i class="fas fa-user-md"></i><span>Dentists</span></a></li>
-                <li><a href="{{ route('admin.patients') }}" class="sidebar-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}"><i class="fas fa-users"></i><span>Patients</span></a></li>
+                <li>
+                    <a href="{{ route('admin.dentists') }}" class="sidebar-link {{ request()->routeIs('admin.dentists*') ? 'active' : '' }}">
+                        <i class="fas fa-user-md"></i><span>Dentists</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.patients') }}" class="sidebar-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i><span>Patients</span>
+                    </a>
+                </li>
             @endif
 
+            {{-- 3. Appointments (Dynamic Route) --}}
             <li>
-                @php $apptRoute = Auth::user()->isAdmin() ? 'admin.appointments' : 'patient.appointments'; @endphp
+                @php
+                    $apptRoute = match(Auth::user()->role) {
+                        \App\Enums\Role::Admin   => 'admin.appointments',
+                        \App\Enums\Role::Dentist => 'dentist.appointments',
+                        default                  => 'patient.appointments',
+                    };
+                @endphp
                 <a href="{{ route($apptRoute) }}" class="sidebar-link {{ request()->routeIs('*.appointments*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Appointments</span>
-                @if(Auth::user()->isAdmin())
+                </a>
+            </li>
+
+            {{-- 4. Schedules (Admin or Dentist) --}}
+            @if(Auth::user()->isAdmin())
+                <li>
                     <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Schedules</span>
+                        <i class="fas fa-calendar-alt"></i><span>Schedules</span>
                     </a>
-                @elseif(Auth::user()->isDentist())
+                </li>
+            @elseif(Auth::user()->isDentist())
+                <li>
                     <a href="{{ route('dentist.schedules.index') }}" class="sidebar-link {{ request()->routeIs('dentist.schedules.*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>My Schedule</span>
+                        <i class="fas fa-clock"></i><span>My Schedule</span>
                     </a>
-                @endif
-            </li>
+                </li>
+            @endif
 
-            {{-- Appointments --}}
-            <li>
-                @if(Auth::user()->isAdmin())
-                    <a href="{{ route('admin.appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('admin.appointments*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Appointments</span>
-                    </a>
-                @elseif(Auth::user()->isDentist())
-                    <a href="{{ route('dentist.appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('dentist.appointments*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Appointments</span>
-                    </a>
-                @elseif(Auth::user()->isPatient())
-                    <a href="{{ route('patient.appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('patient.appointments*') ? 'active' : '' }}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Appointments</span>
-                    </a>
-                @endif
-            </li>
-
-            {{-- Services (Static/Disabled for now) --}}
+            {{-- 5. Services (Admin Only) --}}
+            @if(Auth::user()->isAdmin())
             <li>
                 <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
                     <i class="fas fa-tooth"></i>
                     <span>Services</span>
                 </a>
             </li>
+            @endif
 
-            {{-- Profile Link --}}
+            {{-- 6. My Profile --}}
             <li>
                 @php
                     $profileRoute = match(Auth::user()->role) {
@@ -186,7 +182,7 @@
                 </a>
             </li>
 
-            {{-- Logout --}}
+            {{-- 7. Logout --}}
             <li>
                 <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form">
                     @csrf
@@ -198,7 +194,7 @@
             </li>
         </ul>
 
-        {{-- Fixed User Footer at the very bottom --}}
+        {{-- Fixed User Footer --}}
         <div class="sidebar-footer">
             <div class="user-box">
                 <div class="user-avatar">
@@ -206,10 +202,9 @@
                 </div>
                 <div>
                     <div class="user-name">{{ Auth::user()->name }}</div>
-                    <small class="text-muted">{{ Auth::user()->role->label() }}</small>
+                    <small class="text-muted">{{ Auth::user()->role->name }}</small>
                 </div>
             </div>
         </div>
-
     </div>
 </aside>
