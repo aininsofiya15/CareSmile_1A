@@ -53,7 +53,10 @@
         <strong>Current Appointment:</strong>
         {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d M Y') }}
         at {{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}
-        — {{ $appointment->service }}
+        @if($appointment->end_time)
+            to {{ \Carbon\Carbon::parse($appointment->end_time)->format('h:i A') }}
+        @endif
+        - {{ $appointment->service }}
     </div>
 
     {{-- ERROR --}}
@@ -62,6 +65,12 @@
             @foreach($errors->all() as $error)
                 <p>{{ $error }}</p>
             @endforeach
+        </div>
+    @endif
+
+    @if(! $service)
+        <div style="background:#fee2e2; padding:10px; margin-bottom:10px;">
+            <p>Unable to find the service duration for this appointment.</p>
         </div>
     @endif
 
@@ -90,7 +99,7 @@
         </div>
 
         <div class="mt-3 d-flex gap-2">
-            <button type="submit" class="btn-primary-custom">
+            <button type="submit" class="btn-primary-custom" @disabled(! $service)>
                 Confirm Reschedule
             </button>
             <a href="{{ route('patient.appointments') }}" class="btn-secondary-custom">
@@ -101,24 +110,32 @@
     </form>
 </div>
 
-{{-- SAME JS AS CREATE --}}
 <script>
-document.getElementById('date-select').addEventListener('change', function () {
+const dateSelect = document.getElementById('date-select');
+const slotSelect = document.getElementById('slot-select');
+const serviceId = @json($service?->id);
+const appointmentId = @json($appointment->id);
 
-    let date = this.value;
-    let slotSelect = document.getElementById('slot-select');
+dateSelect.addEventListener('change', loadSlots);
+
+function loadSlots() {
+    let date = dateSelect.value;
 
     slotSelect.innerHTML = '<option value="">Loading...</option>';
+
+    if (!serviceId) {
+        slotSelect.innerHTML = '<option value="">Service duration is unavailable</option>';
+        return;
+    }
 
     if (!date) {
         slotSelect.innerHTML = '<option value="">-- Select Date First --</option>';
         return;
     }
 
-    fetch(`/get-slots/${date}`)
+    fetch(`/get-slots/${date}?service_id=${serviceId}&appointment_id=${appointmentId}`)
         .then(res => res.json())
         .then(data => {
-
             let options = '<option value="">-- Select Time Slot --</option>';
 
             if (data.length === 0) {
@@ -127,13 +144,12 @@ document.getElementById('date-select').addEventListener('change', function () {
 
             data.forEach(schedule => {
                 schedule.slots.forEach(slot => {
-
                     let start = formatTime(slot.start_time);
-                    let end   = formatTime(slot.end_time);
+                    let end = formatTime(slot.appointment_end_time);
 
                     options += `
                         <option value="${slot.id}">
-                            Dr. ${schedule.doctor.name} — ${start} to ${end}
+                            Dr. ${schedule.doctor.name} - ${start} to ${end}
                         </option>
                     `;
                 });
@@ -144,14 +160,14 @@ document.getElementById('date-select').addEventListener('change', function () {
         .catch(() => {
             slotSelect.innerHTML = '<option>Error loading slots</option>';
         });
-});
+}
 
 function formatTime(timeStr) {
     let [h, m] = timeStr.split(':');
     let hour = parseInt(h);
     let ampm = hour >= 12 ? 'PM' : 'AM';
     hour = hour % 12 || 12;
-    return `${String(hour).padStart(2,'0')}:${m} ${ampm}`;
+    return `${String(hour).padStart(2, '0')}:${m} ${ampm}`;
 }
 </script>
 

@@ -49,6 +49,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/patients/{patient}', [AdminController::class, 'destroy'])->name('patients.destroy');
 
         // Schedule Management
+        Route::get('/schedules/check-conflict', [DoctorScheduleController::class, 'checkConflict'])->name('schedules.check-conflict');
+        Route::get('/schedules/preview-slots', [DoctorScheduleController::class, 'previewSlots'])->name('schedules.preview-slots');
         Route::resource('schedules', DoctorScheduleController::class);
 
         // Dentist
@@ -91,23 +93,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:dentist')->prefix('dentist')->name('dentist.')->group(function () {
         Route::get('/dashboard', [DentistController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [DentistController::class, 'profile'])->name('profile');
+        Route::get('/appointments', [DentistController::class, 'appointments'])->name('appointments');
         Route::get('/schedules', [DoctorScheduleController::class, 'index'])->name('schedules.index');
     });
 });
 
-// AJAX: get available slots by date
-Route::get('/get-slots/{date}', function ($date) {
-    $schedules = App\Models\DoctorSchedule::with([
-        'slots' => function ($q) {
-            $q->where('is_available', true);
-        },
-        'doctor',
-    ])
-        ->where('working_date', $date)
-        ->where('is_active', true)
-        ->get();
-
-    return response()->json($schedules);
-})->middleware('auth');
+// AJAX: get available appointment starts by date and service duration
+Route::get('/get-slots/{date}', [AppointmentController::class, 'availableSlots'])->middleware('auth');
 
 require __DIR__.'/auth.php';

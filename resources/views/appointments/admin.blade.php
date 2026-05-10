@@ -123,7 +123,12 @@
                     </td>
 
                     <td>{{ $a->appointment_date }}</td>
-                    <td>{{ $a->appointment_time }}</td>
+                    <td>
+                        {{ \Carbon\Carbon::parse($a->appointment_time)->format('h:i A') }}
+                        @if($a->end_time)
+                            - {{ \Carbon\Carbon::parse($a->end_time)->format('h:i A') }}
+                        @endif
+                    </td>
                     <td>{{ $a->service }}</td>
 
                     <td class="status-{{ $a->status }}">

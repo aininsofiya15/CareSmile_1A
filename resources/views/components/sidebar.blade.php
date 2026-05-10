@@ -150,15 +150,21 @@
                 @endif
             </li>
 
-            {{-- Appointments (Static/Disabled for now) --}}
+            {{-- Appointments --}}
             <li>
                 @if(Auth::user()->isAdmin())
                     <a href="{{ route('admin.appointments') }}"
-                    class="sidebar-link {{ request()->routeIs('admin.appointments') ? 'active' : '' }}">
+                    class="sidebar-link {{ request()->routeIs('admin.appointments*') ? 'active' : '' }}">
                         <i class="fas fa-calendar-check"></i>
                         <span>Appointments</span>
                     </a>
-                @else
+                @elseif(Auth::user()->isDentist())
+                    <a href="{{ route('dentist.appointments') }}"
+                    class="sidebar-link {{ request()->routeIs('dentist.appointments*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                @elseif(Auth::user()->isPatient())
                     <a href="{{ route('patient.appointments') }}"
                     class="sidebar-link {{ request()->routeIs('patient.appointments*') ? 'active' : '' }}">
                         <i class="fas fa-calendar-check"></i>
