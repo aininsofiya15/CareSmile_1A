@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\Role;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password; // <-- I added this import for the strict password rules
 
 class RegisterRequest extends FormRequest
@@ -19,16 +17,16 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            
+
             // 1. The Privacy Policy Checkbox Rule
-            'terms' => ['accepted'], 
+            'terms' => ['accepted'],
 
             // 2. UPDATED: The Strict SQA Password Rule
             'password' => ['required', 'confirmed', Password::min(8)
                 ->letters()
-                ->mixedCase()
+                // ->mixedCase()
                 ->numbers()
-                ->symbols()
+                ->symbols(),
             ],
         ];
     }
@@ -42,7 +40,7 @@ class RegisterRequest extends FormRequest
             'email.unique' => 'This email address is already registered.',
             'password.required' => 'Password is required.',
             'password.confirmed' => 'Password confirmation does not match.',
-            
+
             // I added this custom message so if they forget to check the box, they get a friendly error!
             'terms.accepted' => 'You must agree to the Terms of Service and Privacy Policy to register.',
         ];

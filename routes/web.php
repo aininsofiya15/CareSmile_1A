@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/patients/{patient}/edit', [AdminController::class, 'edit'])->name('patients.edit');
         Route::put('/patients/{patient}', [AdminController::class, 'update'])->name('patients.update');
         Route::delete('/patients/{patient}', [AdminController::class, 'destroy'])->name('patients.destroy');
-        
+
         // Schedule Management
         Route::resource('schedules', DoctorScheduleController::class);
 
@@ -97,5 +97,20 @@ Route::middleware('auth')->group(function () {
 
     });
 });
+
+// AJAX: get available slots by date
+Route::get('/get-slots/{date}', function ($date) {
+    $schedules = App\Models\DoctorSchedule::with([
+        'slots' => function ($q) {
+            $q->where('is_available', true);
+        },
+        'doctor',
+    ])
+        ->where('working_date', $date)
+        ->where('is_active', true)
+        ->get();
+
+    return response()->json($schedules);
+})->middleware('auth');
 
 require __DIR__.'/auth.php';
