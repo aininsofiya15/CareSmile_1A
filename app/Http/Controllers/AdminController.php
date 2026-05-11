@@ -104,6 +104,7 @@ class AdminController extends Controller
 
     public function update(Request $request, User $patient)
     {
+  
         // 1. Validate the incoming data
         $request->validate([
             'name' => 'required|string|max:255',
@@ -111,8 +112,8 @@ class AdminController extends Controller
             'phone_number' => 'nullable|string|max:20',
             'dob' => 'nullable|string', 
             'address' => 'nullable|string|max:500',
-            'allergies' => 'nullable|string',
-            'medications' => 'nullable|string',
+            'allergies' => 'nullable|string|max:100',
+            'medications' => 'nullable|string|max:100',
             'emergency_name' => 'nullable|string|max:255',
             'emergency_phone' => 'nullable|string|max:20',
         ]);
@@ -137,7 +138,7 @@ class AdminController extends Controller
         );
 
         // 4. Redirect back with a success message
-        return redirect()->route('admin.patients')->with('success', 'Patient record updated in database.');
+        return redirect()->back()->with('success', 'Patient record updated in database.');
     }
 
     public function destroy(User $patient) 
@@ -215,7 +216,7 @@ class AdminController extends Controller
             return view('admin.dentists.editprofile', compact('dentist'));
         }
 
-        public function updateDentist(Request $request, User $dentist)
+    public function updateDentist(Request $request, User $dentist)
         {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -231,7 +232,7 @@ class AdminController extends Controller
                 'specialization' => $request->specialization,
             ]);
 
-            return redirect()->route('admin.dentists')->with('success', 'Staff profile updated successfully!');
+            return redirect()->back()->with('success', 'Staff profile updated successfully!');
         }
 
         // This is for the delete button you added earlier
@@ -242,7 +243,7 @@ class AdminController extends Controller
             return redirect()->route('admin.dentists')->with('success', 'Staff account removed.');
         }
 
-        public function resetPassword($id)
+    public function resetPassword($id)
         {
             $user = User::findOrFail($id);
             
@@ -251,6 +252,6 @@ class AdminController extends Controller
             ]);
 
             return back()->with('success', 'Password has been reset to: CareSmile2026!');
-        }
+    }
 
 } // End of Class
