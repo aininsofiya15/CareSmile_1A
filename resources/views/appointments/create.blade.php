@@ -365,7 +365,7 @@ function buildSessionGroups(data) {
                 id: slot.id,
                 dentistName,
                 displayTime: `${startTime} - ${endTime}`,
-                label: `Dr. ${dentistName} - ${startTime} to ${endTime}`,
+                label: `${dentistName} - ${startTime} to ${endTime}`,
                 status: status.label,
                 statusClass: status.className,
                 isAvailable: status.isAvailable,
@@ -433,7 +433,7 @@ function renderSlotCards(groups) {
             }
 
             card.innerHTML = `
-                <span class="slot-dentist">Dr. ${slot.dentistName}</span>
+                <span class="slot-dentist">${slot.dentistName}</span>
                 <span class="slot-time">${slot.displayTime}</span>
                 <span class="slot-badge ${slot.statusClass}">${slot.status}</span>
             `;
