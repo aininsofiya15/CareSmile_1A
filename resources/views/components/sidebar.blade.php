@@ -11,10 +11,12 @@
     }
 
     .sidebar-header {
-        height: 76px;
+        /* Increased height to accommodate the larger logo */
+        height: 120px; 
         display: flex;
         align-items: center;
-        padding: 0 1.5rem;
+        justify-content: center; /* Centers the logo horizontally */
+        padding: 1rem;
         border-bottom: 1px solid rgba(31, 111, 255, 0.05);
     }
 
