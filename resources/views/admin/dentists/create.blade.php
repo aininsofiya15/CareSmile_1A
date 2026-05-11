@@ -89,7 +89,7 @@
             <div class="workspace-container">
                 <form action="{{ route('admin.dentists.store') }}" method="POST">
                     @csrf
-                    
+
                     {{-- Section 1: Personal Details --}}
                     <div class="form-section-title">Personal Details</div>
                     <div class="row mb-4">
