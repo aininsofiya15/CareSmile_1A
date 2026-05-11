@@ -8,6 +8,7 @@ use App\Http\Controllers\DentistController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Patient\ServiceController as PatientServiceController;
 use Illuminate\Support\Facades\Route;
 
 // --- Public Routes ---
@@ -84,6 +85,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/appointments/{id}/reschedule', [AppointmentController::class, 'showReschedule'])->name('appointments.reschedule');
         Route::post('/appointments/{id}/reschedule', [AppointmentController::class, 'submitReschedule'])->name('appointments.reschedule.submit');
         Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+
+        // Services Catalog (NEW - Patient view only)
+        Route::get('/services', [PatientServiceController::class, 'index'])->name('services.index');
     });
 
     // ==========================================

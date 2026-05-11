@@ -224,6 +224,19 @@
         </div>
     </div>
 
+    <div class="col-md-3">
+    <div class="card action-card">
+        <div class="icon-box-blue" style="width: 45px; height: 45px; font-size: 1.2rem;">
+            <i class="fas fa-list-ul"></i>
+        </div>
+        <h6 class="fw-bold fs-5">Our Services</h6>
+        <p class="text-muted small mb-4">Browse all dental treatments and prices.</p>
+        <div class="mt-auto d-grid">
+            <a href="{{ route('patient.services.index') }}" class="btn-blue-light">View Services</a>
+        </div>
+    </div>
+    </div>
+
     {{-- 4. UPCOMING APPOINTMENTS --}}
     <div class="card mt-4" style="border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04);">
         <div class="card-header" style="background: none; border-bottom: 1px solid #f1f5f9; padding: 1.5rem 2rem;">
