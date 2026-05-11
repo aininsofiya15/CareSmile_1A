@@ -5,6 +5,7 @@
 <style>
     :root {
         --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
         --brand-blue-light: #eef5ff;
         --text-dark: #14213d;
         --text-muted: #6c7a92;
@@ -13,14 +14,73 @@
         --radius-lg: 16px;
     }
 
-    .page-header { margin-bottom: 20px; }
-
-    .page-title {
-        font-size: 28px;
-        font-weight: 600;
-        color: #1f2937;
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 40px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
     }
 
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- Form & Card Styles --- */
     .card-custom {
         border: 1px solid var(--card-border);
         border-radius: var(--radius-lg);
@@ -78,13 +138,8 @@
         font-weight: 600;
     }
 
-    .slot-session {
-        margin-top: 1rem;
-    }
-
-    .slot-session:first-child {
-        margin-top: 0;
-    }
+    .slot-session { margin-top: 1rem; }
+    .slot-session:first-child { margin-top: 0; }
 
     .slot-session-header {
         display: flex;
@@ -125,9 +180,7 @@
         transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
     }
 
-    .slot-card.available {
-        cursor: pointer;
-    }
+    .slot-card.available { cursor: pointer; }
 
     .slot-card.available:hover,
     .slot-card.available:focus {
@@ -173,17 +226,10 @@
         padding: 0.25rem 0.6rem;
     }
 
-    .slot-badge.available {
-        background: #dcfce7;
-        color: #15803d;
-    }
-
+    .slot-badge.available { background: #dcfce7; color: #15803d; }
     .slot-badge.booked,
     .slot-badge.unavailable,
-    .slot-badge.fully-booked {
-        background: #e2e8f0;
-        color: #64748b;
-    }
+    .slot-badge.fully-booked { background: #e2e8f0; color: #64748b; }
 
     .selected-slot-summary {
         display: none;
@@ -196,13 +242,21 @@
         font-weight: 600;
     }
 
-    .selected-slot-summary.is-visible {
-        display: block;
-    }
+    .selected-slot-summary.is-visible { display: block; }
 </style>
 
-<div class="page-header">
-    <h1 class="page-title">Book Appointment</h1>
+<div class="banner-header">
+    <div class="banner-left">
+        <div class="banner-title-wrapper">
+            <i class="fas fa-calendar-plus banner-icon"></i> 
+            <h1 class="banner-title">Book Appointment</h1>
+        </div>
+        <p class="banner-subtitle">Schedule a new visit with our dental professionals</p>
+    </div>
+    
+    <a href="{{ route('patient.appointments') }}" class="btn-banner-action">
+        <i class="fas fa-arrow-left"></i> Back to Appointments
+    </a>
 </div>
 
 <div class="card-custom">

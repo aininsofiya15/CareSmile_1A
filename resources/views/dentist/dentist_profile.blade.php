@@ -2,7 +2,57 @@
 
 @section('content')
 <style>
-    /* CareSmile Unified Theme */
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-light: #eef5ff;
+        --text-dark: #14213d;
+        --text-muted: #6c7a92;
+    }
+
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    /* --- CareSmile Unified Theme --- */
     .dentist-card {
         border: 1px solid #e5e7eb;
         border-radius: 16px;
@@ -10,6 +60,7 @@
         background-color: white;
         margin-bottom: 1.5rem;
     }
+
     .card-header-light {
         background-color: #f8fafc;
         border-bottom: 1px solid #e5e7eb;
@@ -18,8 +69,9 @@
         font-weight: 700;
         color: #111827;
     }
+
     .btn-dentist-primary {
-        background-color: #4361ee;
+        background-color: var(--brand-blue);
         color: white;
         border: none;
         border-radius: 8px;
@@ -27,11 +79,17 @@
         font-weight: 600;
         transition: all 0.2s;
     }
+
     .btn-dentist-primary:hover {
-        background-color: #3a56d4;
-        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        background-color: #1456cc;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.3);
     }
-    .form-control { border-radius: 8px; padding: 0.6rem 1rem; border: 1px solid #d1d5db; }
+
+    .form-control { 
+        border-radius: 8px; 
+        padding: 0.6rem 1rem; 
+        border: 1px solid #d1d5db; 
+    }
     
     /* Password Group Styling */
     .form-control-password { border-right: none; }
@@ -45,17 +103,33 @@
     }
 
     .profile-avatar {
-        width: 100px; height: 100px; background-color: #eef2ff; color: #4361ee;
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        font-size: 2.5rem; margin: 0 auto 1rem auto;
+        width: 100px; 
+        height: 100px; 
+        background-color: var(--brand-blue-light); 
+        color: var(--brand-blue);
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        font-size: 2.5rem; 
+        margin: 0 auto 1rem auto;
     }
 </style>
 
 <div class="container-fluid py-3">
-    <h2 class="fw-bold mb-4" style="color: #111827;">Staff Settings</h2>
+    
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-user-md banner-icon"></i> 
+                <h1 class="banner-title">Staff Profile</h1>
+            </div>
+            <p class="banner-subtitle">Manage your professional credentials and account password.</p>
+        </div>
+    </div>
 
     <div class="row g-4">
-        {{-- LEFT COLUMN: Avatar & Security --}}
+        {{-- LEFT COLUMN: Avatar & Password --}}
         <div class="col-lg-4">
             <div class="card dentist-card text-center p-4">
                 <div class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
@@ -66,7 +140,7 @@
 
             <div class="card dentist-card">
                 <div class="card-header card-header-light">
-                    <i class="fas fa-lock me-2 text-muted"></i> Security
+                    <i class="fas fa-lock me-2 text-muted"></i> Password
                 </div>
                 <div class="card-body p-4">
                     <form action="{{ route('dentist.password.update') }}" method="POST">
@@ -96,7 +170,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-dentist-primary w-100">Update Security</button>
+                        <button type="submit" class="btn btn-dentist-primary w-100">Update Password</button>
                     </form>
                 </div>
             </div>
@@ -108,7 +182,7 @@
                 @csrf @method('PUT')
                 <div class="card dentist-card">
                     <div class="card-header card-header-light">
-                        <i class="fas fa-user-md me-2 text-muted"></i> Professional Credentials
+                        <i class="fas fa-id-badge me-2 text-muted"></i> Professional Credentials
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-3">

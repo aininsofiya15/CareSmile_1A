@@ -2,6 +2,83 @@
 
 @section('content')
 <style>
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
+        --brand-blue-light: #eef5ff;
+        --text-dark: #14213d;
+        --text-muted: #6c7a92;
+        --card-border: rgba(31, 111, 255, 0.08);
+        --shadow-soft: 0 10px 30px rgba(20, 33, 61, 0.08);
+        --radius-lg: 16px;
+    }
+
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
     /* 1. Workspace Wrapper */
     .workspace-wrapper {
         background: #ffffff;
@@ -383,14 +460,18 @@
 </style>
 
 <div class="container py-4">
-    {{-- Header Section --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-        <div>
-            <h2 class="font-weight-bold text-dark mb-1">Edit Schedule</h2>
-            <p class="text-muted small mb-0">Modify the existing working hours or break times.</p>
+
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-edit banner-icon"></i> 
+                <h1 class="banner-title">Edit Schedule</h1>
+            </div>
+            <p class="banner-subtitle">Modify the existing working hours or break times.</p>
         </div>
-        <a href="{{ route('admin.schedules.index') }}" class="btn btn-light px-4 shadow-sm" style="border-radius: 12px; font-weight: 700; border: 1px solid #e2e8f0;">
-            <i class="fas fa-arrow-left mr-2"></i> Back to List
+        
+        <a href="{{ route('admin.schedules.index') }}" class="btn-banner-action">
+            <i class="fas fa-arrow-left"></i> Back to Schedules
         </a>
     </div>
 

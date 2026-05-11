@@ -2,18 +2,94 @@
 
 @section('content')
 <style>
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
+        --brand-blue-light: #eef5ff;
+    }
+
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- Page Specific Styles --- */
     .profile-header-card {
-        background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%);
+        background: linear-gradient(135deg, #1f6fff 0%, #1456cc 100%);
         border: none;
         border-radius: 24px;
         color: white;
     }
+
     .admin-card {
         border: none;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         background: white;
     }
+
     .profile-avatar-lg {
         width: 100px;
         height: 100px;
@@ -23,6 +99,7 @@
         font-size: 2.5rem;
         font-weight: 800;
     }
+
     .form-label-custom {
         font-size: 0.75rem;
         text-transform: uppercase;
@@ -31,6 +108,7 @@
         color: #64748b;
         margin-bottom: 0.5rem;
     }
+
     .form-control-custom {
         border-radius: 12px;
         padding: 0.75rem 1rem;
@@ -38,13 +116,15 @@
         background-color: #f8fafc;
         transition: all 0.2s;
     }
+
     .form-control-custom:focus {
         background-color: #fff;
-        border-color: #4361ee;
-        box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+        border-color: var(--brand-blue);
+        box-shadow: 0 0 0 4px rgba(31, 111, 255, 0.1);
     }
+
     .btn-save {
-        background: #4361ee;
+        background: var(--brand-blue);
         color: white;
         border-radius: 12px;
         padding: 0.75rem 2rem;
@@ -52,17 +132,29 @@
         border: none;
         transition: all 0.3s;
     }
+
     .btn-save:hover {
-        background: #3751d4;
+        background: var(--brand-blue-dark);
         transform: translateY(-2px);
         color: white;
+        box-shadow: 0 8px 20px rgba(31, 111, 255, 0.2);
     }
 </style>
 
 <div class="container-fluid py-4">
-    <div class="mb-4 px-2">
-        <h2 class="fw-bold text-dark mb-0">Edit Staff Profile</h2>
-        <p class="text-muted small">Update professional details for {{ $dentist->name }}</p>
+
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-user-edit banner-icon"></i> 
+                <h1 class="banner-title">Edit Staff Profile</h1>
+            </div>
+            <p class="banner-subtitle">Update professional details for {{ $dentist->name }}.</p>
+        </div>
+        
+        <a href="{{ route('admin.dentists') }}" class="btn-banner-action">
+            <i class="fas fa-arrow-left"></i> Back to Directory
+        </a>
     </div>
 
     <form action="{{ route('admin.dentists.update', $dentist->id) }}" method="POST">
@@ -77,7 +169,7 @@
                         <i class="fas fa-user-md"></i>
                     </div>
                     <h3 class="fw-bold mb-1">{{ $dentist->name }}</h3>
-                    <div class="badge bg-white text-primary rounded-pill px-3 py-2 mb-3">
+                    <div class="badge bg-white text-primary rounded-pill px-3 py-2 mb-3" style="color: var(--brand-blue) !important;">
                         {{ $dentist->specialization }}
                     </div>
                     <p class="mb-0 opacity-75 small">Staff ID: #ST-{{ str_pad($dentist->id, 3, '0', STR_PAD_LEFT) }}</p>
@@ -100,6 +192,7 @@
                                        placeholder="Leave unchanged if not updating">
                                 @error('name') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label-custom">Email Address</label>
                                 <input type="email" name="email" class="form-control form-control-custom w-100 @error('email') is-invalid @enderror"
@@ -107,6 +200,7 @@
                                        placeholder="Leave unchanged if not updating">
                                 @error('email') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label-custom">Phone Number</label>
                                 <input type="text" name="phone_number"
@@ -117,6 +211,7 @@
                                        title="Please follow the format: 01X-XXXXXXX">
                                 @error('phone_number') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label-custom">Specialization</label>
                                 <select name="specialization" class="form-select form-control-custom w-100">
@@ -130,10 +225,7 @@
                         </div>
 
                         {{-- Action Buttons --}}
-                        <div class="mt-5 pt-4 border-top d-flex justify-content-between align-items-center">
-                            <a href="{{ route('admin.dentists') }}" class="text-muted font-weight-bold text-decoration-none">
-                                <i class="fas fa-arrow-left mr-1"></i> Back to Directory
-                            </a>
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-end align-items-center">
                             <div class="d-flex gap-2">
                                 <button type="reset" class="btn btn-light px-4 rounded-pill fw-bold">Reset Changes</button>
                                 <button type="submit" class="btn btn-save shadow">

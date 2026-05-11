@@ -11,22 +11,50 @@
         --shadow-soft: 0 14px 34px rgba(20, 33, 61, 0.08);
     }
 
-    .schedule-page-header {
-        margin-bottom: 1.4rem;
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
     }
 
-    .schedule-page-title {
-        color: var(--text-dark);
-        font-size: 1.8rem;
-        font-weight: 850;
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
         margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
     }
 
-    .schedule-page-subtitle {
-        color: var(--text-muted);
-        margin: 0.3rem 0 0;
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
     }
 
+    /* --- Existing Schedule Card Styles --- */
     .schedule-stack {
         display: grid;
         gap: 1rem;
@@ -40,7 +68,7 @@
         padding: 1.25rem;
     }
 
-    .schedule-header {
+    .schedule-header-inner {
         display: flex;
         justify-content: space-between;
         gap: 1rem;
@@ -140,8 +168,6 @@
         background: #22c55e;
     }
 
-    .utilization-low,
-    .utilization-moderate { background: #22c55e; }
     .utilization-high { background: #f97316; }
     .utilization-full { background: #dc2626; }
     .utilization-none { background: #94a3b8; }
@@ -176,16 +202,8 @@
         border-top: 1px dashed #dbe4f0;
     }
 
-    .slot-title {
-        color: var(--text-dark);
-        font-weight: 850;
-    }
-
-    .slot-subtitle {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        margin-top: 0.15rem;
-    }
+    .slot-title { color: var(--text-dark); font-weight: 850; }
+    .slot-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.15rem; }
 
     .slot-collapse-btn {
         border: 0;
@@ -202,9 +220,7 @@
         transition: max-height 0.25s ease;
     }
 
-    .slot-panel.is-open {
-        max-height: 900px;
-    }
+    .slot-panel.is-open { max-height: 900px; }
 
     .slot-grid {
         display: grid;
@@ -224,23 +240,9 @@
         text-align: center;
     }
 
-    .slot-pill.available {
-        background: #f0fdf4;
-        border-color: #bbf7d0;
-        color: #166534;
-    }
-
-    .slot-pill.booked {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #64748b;
-    }
-
-    .slot-pill.unavailable {
-        background: #fef2f2;
-        border-color: #fecaca;
-        color: #991b1b;
-    }
+    .slot-pill.available { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .slot-pill.booked { background: #f8fafc; border-color: #cbd5e1; color: #64748b; }
+    .slot-pill.unavailable { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
 
     .empty-state {
         background: #fff;
@@ -252,52 +254,31 @@
         text-align: center;
     }
 
-    .empty-state i {
-        color: #cbd5e1;
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
+    .empty-state i { color: #cbd5e1; font-size: 2.5rem; margin-bottom: 1rem; }
 
-    .pagination-custom {
-        display: flex;
-        justify-content: center;
-        padding: 1rem;
-    }
+    .pagination-custom { display: flex; justify-content: center; padding: 1rem; }
 
     @media (max-width: 768px) {
-        .schedule-card {
-            padding: 1rem;
-        }
-
-        .schedule-badges {
-            justify-content: flex-start;
-        }
-
-        .schedule-stats {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .slot-toolbar {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .slot-collapse-btn {
-            width: 100%;
-        }
+        .schedule-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .slot-toolbar { flex-direction: column; align-items: stretch; }
     }
 </style>
 
-<div class="schedule-page-header">
-    <h1 class="schedule-page-title">My Schedule</h1>
-    <p class="schedule-page-subtitle">A cleaner overview of your working hours, utilization, and generated slots.</p>
+<div class="banner-header">
+    <div class="banner-left">
+        <div class="banner-title-wrapper">
+            <i class="fas fa-calendar-alt banner-icon"></i> 
+            <h1 class="banner-title">My Schedule</h1>
+        </div>
+        <p class="banner-subtitle">Overview of your working hours, utilization, and generated slots.</p>
+    </div>
 </div>
 
 @if($schedules->isEmpty())
     <div class="empty-state">
         <i class="fas fa-calendar-times"></i>
         <p class="mb-1 font-weight-bold">No schedules available.</p>
-        <p class="mb-0">Create a new doctor schedule to begin managing appointments.</p>
+        <p class="mb-0">Please contact administration if you believe this is an error.</p>
     </div>
 @else
     <div class="schedule-stack">
@@ -316,7 +297,7 @@
             @endphp
 
             <article class="schedule-card">
-                <div class="schedule-header">
+                <div class="schedule-header-inner">
                     <div>
                         <div class="schedule-date-label">{{ $workingDate->format('l') }}</div>
                         <h2 class="schedule-date">{{ $workingDate->format('M d, Y') }}</h2>
@@ -341,25 +322,13 @@
                 </div>
 
                 <div class="schedule-stats">
-                    <div class="schedule-stat">
-                        <div class="stat-label">Total</div>
-                        <div class="stat-value">{{ $summary['total_slots'] }}</div>
-                    </div>
-                    <div class="schedule-stat">
-                        <div class="stat-label">Booked</div>
-                        <div class="stat-value">{{ $summary['booked_slots'] }}</div>
-                    </div>
-                    <div class="schedule-stat">
-                        <div class="stat-label">Available</div>
-                        <div class="stat-value">{{ $summary['remaining_slots'] }}</div>
-                    </div>
-                    <div class="schedule-stat">
-                        <div class="stat-label">Utilized</div>
-                        <div class="stat-value">{{ $summary['utilization_percentage'] }}%</div>
-                    </div>
+                    <div class="schedule-stat"><div class="stat-label">Total</div><div class="stat-value">{{ $summary['total_slots'] }}</div></div>
+                    <div class="schedule-stat"><div class="stat-label">Booked</div><div class="stat-value">{{ $summary['booked_slots'] }}</div></div>
+                    <div class="schedule-stat"><div class="stat-label">Available</div><div class="stat-value">{{ $summary['remaining_slots'] }}</div></div>
+                    <div class="schedule-stat"><div class="stat-label">Utilized</div><div class="stat-value">{{ $summary['utilization_percentage'] }}%</div></div>
                 </div>
 
-                <div class="utilization-progress" aria-label="Utilization {{ $summary['utilization_percentage'] }}%">
+                <div class="utilization-progress">
                     <div class="utilization-progress-fill {{ $summary['utilization_class'] }}" style="width: {{ $summary['utilization_percentage'] }}%;"></div>
                 </div>
 
@@ -374,8 +343,8 @@
 
                 <div class="slot-toolbar">
                     <div>
-                        <div class="slot-title">Available Slots ({{ $schedule->slots->count() }})</div>
-                        <div class="slot-subtitle">Collapsed by default to keep the schedule easy to scan.</div>
+                        <div class="slot-title">Generated Slots ({{ $schedule->slots->count() }})</div>
+                        <div class="slot-subtitle">View the individual time slots for this day.</div>
                     </div>
                     <button type="button" class="slot-collapse-btn js-slot-toggle" data-target="{{ $slotsPanelId }}" aria-expanded="false">
                         View Slots
@@ -383,23 +352,17 @@
                 </div>
 
                 <div class="slot-panel" id="{{ $slotsPanelId }}">
-                    @if($schedule->slots->isEmpty())
-                        <div class="text-muted pt-3">No slots generated for this schedule.</div>
-                    @else
-                        <div class="slot-grid">
-                            @foreach($schedule->slots as $slot)
-                                @php
-                                    $slotClass = $schedule->isBookable()
-                                        ? ($slot->is_available ? 'available' : 'booked')
-                                        : 'unavailable';
-                                @endphp
-                                <div class="slot-pill {{ $slotClass }}">
-                                    {{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}
-                                    <span class="d-block small">{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
+                    <div class="slot-grid">
+                        @foreach($schedule->slots as $slot)
+                            @php
+                                $slotClass = $schedule->isBookable() ? ($slot->is_available ? 'available' : 'booked') : 'unavailable';
+                            @endphp
+                            <div class="slot-pill {{ $slotClass }}">
+                                {{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}
+                                <span class="d-block small text-muted">{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </article>
         @endforeach
@@ -417,7 +380,6 @@ document.querySelectorAll('.js-slot-toggle').forEach((button) => {
     button.addEventListener('click', () => {
         const panel = document.getElementById(button.dataset.target);
         const isOpen = panel.classList.toggle('is-open');
-
         button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         button.textContent = isOpen ? 'Hide Slots' : 'View Slots';
     });

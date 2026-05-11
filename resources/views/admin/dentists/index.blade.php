@@ -2,68 +2,121 @@
 
 @section('content')
 <style>
-    /* 1. The Big Workspace Background */
-    .workspace-container {
+    /* 0. Page Background */
+    .content-wrapper {
+        min-height: calc(100vh - 80px);
+        background-color: #f8fbff;
+        padding-bottom: 3rem;
+    }
+
+    /* 1. Header — identical to Services */
+    .services-header {
+        background: linear-gradient(135deg, #1f6fff 0%, #1557d6 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(31, 111, 255, 0.2);
+    }
+
+    .btn-add-service {
+        background: white;
+        color: #1f6fff;
+        border: none;
+        border-radius: 12px;
+        padding: 0.7rem 1.4rem;
+        font-weight: 700;
+        transition: all 0.2s;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn-add-service:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        background: #fff;
+        color: #1f6fff;
+        text-decoration: none;
+    }
+
+    /* 2. White Box — identical to Services */
+    .card-white-box {
+        border: none;
+        border-radius: 24px;
         background: #ffffff;
-        border-radius: 30px;
-        padding: 40px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.02);
-        border: 1px solid #f1f5f9;
-        min-height: 650px;
-        margin-top: 20px;
+        box-shadow: 0 15px 40px rgba(20, 33, 61, 0.06);
+        overflow: hidden;
     }
 
-    /* 2. Header inside Workspace */
-    .workspace-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 40px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #f8fafc;
+    /* 3. Search bar inside card header */
+    .search-input {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px 0 0 12px;
+        height: 42px;
+        font-size: 0.875rem;
     }
 
-    /* 3. The Grid of Square Cards */
+    .search-input:focus {
+        background: #fff;
+        border-color: #1f6fff;
+        box-shadow: none;
+    }
+
+    .btn-search {
+        background: #1f6fff;
+        border: 1px solid #1f6fff;
+        border-radius: 0 12px 12px 0;
+        color: white;
+        padding: 0 1rem;
+    }
+
+    .btn-search:hover {
+        background: #1557d6;
+    }
+
+    /* 4. Dentist Grid */
     .dentist-grid {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
-        gap: 25px;
+        gap: 20px;
+        padding: 1.5rem;
     }
 
-    /* 4. Square Card Styling */
+    /* 5. Dentist Card */
     .dentist-card {
         background: #f8fafc;
-        width: 260px; 
-        border-radius: 24px;
-        padding: 24px;
-        transition: all 0.3s ease;
+        width: 240px;
+        border-radius: 20px;
+        padding: 22px 18px 18px;
         border: 1px solid transparent;
         display: flex;
         flex-direction: column;
         align-items: center;
+        transition: all 0.3s ease;
     }
 
     .dentist-card:hover {
         background: #ffffff;
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(31, 111, 255, 0.1) !important;
+        transform: translateY(-6px);
+        box-shadow: 0 15px 30px rgba(31, 111, 255, 0.1);
         border-color: rgba(31, 111, 255, 0.2);
     }
 
-    /* 5. Avatar & Badge */
+    /* 6. Avatar */
     .avatar-sq {
-        width: 75px;
-        height: 75px;
+        width: 70px;
+        height: 70px;
         background: #ffffff;
-        border-radius: 20px;
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
+    /* 7. Specialisation tag */
     .spec-tag {
         background: #1f6fff;
         color: #ffffff;
@@ -73,18 +126,17 @@
         border-radius: 50px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
 
-    /* 6. Action Buttons */
+    /* 8. Action buttons — matching Services edit/delete style */
     .btn-action-group {
         display: flex;
-        flex-direction: row;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         width: 100%;
         margin-top: auto;
-        padding-top: 15px;
+        padding-top: 14px;
         border-top: 1px dashed #e2e8f0;
     }
 
@@ -96,143 +148,158 @@
 
     .btn-edit-staff {
         flex: 1;
-        background: #ffffff;
-        color: #1e293b;
-        border: 1px solid #e2e8f0;
-        font-weight: 700;
-        font-size: 0.8rem;
-        padding: 10px;
-        border-radius: 12px;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    
-    .btn-edit-staff:hover {
         background: #f1f5f9;
         color: #1f6fff;
-    }
-
-    .btn-delete-staff {
-        background: #fee2e2;
-        color: #ef4444;
         border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        display: flex;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 0;
+        height: 38px;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
     }
 
-    .btn-delete-staff:hover {
-        background: #fecaca;
-        transform: scale(1.05);
+    .btn-edit-staff:hover {
+        background: #1f6fff;
+        color: white;
+        text-decoration: none;
     }
 
-    .footer-text {
-        margin-top: 40px;
-        text-align: center;
-        font-size: 0.8rem;
-        color: #94a3b8;
+    .btn-delete-staff {
+        background: #fee2e2;
+        color: #dc2626;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+    .btn-delete-staff:hover {
+        background: #dc2626;
+        color: white;
     }
 </style>
 
-<div class="container py-4">
-    {{-- Main Page Title --}}
-    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-        <h2 class="font-weight-bold text-dark mb-0">Dentist Directory</h2>
-        <a href="{{ route('admin.dentists.create') }}" class="btn btn-primary px-4 shadow-sm" style="border-radius: 15px; background: #1f6fff; font-weight: 600;">
-            <i class="fas fa-plus mr-2"></i> Create Account
-        </a>
-    </div>
+<div class="content-wrapper">
+    <div class="container-fluid py-4">
 
-    {{-- The Big Workspace Container --}}
-    <div class="workspace-container">
-        
-        {{-- Inner Header with Functional Search --}}
-        <div class="workspace-header">
-            <h5 class="font-weight-bold mb-0 text-dark">
-                @if(request('search'))
-                    Search Results for "{{ request('search') }}"
-                @else
-                    Active Professional Staff
-                @endif
-            </h5>
-            
-            <div class="d-flex align-items-center gap-3">
-                @if(request('search'))
-                    <a href="{{ route('admin.dentists') }}" class="text-primary small font-weight-bold text-decoration-none">
-                        <i class="fas fa-times-circle mr-1"></i> Clear Search
-                    </a>
-                @endif
-                
-                <form action="{{ route('admin.dentists') }}" method="GET" class="m-0">
-                    <div class="input-group" style="max-width: 320px;">
-                        <input type="text" 
-                               name="search" 
-                               class="form-control border-right-0" 
-                               placeholder="Search by name " 
-                               value="{{ request('search') }}"
-                               style="border-radius: 12px 0 0 12px; background: #f8fafc; border: 1px solid #e2e8f0; height: 45px;">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary px-3" type="submit" style="border-radius: 0 12px 12px 0; background: #1f6fff; border: 1px solid #1f6fff;">
+        {{-- Header — same as Services --}}
+        <div class="services-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1"><i class="fas fa-user-md me-2"></i>Dentist Directory</h2>
+                <p class="mb-0 text-white-50 small">Manage professional staff accounts</p>
+            </div>
+            <a href="{{ route('admin.dentists.create') }}" class="btn-add-service">
+                <i class="fas fa-plus me-2"></i>Create Account
+            </a>
+        </div>
+
+        {{-- Flash Messages --}}
+        @if(session('success'))
+            <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            </div>
+        @endif
+
+        {{-- White Box --}}
+        <div class="card card-white-box">
+            <div class="card-header bg-white border-0 py-4 px-4 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="fas fa-users me-2 text-primary"></i>
+                        @if(request('search'))
+                            Results for "{{ request('search') }}"
+                        @else
+                            Active Professional Staff
+                        @endif
+                    </h5>
+                    <span class="badge bg-primary-subtle text-primary ms-3 px-3 rounded-pill">{{ $dentists->count() }} Total</span>
+                </div>
+
+                {{-- Search --}}
+                <div class="d-flex align-items-center gap-2">
+                    @if(request('search'))
+                        <a href="{{ route('admin.dentists') }}" class="text-primary small fw-bold text-decoration-none">
+                            <i class="fas fa-times-circle me-1"></i>Clear
+                        </a>
+                    @endif
+                    <form action="{{ route('admin.dentists') }}" method="GET" class="m-0">
+                        <div class="input-group" style="max-width: 280px;">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control search-input"
+                                   placeholder="Search by name…"
+                                   value="{{ request('search') }}">
+                            <button class="btn btn-search" type="submit">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if($dentists->count() > 0)
+                    <div class="dentist-grid">
+                        @foreach($dentists as $dentist)
+                            <div class="dentist-card shadow-sm">
+                                <div class="avatar-sq">
+                                    <i class="fas {{ $dentist->gender == 'Female' ? 'fa-user-nurse' : 'fa-user-md' }} fa-2x text-primary"></i>
+                                </div>
+
+                                <h6 class="fw-bold text-dark mb-1 text-center">{{ $dentist->name }}</h6>
+                                <span class="spec-tag">{{ $dentist->specialization ?? 'General' }}</span>
+
+                                <div class="small text-muted mb-1 text-truncate w-100 text-center">
+                                    <i class="fas fa-envelope me-1 opacity-50"></i>{{ $dentist->email }}
+                                </div>
+                                <div class="small text-muted mb-2 text-center">
+                                    <i class="fas fa-phone me-1 opacity-50"></i>{{ $dentist->phone_number ?? 'No Phone' }}
+                                </div>
+
+                                <div class="btn-action-group">
+                                    <a href="{{ route('admin.dentists.edit', $dentist->id) }}" class="btn-edit-staff">
+                                        <i class="fas fa-pen me-1"></i>Edit
+                                    </a>
+                                    <form action="{{ route('admin.dentists.destroy', $dentist->id) }}" method="POST" onsubmit="return confirm('Delete this staff record?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-delete-staff" title="Delete">
+                                            <i class="fas fa-trash fa-sm"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                </form>
+
+                @else
+                    <div class="text-center py-5">
+                        <i class="fas fa-user-slash fa-3x text-muted mb-3 opacity-25"></i>
+                        <h5 class="text-muted">
+                            @if(request('search'))
+                                No dentists found matching your search.
+                            @else
+                                No dentists in the directory yet.
+                            @endif
+                        </h5>
+                        @if(request('search'))
+                            <a href="{{ route('admin.dentists') }}" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">View All Staff</a>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
 
-        {{-- Dentist Grid inside the Workspace --}}
-        <div class="dentist-grid">
-            @forelse($dentists as $dentist)
-                <div class="dentist-card shadow-sm">
-                    <div class="avatar-sq">
-                        <i class="fas {{ $dentist->gender == 'Female' ? 'fa-user-nurse' : 'fa-user-md' }} fa-2x text-primary"></i>
-                    </div>
-
-                    <h5 class="font-weight-bold text-dark mb-1">{{ $dentist->name }}</h5>
-                    <span class="spec-tag">{{ $dentist->specialization ?? 'General' }}</span>
-
-                    <div class="small text-muted mb-1 text-truncate w-100 text-center">
-                        <i class="fas fa-envelope mr-1 opacity-50"></i> {{ $dentist->email }}
-                    </div>
-                    <div class="small text-muted mb-2">
-                        <i class="fas fa-phone mr-1 opacity-50"></i> {{ $dentist->phone_number ?? 'No Phone' }}
-                    </div>
-
-                    {{-- Action Buttons --}}
-                    <div class="btn-action-group">
-                        <a href="{{ route('admin.dentists.edit', $dentist->id) }}" class="btn-edit-staff">Edit Profile</a>
-                        
-                        <form action="{{ route('admin.dentists.destroy', $dentist->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this staff record?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-delete-staff">
-                                <i class="fas fa-trash-alt fa-sm"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @empty
-                <div class="text-center py-5 w-100">
-                    <div class="mb-3 text-muted opacity-25">
-                        <i class="fas fa-search fa-4x"></i>
-                    </div>
-                    <p class="text-muted">No dentists found matching your criteria.</p>
-                    @if(request('search'))
-                        <a href="{{ route('admin.dentists') }}" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">View All Staff</a>
-                    @endif
-                </div>
-            @endforelse
-        </div>
-
-        <div class="footer-text">
-            CareSmile Dental Management System &bull; Dentist Directory View
-        </div>
     </div>
 </div>
 @endsection

@@ -13,17 +13,73 @@
         --radius-lg: 16px;
     }
 
-    .page-header {
-        margin-bottom: 1.5rem;
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
     }
 
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-dark);
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
         margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
     }
 
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- Form & Card Styles --- */
     .card-custom {
         border: 1px solid var(--card-border);
         border-radius: var(--radius-lg);
@@ -321,8 +377,18 @@
     }
 </style>
 
-<div class="page-header">
-    <h1 class="page-title">Create Schedule</h1>
+<div class="banner-header">
+    <div class="banner-left">
+        <div class="banner-title-wrapper">
+            <i class="fas fa-calendar-plus banner-icon"></i> 
+            <h1 class="banner-title">Create Schedule</h1>
+        </div>
+        <p class="banner-subtitle">Set up working hours and generate time slots for a doctor.</p>
+    </div>
+    
+    <a href="{{ route('admin.schedules.index') }}" class="btn-banner-action">
+        <i class="fas fa-arrow-left"></i> Back to Schedules
+    </a>
 </div>
 
 <div class="card-custom">

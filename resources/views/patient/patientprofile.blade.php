@@ -2,6 +2,56 @@
 
 @section('content')
 <style>
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
+        --brand-blue-light: #eef5ff;
+    }
+
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 30px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    /* --- Existing Profile Styles --- */
     .patient-card {
         border: 1px solid #e5e7eb;
         border-radius: 16px;
@@ -9,6 +59,7 @@
         background-color: white;
         margin-bottom: 1.5rem;
     }
+    
     .card-header-light {
         background-color: #f8fafc;
         border-bottom: 1px solid #e5e7eb;
@@ -17,8 +68,9 @@
         font-weight: 700;
         color: #111827;
     }
+    
     .btn-patient-primary {
-        background-color: #4361ee;
+        background-color: var(--brand-blue);
         color: white;
         border: none;
         border-radius: 8px;
@@ -26,19 +78,34 @@
         font-weight: 600;
         transition: all 0.2s;
     }
-    .form-control { border-radius: 8px; padding: 0.6rem 1rem; border: 1px solid #d1d5db; }
+    
+    .btn-patient-primary:hover {
+        background-color: var(--brand-blue-dark);
+        color: white;
+    }
+
+    .form-control { 
+        border-radius: 8px; 
+        padding: 0.6rem 1rem; 
+        border: 1px solid #d1d5db; 
+    }
+    
     .profile-page-avatar {
-        width: 100px; height: 100px; background-color: #eef2ff; color: #4361ee;
+        width: 100px; height: 100px; background-color: var(--brand-blue-light); color: var(--brand-blue);
         border-radius: 50%; display: flex; align-items: center; justify-content: center;
         font-size: 2.5rem; margin: 0 auto 1rem auto;
     }
 </style>
 
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-0" style="color: #111827;">My Profile</h2>
-            <p class="text-muted small mb-0">Manage your personal and medical information</p>
+    
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-user-circle banner-icon"></i> 
+                <h1 class="banner-title">My Profile</h1>
+            </div>
+            <p class="banner-subtitle">Manage your personal and medical information</p>
         </div>
     </div>
 

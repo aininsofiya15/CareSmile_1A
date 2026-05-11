@@ -2,6 +2,79 @@
 
 @section('content')
 <style>
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
+        --brand-blue-light: #eef5ff;
+    }
+
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
     /* 1. Workspace Wrapper to match the Directory */
     .workspace-container {
         background: #ffffff;
@@ -9,7 +82,6 @@
         padding: 40px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.02);
         border: 1px solid #f1f5f9;
-        margin-top: 20px;
     }
 
     /* 2. Refined Form Labels & Inputs */
@@ -78,10 +150,19 @@
 </style>
 
 <div class="container py-4">
-    {{-- Page Header --}}
-    <div class="mb-4 px-2">
-        <h2 class="font-weight-bold text-dark mb-1">Add New Staff</h2>
-        <p class="text-muted small">Register a professional dentist to the CareSmile system.</p>
+
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-user-plus banner-icon"></i> 
+                <h1 class="banner-title">Add New Staff</h1>
+            </div>
+            <p class="banner-subtitle">Register a professional dentist to the CareSmile system.</p>
+        </div>
+        
+        <a href="{{ route('admin.dentists') }}" class="btn-banner-action">
+            <i class="fas fa-arrow-left"></i> Back to Directory
+        </a>
     </div>
 
     <div class="row justify-content-center">
@@ -159,16 +240,11 @@
                     </div>
 
                     {{-- Action Buttons --}}
-                    <div class="d-flex justify-content-between align-items-center pt-4 border-top">
-                        <a href="{{ route('admin.dentists') }}" class="text-muted font-weight-bold text-decoration-none">
-                            <i class="fas fa-arrow-left mr-1"></i> Back to Directory
-                        </a>
-                        <div class="d-flex gap-3">
-                            <button type="reset" class="btn btn-light px-4" style="border-radius: 12px; font-weight: 700;">Reset</button>
-                            <button type="submit" class="btn btn-primary px-5 shadow-sm" style="border-radius: 12px; background: #1f6fff; font-weight: 700; border: none;">
-                                <i class="fas fa-user-check me-2"></i>Create Account
-                            </button>
-                        </div>
+                    <div class="d-flex justify-content-end align-items-center pt-4 border-top gap-3">
+                        <button type="reset" class="btn btn-light px-4" style="border-radius: 12px; font-weight: 700;">Reset</button>
+                        <button type="submit" class="btn btn-primary px-5 shadow-sm" style="border-radius: 12px; background: var(--brand-blue); font-weight: 700; border: none;">
+                            <i class="fas fa-user-check me-2"></i>Create Account
+                        </button>
                     </div>
                 </form>
             </div>

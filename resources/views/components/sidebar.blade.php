@@ -157,30 +157,40 @@
                 </li>
             @endif
 
-            {{-- 5. Services (Admin Only) --}}
+            {{-- 5. Services --}}
             @if(Auth::user()->isAdmin())
-            <li>
-                <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
-                    <i class="fas fa-tooth"></i>
-                    <span>Services</span>
-                </a>
-            </li>
+                <li>
+                    <a href="{{ route('admin.services.index') }}" class="sidebar-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+                        <i class="fas fa-tooth"></i>
+                        <span>Services</span>
+                    </a>
+                </li>
+            @elseif(!Auth::user()->isAdmin() && !Auth::user()->isDentist())
+                {{-- Patient Only: Browse Services --}}
+                <li>
+                    {{-- Note: Change '#' to your actual patient services route if you have one --}}
+                    <a href="{{ route('patient.services.index') }}" class="sidebar-link">
+                        <i class="fas fa-list-ul"></i>
+                        <span>Browse Services</span>
+                    </a>
+                </li>
             @endif
 
-            {{-- 6. My Profile --}}
-            <li>
-                @php
-                    $profileRoute = match(Auth::user()->role) {
-                        \App\Enums\Role::Admin   => 'admin.profile',
-                        \App\Enums\Role::Dentist => 'dentist.profile',
-                        default                  => 'patient.profile',
-                    };
-                @endphp
-                <a href="{{ route($profileRoute) }}" class="sidebar-link {{ request()->routeIs('*.profile') ? 'active' : '' }}">
-                    <i class="fas fa-user-circle"></i>
-                    <span>My Profile</span>
-                </a>
-            </li>
+            {{-- 6. My Profile (Hidden for Admin) --}}
+            @if(!Auth::user()->isAdmin())
+                <li>
+                    @php
+                        $profileRoute = match(Auth::user()->role) {
+                            \App\Enums\Role::Dentist => 'dentist.profile',
+                            default                  => 'patient.profile',
+                        };
+                    @endphp
+                    <a href="{{ route($profileRoute) }}" class="sidebar-link {{ request()->routeIs('*.profile') ? 'active' : '' }}">
+                        <i class="fas fa-user-circle"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+            @endif
 
             {{-- 7. Logout --}}
             <li>

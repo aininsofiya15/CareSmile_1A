@@ -13,49 +13,73 @@
         --radius-lg: 16px;
     }
 
-    .page-header {
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
     }
 
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-dark);
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
         margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
     }
 
-    .btn-primary-custom {
-        background: var(--brand-blue);
-        color: #fff;
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
         border: none;
-        border-radius: 12px;
-        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
         font-weight: 600;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 8px;
         transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .btn-primary-custom:hover {
-        background: var(--brand-blue-dark);
-        color: #fff;
-        transform: translateY(-1px);
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
-    .card-custom {
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-lg);
-        background: #fff;
-        box-shadow: var(--shadow-soft);
-    }
-
+    /* --- Summary Grid --- */
     .utilization-summary-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -86,66 +110,12 @@
         margin: 0;
     }
 
-    .utilization-metrics {
-        min-width: 180px;
-    }
-
-    .utilization-line {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.75rem;
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-bottom: 0.35rem;
-    }
-
-    .utilization-progress {
-        height: 8px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: #e2e8f0;
-        margin-bottom: 0.45rem;
-    }
-
-    .utilization-progress-fill {
-        height: 100%;
-        border-radius: inherit;
-        background: var(--brand-blue);
-    }
-
-    .utilization-badge {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 999px;
-        padding: 0.25rem 0.6rem;
-        font-size: 0.75rem;
-        font-weight: 800;
-    }
-
-    .utilization-none {
-        background: #f1f5f9;
-        color: #64748b;
-    }
-
-    .utilization-low {
-        background: #fef3c7;
-        color: #b45309;
-    }
-
-    .utilization-moderate {
-        background: #dbeafe;
-        color: #1d4ed8;
-    }
-
-    .utilization-high {
-        background: #ffedd5;
-        color: #c2410c;
-    }
-
-    .utilization-full {
-        background: #fee2e2;
-        color: #dc2626;
+    /* --- Table Styles --- */
+    .card-custom {
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg);
+        background: #fff;
+        box-shadow: var(--shadow-soft);
     }
 
     .table-custom {
@@ -173,249 +143,72 @@
         border-bottom: none;
     }
 
-    .badge-dentist {
-        background: var(--brand-blue-light);
-        color: var(--brand-blue);
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
+    /* --- Badges & Progress Bars --- */
+    .utilization-metrics { min-width: 180px; }
+    .utilization-line { display: flex; justify-content: space-between; gap: 0.75rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .utilization-progress { height: 8px; overflow: hidden; border-radius: 999px; background: #e2e8f0; margin-bottom: 0.45rem; }
+    .utilization-progress-fill { height: 100%; border-radius: inherit; background: var(--brand-blue); }
+    .utilization-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 800; }
+    
+    .utilization-none { background: #f1f5f9; color: #64748b; }
+    .utilization-low { background: #fef3c7; color: #b45309; }
+    .utilization-moderate { background: #dbeafe; color: #1d4ed8; }
+    .utilization-high { background: #ffedd5; color: #c2410c; }
+    .utilization-full { background: #fee2e2; color: #dc2626; }
 
-    .badge-active {
-        background: #dcfce7;
-        color: #16a34a;
-        padding: 0.25rem 0.6rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
+    .badge-dentist { background: var(--brand-blue-light); color: var(--brand-blue); padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+    .badge-active { background: #dcfce7; color: #16a34a; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .badge-inactive { background: #f1f5f9; color: #64748b; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .badge-fully-booked { background: #ffedd5; color: #c2410c; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .badge-unavailable { background: #fee2e2; color: #dc2626; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
 
-    .badge-inactive {
-        background: #f1f5f9;
-        color: #64748b;
-        padding: 0.25rem 0.6rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
+    /* --- Action Buttons --- */
+    .action-btns { display: flex; gap: 0.5rem; }
+    .btn-action { padding: 0.4rem 0.75rem; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; transition: all 0.2s ease; }
+    .btn-edit { background: var(--brand-blue-light); color: var(--brand-blue); }
+    .btn-edit:hover { background: var(--brand-blue); color: #fff; }
+    .btn-view { background: #e0e7ff; color: #4f46e5; }
+    .btn-view:hover { background: #4f46e5; color: #fff; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-delete:hover { background: #dc2626; color: #fff; }
 
-    .badge-fully-booked {
-        background: #ffedd5;
-        color: #c2410c;
-        padding: 0.25rem 0.6rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
+    /* --- Modals & Empty States --- */
+    .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+    .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    .pagination-custom { display: flex; justify-content: center; padding: 1rem; gap: 0.5rem; }
+    .pagination-custom .page-link { color: var(--brand-blue); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.5rem 0.75rem; }
+    .pagination-custom .page-link:hover { background: var(--brand-blue-light); }
+    .pagination-custom .page-item.active .page-link { background: var(--brand-blue); border-color: var(--brand-blue); color: white; }
 
-    .badge-unavailable {
-        background: #fee2e2;
-        color: #dc2626;
-        padding: 0.25rem 0.6rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .action-btns {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-action {
-        padding: 0.4rem 0.75rem;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        transition: all 0.2s ease;
-    }
-
-    .btn-edit {
-        background: var(--brand-blue-light);
-        color: var(--brand-blue);
-    }
-
-    .btn-edit:hover {
-        background: var(--brand-blue);
-        color: #fff;
-    }
-
-    .btn-view {
-        background: #e0e7ff;
-        color: #4f46e5;
-    }
-
-    .btn-view:hover {
-        background: #4f46e5;
-        color: #fff;
-    }
-
-    .btn-delete {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-
-    .btn-delete:hover {
-        background: #dc2626;
-        color: #fff;
-    }
-
-    .impact-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        margin-top: 0.4rem;
-        padding: 0.25rem 0.55rem;
-        border-radius: 999px;
-        background: #fff7ed;
-        color: #c2410c;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-
-    .impact-modal-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 1050;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(15, 23, 42, 0.52);
-        padding: 1rem;
-    }
-
-    .impact-modal-backdrop.is-visible {
-        display: flex;
-    }
-
-    .impact-modal {
-        width: min(560px, 100%);
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 22px 55px rgba(15, 23, 42, 0.28);
-        overflow: hidden;
-    }
-
-    .impact-modal-header {
-        padding: 1.25rem 1.5rem;
-        background: #fef2f2;
-        color: #991b1b;
-        border-bottom: 1px solid #fecaca;
-    }
-
-    .impact-modal-title {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 800;
-    }
-
-    .impact-modal-body {
-        padding: 1.5rem;
-        color: var(--text-dark);
-    }
-
-    .impact-detail-list {
-        padding-left: 1rem;
-        margin: 0.75rem 0 0;
-    }
-
-    .impact-appointments {
-        margin-top: 1rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .impact-appointment-row {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 0.75rem;
-        padding: 0.7rem 0.85rem;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 0.9rem;
-    }
-
-    .impact-appointment-row:last-child {
-        border-bottom: 0;
-    }
-
-    .impact-modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        padding: 1rem 1.5rem 1.5rem;
-    }
-
-    .btn-modal-cancel,
-    .btn-modal-danger {
-        border: 0;
-        border-radius: 10px;
-        padding: 0.65rem 1rem;
-        font-weight: 700;
-    }
-
-    .btn-modal-cancel {
-        background: #f1f5f9;
-        color: #475569;
-    }
-
-    .btn-modal-danger {
-        background: #dc2626;
-        color: #fff;
-    }
-
-    .btn-modal-danger:disabled {
-        background: #94a3b8;
-        cursor: not-allowed;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: var(--text-muted);
-    }
-
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .pagination-custom {
-        display: flex;
-        justify-content: center;
-        padding: 1rem;
-        gap: 0.5rem;
-    }
-
-    .pagination-custom .page-link {
-        color: var(--brand-blue);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-    }
-
-    .pagination-custom .page-link:hover {
-        background: var(--brand-blue-light);
-    }
-
-    .pagination-custom .page-item.active .page-link {
-        background: var(--brand-blue);
-        border-color: var(--brand-blue);
-    }
+    .impact-pill { display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.4rem; padding: 0.25rem 0.55rem; border-radius: 999px; background: #fff7ed; color: #c2410c; font-size: 0.75rem; font-weight: 700; }
+    .impact-modal-backdrop { position: fixed; inset: 0; z-index: 1050; display: none; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.52); padding: 1rem; }
+    .impact-modal-backdrop.is-visible { display: flex; }
+    .impact-modal { width: min(560px, 100%); background: #fff; border-radius: 16px; box-shadow: 0 22px 55px rgba(15, 23, 42, 0.28); overflow: hidden; }
+    .impact-modal-header { padding: 1.25rem 1.5rem; background: #fef2f2; color: #991b1b; border-bottom: 1px solid #fecaca; }
+    .impact-modal-title { margin: 0; font-size: 1.1rem; font-weight: 800; }
+    .impact-modal-body { padding: 1.5rem; color: var(--text-dark); }
+    .impact-detail-list { padding-left: 1rem; margin: 0.75rem 0 0; }
+    .impact-appointments { margin-top: 1rem; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .impact-appointment-row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; padding: 0.7rem 0.85rem; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .impact-appointment-row:last-child { border-bottom: 0; }
+    .impact-modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.5rem 1.5rem; }
+    .btn-modal-cancel, .btn-modal-danger { border: 0; border-radius: 10px; padding: 0.65rem 1rem; font-weight: 700; }
+    .btn-modal-cancel { background: #f1f5f9; color: #475569; }
+    .btn-modal-danger { background: #dc2626; color: #fff; }
+    .btn-modal-danger:disabled { background: #94a3b8; cursor: not-allowed; }
 </style>
 
-<div class="page-header">
-    <h1 class="page-title">Doctor Schedules</h1>
-    <a href="{{ route('admin.schedules.create') }}" class="btn-primary-custom">
-        <i class="fas fa-plus"></i>
-        Add Schedule
+{{-- The New Blue Banner Header --}}
+<div class="banner-header">
+    <div class="banner-left">
+        <div class="banner-title-wrapper">
+            <i class="fas fa-calendar-alt banner-icon"></i> 
+            <h1 class="banner-title">Doctor Schedules</h1>
+        </div>
+        <p class="banner-subtitle">Manage dentist availability and time slot generation.</p>
+    </div>
+    <a href="{{ route('admin.schedules.create') }}" class="btn-banner-action">
+        <i class="fas fa-plus"></i> Add Schedule
     </a>
 </div>
 

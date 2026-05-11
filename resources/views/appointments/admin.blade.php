@@ -20,6 +20,32 @@
         padding: 20px;
     }
 
+    /* New styles for the card header and dropdown */
+    .card-header-custom {
+        display: flex;
+        justify-content: flex-end; /* Aligns the dropdown to the right */
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .form-select-custom {
+        padding: 8px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background-color: #f9fafb;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-select-custom:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
     .table-custom {
         width: 100%;
         border-collapse: collapse;
@@ -57,6 +83,16 @@
     .btn-complete:hover {
         opacity: 0.85;
     }
+    
+    .btn-delete {
+        background-color: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-delete:hover {
+        background-color: #e5e7eb;
+    }
 
     .status-scheduled {
         color: #2563eb;
@@ -81,27 +117,36 @@
     .text-muted {
         color: gray;
     }
+
+    .services-header {
+        background: linear-gradient(135deg, #1f6fff 0%, #1557d6 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(31, 111, 255, 0.2);
+    }
+
 </style>
 
-<div class="page-header">
-    <h1 class="page-title">Appointments List</h1>
+<div class="services-header">
+    <h2 class="fw-bold mb-1"><i class="fas fa-calendar-check me-2"></i>Appointments List</h2>
+    <p class="mb-0 text-white-50 small">View and manage all scheduled clinic appointments</p>
 </div>
 
-<form method="GET" action="{{ route('admin.appointments') }}" style="margin-bottom: 15px;">
-    <select name="status" onchange="this.form.submit()" style="padding:8px; border-radius:6px;">
-        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All</option>
-
-        <option value="scheduled" {{ request('status') == 'scheduled' || !request('status') ? 'selected' : '' }}>
-            Scheduled
-        </option>
-
-        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-        <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No-show</option>
-    </select>
-</form>
-
 <div class="card-custom">
+    
+    <div class="card-header-custom">
+        <form method="GET" action="{{ route('admin.appointments') }}">
+            <select name="status" onchange="this.form.submit()" class="form-select-custom">
+                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All</option>
+                <option value="scheduled" {{ request('status') == 'scheduled' || !request('status') ? 'selected' : '' }}>Scheduled</option>
+                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No-show</option>
+            </select>
+        </form>
+    </div>
 
     <table class="table-custom">
         <thead>
@@ -164,7 +209,7 @@
 
             @empty
                 <tr>
-                    <td colspan="6" class="text-muted">
+                    <td colspan="6" class="text-muted" style="text-align: center; padding: 20px;">
                         No appointments found
                     </td>
                 </tr>

@@ -4,6 +4,7 @@
 <style>
     :root {
         --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
         --brand-blue-light: #eef5ff;
         --text-dark: #14213d;
         --text-muted: #6c7a92;
@@ -11,43 +12,75 @@
         --shadow-soft: 0 16px 38px rgba(20, 33, 61, 0.09);
     }
 
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- Schedule Details Card Styles --- */
     .schedule-shell {
         padding: 1.5rem 0;
-    }
-
-    .page-header {
-        align-items: flex-start;
-        display: flex;
-        gap: 1rem;
-        justify-content: space-between;
-        margin-bottom: 1.2rem;
-        flex-wrap: wrap;
-    }
-
-    .page-title {
-        color: var(--text-dark);
-        font-size: 1.8rem;
-        font-weight: 850;
-        margin: 0;
-    }
-
-    .page-subtitle {
-        color: var(--text-muted);
-        margin: 0.25rem 0 0;
-    }
-
-    .back-button {
-        align-items: center;
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        box-shadow: 0 6px 16px rgba(20, 33, 61, 0.06);
-        color: var(--text-dark);
-        display: inline-flex;
-        font-weight: 800;
-        gap: 0.45rem;
-        padding: 0.7rem 1rem;
-        text-decoration: none;
     }
 
     .schedule-card {
@@ -277,26 +310,11 @@
     }
 
     @media (max-width: 768px) {
-        .schedule-card {
-            padding: 1rem;
-        }
-
-        .schedule-badges {
-            justify-content: flex-start;
-        }
-
-        .stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .slot-toolbar {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .slot-collapse-btn {
-            width: 100%;
-        }
+        .schedule-card { padding: 1rem; }
+        .schedule-badges { justify-content: flex-start; }
+        .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .slot-toolbar { align-items: stretch; flex-direction: column; }
+        .slot-collapse-btn { width: 100%; }
     }
 </style>
 
@@ -306,14 +324,18 @@
 @endphp
 
 <div class="container schedule-shell">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">Schedule Details</h1>
-            <p class="page-subtitle">Review schedule status, utilization, break time, and generated slots.</p>
+    
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-calendar-day banner-icon"></i> 
+                <h1 class="banner-title">Schedule Details</h1>
+            </div>
+            <p class="banner-subtitle">Review schedule status, utilization, break time, and generated slots.</p>
         </div>
-        <a href="{{ route('admin.schedules.index') }}" class="back-button">
-            <i class="fas fa-arrow-left"></i>
-            Back to List
+        
+        <a href="{{ route('admin.schedules.index') }}" class="btn-banner-action">
+            <i class="fas fa-arrow-left"></i> Back to List
         </a>
     </div>
 

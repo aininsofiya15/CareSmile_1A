@@ -2,7 +2,95 @@
 
 @section('content')
 <style>
-    /* CareSmile Admin-Patient View Theme */
+    :root {
+        --brand-blue: #1f6fff;
+        --brand-blue-dark: #1456cc;
+        --brand-blue-light: #eef5ff;
+        --text-dark: #14213d;
+        --text-muted: #6c7a92;
+    }
+
+    /* --- The Blue Banner Header Styles --- */
+    .banner-header {
+        background-color: var(--brand-blue);
+        border-radius: 12px;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(31, 111, 255, 0.15);
+    }
+
+    .banner-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .banner-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+    }
+
+    .banner-icon {
+        font-size: 26px;
+    }
+
+    .banner-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .banner-subtitle {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 6px 0 0 0;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+    }
+
+    .banner-breadcrumb-link {
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .banner-breadcrumb-link:hover {
+        color: white;
+        text-decoration: underline;
+    }
+
+    .btn-banner-action {
+        background-color: white;
+        color: var(--brand-blue);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+
+    .btn-banner-action:hover {
+        background-color: #f8fafc;
+        color: var(--brand-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- CareSmile Admin-Patient View Theme --- */
     .patient-card {
         border: 1px solid #e5e7eb;
         border-radius: 16px;
@@ -35,12 +123,17 @@
     }
 
     .btn-admin-primary {
-        background-color: #4361ee;
+        background-color: var(--brand-blue);
         color: white;
         border: none;
         border-radius: 8px;
         padding: 0.6rem 1.5rem;
         font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-admin-primary:hover {
+        background-color: var(--brand-blue-dark);
     }
 
     .form-control { border-radius: 8px; padding: 0.6rem 1rem; border: 1px solid #d1d5db; }
@@ -48,19 +141,21 @@
 
 <div class="container-fluid py-3">
 
-    {{-- Header Section --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-0" style="color: #111827;">Patient Profile</h2>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 small">
-                    <li class="breadcrumb-item"><a href="{{ route('admin.patients') }}" class="text-decoration-none">Patients</a></li>
-                    <li class="breadcrumb-item active text-muted">{{ $patient->name }}</li>
-                </ol>
-            </nav>
+    <div class="banner-header">
+        <div class="banner-left">
+            <div class="banner-title-wrapper">
+                <i class="fas fa-user-injured banner-icon"></i> 
+                <h1 class="banner-title">Patient Profile</h1>
+            </div>
+            <p class="banner-subtitle">
+                <a href="{{ route('admin.patients') }}" class="banner-breadcrumb-link">Patients</a> 
+                <i class="fas fa-chevron-right mx-2" style="font-size: 10px; opacity: 0.5;"></i> 
+                <span class="text-white fw-bold">{{ $patient->name }}</span>
+            </p>
         </div>
-        <button type="button" onclick="toggleEdit()" id="editBtn" class="btn btn-outline-primary rounded-pill px-4">
-            <i class="fas fa-edit me-2"></i>Edit Profile
+        
+        <button type="button" onclick="toggleEdit()" id="editBtn" class="btn-banner-action">
+            <i class="fas fa-edit"></i> Edit Profile
         </button>
     </div>
 
@@ -68,13 +163,13 @@
         {{-- LEFT COLUMN: Identity & Account Info --}}
         <div class="col-lg-4">
             {{-- Visual Profile Card --}}
-            <div class="card patient-card text-center p-4 shadow-sm" style="background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%); color: white;">
+            <div class="card patient-card text-center p-4 shadow-sm" style="background: linear-gradient(135deg, #1f6fff 0%, #1456cc 100%); color: white;">
                 <div class="profile-page-avatar">
                     {{ strtoupper(substr($patient->name, 0, 1)) }}
                 </div>
                 <h4 class="fw-bold mb-1">{{ $patient->name }}</h4>
                 <p class="opacity-75 mb-3">ID: #CS-{{ str_pad($patient->id, 4, '0', STR_PAD_LEFT) }}</p>
-                <div class="bg-white text-primary rounded-pill px-3 py-1 d-inline-block small fw-bold">Active Record</div>
+                <div class="bg-white text-primary rounded-pill px-3 py-1 d-inline-block small fw-bold" style="color: var(--brand-blue) !important;">Active Record</div>
             </div>
 
             {{-- Account Information & Reset Password --}}
@@ -116,7 +211,7 @@
                 {{-- Section 1: Personal --}}
                 <div class="card patient-card mb-4">
                     <div class="card-header card-header-light">
-                        <h6 class="fw-bold mb-0 text-primary">Personal Details</h6>
+                        <h6 class="fw-bold mb-0 text-primary" style="color: var(--brand-blue) !important;">Personal Details</h6>
                     </div>
                     <div class="card-body p-4">
                         {{-- Hidden fields so name & email pass through validation --}}
@@ -248,4 +343,6 @@ function toggleEdit() {
     });
 @endif
 </script>
+
+
 @endsection

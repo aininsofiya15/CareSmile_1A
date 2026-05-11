@@ -7,9 +7,9 @@
         background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%);
         border-radius: 24px;
         color: white;
-        padding: 3rem 3rem;
+        padding: 2.2rem;
         box-shadow: 0 20px 40px rgba(67, 97, 238, 0.2);
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
     }
 
     .patient-badge {
@@ -24,68 +24,6 @@
         margin-bottom: 1rem;
     }
 
-    /* Stat Cards */
-    .stat-card {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-        transition: transform 0.3s ease;
-        padding: 2rem;
-        height: 100%;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .icon-box-blue {
-        width: 55px;
-        height: 55px;
-        border-radius: 14px;
-        background-color: #eef2ff;
-        color: #4361ee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 1.2rem;
-    }
-
-    /* Quick Action Cards */
-    .action-card {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        padding: 1.8rem;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .action-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.06);
-    }
-
-    .btn-blue-light {
-        background-color: #eef2ff;
-        color: #4361ee;
-        font-weight: 700;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .btn-blue-light:hover {
-        background-color: #e0e7ff;
-        color: #3a56d4;
-    }
-
     .btn-white {
         background-color: white;
         color: #4361ee;
@@ -94,11 +32,100 @@
         padding: 0.8rem 1.5rem;
         text-decoration: none;
         transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
     }
 
     .btn-white:hover {
         background-color: #f8fafc;
-        transform: scale(1.02);
+        transform: translateY(-2px);
+        color: #3a56d4;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Card Styles */
+    .dashboard-card {
+        background: white;
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Used for the right column to stretch fully */
+    .h-100-card {
+        height: 100%;
+    }
+
+    .icon-box-blue {
+        width: 55px;
+        height: 40px;
+        border-radius: 14px;
+        background-color: #eef2ff;
+        color: #4361ee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .date-box {
+        background-color: white;
+        color: #4361ee;
+        border-radius: 12px;
+        width: 65px;
+        height: 65px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        line-height: 1.2;
+    }
+
+    .appt-list-item {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        padding: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .appt-list-item:hover {
+        background-color: white;
+        border-color: #e2e8f0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+        transform: translateY(-2px);
+    }
+
+    .status-badge {
+        background-color: #eef2ff;
+        color: #4361ee;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    /* Action Button for Services Box */
+    .btn-light-blue-full {
+        background-color: #eef2ff;
+        color: #4361ee;
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 0.8rem;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        transition: all 0.2s ease;
+        border: none;
+    }
+
+    .btn-light-blue-full:hover {
+        background-color: #e0e7ff;
         color: #3a56d4;
     }
 </style>
@@ -115,147 +142,113 @@
             <p class="mb-0 text-white" style="max-width: 600px; opacity: 0.9;">Manage your dental appointments, track your oral health records, and access your treatment history all in one place.</p>
         </div>
         <div>
-            <a href="{{ route('patient.appointments.create') }}" class="btn-white shadow-sm"><i class="fas fa-plus me-2"></i>New Appointment</a>
+            <a href="{{ route('patient.appointments.create') }}" class="btn-white shadow-sm">
+                <i class="fas fa-plus me-2"></i>New Appointment
+            </a>
         </div>
     </div>
 
-    {{-- 2. STAT CARDS ROW --}}
+    {{-- 2. MAIN CONTENT GRID --}}
     <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="icon-box-blue">
-                    <i class="far fa-calendar-alt"></i>
+        
+        {{-- LEFT COLUMN: Stacked Cards (Next Appointment + Our Services) --}}
+        <div class="col-lg-4 d-flex flex-column gap-4">
+            
+            {{-- Top Card: Next Appointment --}}
+            <div class="dashboard-card">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="icon-box-blue mb-0 me-3">
+                        <i class="far fa-calendar-check"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">Next Appointment</h5>
                 </div>
-                <h6 class="fw-bold text-muted mb-2">Next Appointment</h6>
+
                 @if($nextAppointment)
-                    <h2 class="fw-black text-dark mb-2">
-                        {{ \Carbon\Carbon::parse($nextAppointment->appointment_date)->format('d M Y') }}
-                    </h2>
-                    <p class="text-muted small mb-0">
-                        {{ $nextAppointment->appointment_time }} - {{ $nextAppointment->service }}
-                    </p>
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Date</p>
+                        <h2 class="fw-black text-dark mb-4" style="font-size: 2.2rem; letter-spacing: -1px;">
+                            {{ \Carbon\Carbon::parse($nextAppointment->appointment_date)->format('d M Y') }}
+                        </h2>
+                        
+                        <div class="p-3 rounded-4 mb-2" style="background-color: #f8fafc;">
+                            <div class="d-flex align-items-center text-dark fw-bold mb-2">
+                                <i class="far fa-clock me-3 text-muted" style="font-size: 1.2rem;"></i>
+                                <span class="fs-5">{{ \Carbon\Carbon::parse($nextAppointment->appointment_time)->format('h:i A') }}</span>
+                            </div>
+                            <div class="d-flex align-items-center text-primary fw-bold">
+                                <i class="fas fa-tooth me-3" style="font-size: 1.2rem;"></i>
+                                <span>{{ $nextAppointment->service }}</span>
+                            </div>
+                        </div>
+                    </div>
                 @else
-                    <h2 class="fw-black text-dark mb-2">Not Scheduled</h2>
-                    <p class="text-muted small mb-0">You have no upcoming visits.</p>
+                    <div class="py-4 text-center">
+                        <div class="icon-box-blue mx-auto mb-3" style="background: #f8fafc; color: #cbd5e1;"><i class="far fa-calendar-times"></i></div>
+                        <h5 class="fw-bold text-dark">Not Scheduled</h5>
+                        <p class="text-muted mb-0">You have no upcoming visits.</p>
+                    </div>
                 @endif
             </div>
+
+            {{-- Bottom Card: Our Services --}}
+            <div class="dashboard-card">
+                <div class="icon-box-blue mb-3" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Our Services</h5>
+                <p class="text-muted small mb-4">Browse all dental treatments and prices.</p>
+                
+                {{-- Make sure to link this to your services page route --}}
+                <a href="{{ route('patient.services.index') }}" class="btn-light-blue-full mt-auto">View Services</a>
+            </div>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="icon-box-blue">
-                    <i class="fas fa-tooth"></i>
+        {{-- RIGHT COLUMN: Upcoming Appointments List --}}
+        <div class="col-lg-8">
+            <div class="dashboard-card h-100-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-dark">Upcoming Schedule</h5>
+                    <a href="{{ route('patient.appointments') }}" class="text-primary fw-bold text-decoration-none small">View All</a>
                 </div>
-                <h6 class="fw-bold text-muted mb-2">Total Visits</h6>
-                <h1 class="fw-black text-dark mb-2" style="font-size: 3rem; font-weight: 800;">
-                    {{ $totalVisits }}
-                </h1>
-                <p class="text-muted small mb-0">Past completed treatments.</p>
+
+                <div class="card-body p-0">
+                    @if($upcomingAppointments->isEmpty())
+                        <div class="text-center py-5">
+                            <p class="text-muted mb-0">No other appointments scheduled.</p>
+                        </div>
+                    @else
+                        <div class="d-flex flex-column gap-3">
+                            @foreach($upcomingAppointments as $a)
+                                <div class="appt-list-item d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        {{-- Custom Date Box --}}
+                                        <div class="date-box">
+                                            <span class="fw-bold" style="font-size: 1.4rem;">{{ \Carbon\Carbon::parse($a->appointment_date)->format('d') }}</span>
+                                            <span class="fw-bold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">{{ \Carbon\Carbon::parse($a->appointment_date)->format('M') }}</span>
+                                        </div>
+                                        
+                                        {{-- Details --}}
+                                        <div>
+                                            <h6 class="fw-bold mb-1 text-dark" style="font-size: 1.1rem;">{{ $a->service }}</h6>
+                                            <p class="text-muted small mb-0 fw-medium">
+                                                <i class="far fa-clock me-1"></i> {{ \Carbon\Carbon::parse($a->appointment_time)->format('h:i A') }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Status Pill --}}
+                                    <div>
+                                        <span class="status-badge">Scheduled</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="icon-box-blue">
-                    <i class="far fa-bell"></i>
-                </div>
-                <h6 class="fw-bold text-muted mb-2">Notifications</h6>
-                <h1 class="fw-black text-dark mb-2" style="font-size: 3rem; font-weight: 800;">0</h1>
-                <p class="text-muted small mb-0">Unread messages from clinic.</p>
-            </div>
-        </div>
     </div>
-
-    {{-- 3. QUICK ACTIONS ROW --}}
-    <h3 class="fw-bold mb-2">My Services</h3>
-    <p class="text-muted mb-4">Quick access to your dental services and records.</p>
-
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card action-card">
-                <div class="icon-box-blue" style="width: 45px; height: 45px; font-size: 1.2rem;">
-                    <i class="far fa-calendar-plus"></i>
-                </div>
-                <h6 class="fw-bold fs-5">Book Visit</h6>
-                <p class="text-muted small mb-4">Schedule a new checkup or treatment.</p>
-                <div class="mt-auto d-grid">
-                    <a href="{{ route('patient.appointments.create') }}" class="btn-blue-light">Book Now</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card action-card">
-                <div class="icon-box-blue" style="width: 45px; height: 45px; font-size: 1.2rem;">
-                    <i class="far fa-folder-open"></i>
-                </div>
-                <h6 class="fw-bold fs-5">My Records</h6>
-                <p class="text-muted small mb-4">View your x-rays and dental history.</p>
-                <div class="mt-auto d-grid">
-                    <a href="#" class="btn-blue-light">View Records</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card action-card">
-                <div class="icon-box-blue" style="width: 45px; height: 45px; font-size: 1.2rem;">
-                    <i class="fas fa-file-prescription"></i>
-                </div>
-                <h6 class="fw-bold fs-5">Prescriptions</h6>
-                <p class="text-muted small mb-4">Check your active medications and care instructions.</p>
-                <div class="mt-auto d-grid">
-                    <a href="#" class="btn-blue-light">View Details</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card action-card">
-                <div class="icon-box-blue" style="width: 45px; height: 45px; font-size: 1.2rem;">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                </div>
-                <h6 class="fw-bold fs-5">Billing</h6>
-                <p class="text-muted small mb-4">Review past invoices and make payments.</p>
-                <div class="mt-auto d-grid">
-                    <a href="#" class="btn-blue-light">View Billing</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-    <div class="card action-card">
-        <div class="icon-box-blue" style="width: 45px; height: 45px; font-size: 1.2rem;">
-            <i class="fas fa-list-ul"></i>
-        </div>
-        <h6 class="fw-bold fs-5">Our Services</h6>
-        <p class="text-muted small mb-4">Browse all dental treatments and prices.</p>
-        <div class="mt-auto d-grid">
-            <a href="{{ route('patient.services.index') }}" class="btn-blue-light">View Services</a>
-        </div>
-    </div>
-    </div>
-
-    {{-- 4. UPCOMING APPOINTMENTS --}}
-    <div class="card mt-4" style="border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04);">
-        <div class="card-header" style="background: none; border-bottom: 1px solid #f1f5f9; padding: 1.5rem 2rem;">
-            <h5 class="fw-bold mb-0">Upcoming Appointments</h5>
-        </div>
-        <div class="card-body" style="padding: 1.5rem 2rem;">
-            @if($upcomingAppointments->isEmpty())
-                <p class="text-muted">No upcoming appointments</p>
-            @else
-                <ul>
-                    @foreach($upcomingAppointments as $a)
-                        <li>
-                            {{ $a->appointment_date }} - {{ $a->service }}
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-    </div>
-
 </div>
 @endsection
