@@ -107,7 +107,13 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label-custom">Phone Number</label>
-                            <input type="text" name="phone_number" class="form-control-custom w-100" placeholder="01X-XXXXXXX" required value="{{ old('phone_number') }}">
+                            <input type="text" name="phone_number"
+                                   class="form-control-custom w-100 @error('phone_number') is-invalid @enderror"
+                                   placeholder="e.g. 011-12345678"
+                                   pattern="01[0-9]-[0-9]{7,8}"
+                                   title="Please follow the format: 01X-XXXXXXX"
+                                   required value="{{ old('phone_number') }}">
+                            @error('phone_number') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">

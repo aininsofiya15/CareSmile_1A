@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-    /* Reuse your beautiful styles */
     .profile-header-card {
         background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%);
         border: none;
@@ -88,40 +87,49 @@
             {{-- Right Side: Edit Form --}}
             <div class="col-lg-8">
                 <div class="card admin-card mb-4">
-                    <div class="card-header bg-white border-0 pt-4 px-4">
+                    <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                         <h5 class="fw-bold mb-0">Professional Information</h5>
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Only fill in fields you want to update</small>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label class="form-label-custom">Full Name</label>
-                                <input type="text" name="name" class="form-control form-control-custom w-100" value="{{ $dentist->name }}" required>
+                                <input type="text" name="name" class="form-control form-control-custom w-100 @error('name') is-invalid @enderror"
+                                       value="{{ old('name', $dentist->name) }}"
+                                       placeholder="Leave unchanged if not updating">
+                                @error('name') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">Email Address</label>
-                                <input type="email" name="email" class="form-control form-control-custom w-100" value="{{ $dentist->email }}" required>
+                                <input type="email" name="email" class="form-control form-control-custom w-100 @error('email') is-invalid @enderror"
+                                       value="{{ old('email', $dentist->email) }}"
+                                       placeholder="Leave unchanged if not updating">
+                                @error('email') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">Phone Number</label>
-                                <input type="text" name="phone_number" class="form-control form-control-custom w-100" 
-                                       value="{{ $dentist->phone_number }}" 
-                                       placeholder="01X-XXXXXXX" 
-                                       pattern="01[0-9]-[0-9]{7,8}" 
-                                       required>
+                                <input type="text" name="phone_number"
+                                       class="form-control form-control-custom w-100 @error('phone_number') is-invalid @enderror"
+                                       value="{{ old('phone_number', $dentist->phone_number) }}"
+                                       placeholder="e.g. 011-12345678"
+                                       pattern="01[0-9]-[0-9]{7,8}"
+                                       title="Please follow the format: 01X-XXXXXXX">
+                                @error('phone_number') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">Specialization</label>
                                 <select name="specialization" class="form-select form-control-custom w-100">
-                                    <option value="General Dentistry" {{ $dentist->specialization == 'General Dentistry' ? 'selected' : '' }}>General Dentistry</option>
-                                    <option value="Orthodontics" {{ $dentist->specialization == 'Orthodontics' ? 'selected' : '' }}>Orthodontics</option>
-                                    <option value="Periodontics" {{ $dentist->specialization == 'Periodontics' ? 'selected' : '' }}>Periodontics</option>
-                                    <option value="Pediatric Dentistry" {{ $dentist->specialization == 'Pediatric Dentistry' ? 'selected' : '' }}>Pediatric Dentistry</option>
-                                    <option value="Oral Surgery" {{ $dentist->specialization == 'Oral Surgery' ? 'selected' : '' }}>Oral Surgery</option>
+                                    <option value="General Dentistry"     {{ old('specialization', $dentist->specialization) == 'General Dentistry'     ? 'selected' : '' }}>General Dentistry</option>
+                                    <option value="Orthodontics"          {{ old('specialization', $dentist->specialization) == 'Orthodontics'          ? 'selected' : '' }}>Orthodontics</option>
+                                    <option value="Periodontics"          {{ old('specialization', $dentist->specialization) == 'Periodontics'          ? 'selected' : '' }}>Periodontics</option>
+                                    <option value="Pediatric Dentistry"   {{ old('specialization', $dentist->specialization) == 'Pediatric Dentistry'   ? 'selected' : '' }}>Pediatric Dentistry</option>
+                                    <option value="Oral Surgery"          {{ old('specialization', $dentist->specialization) == 'Oral Surgery'          ? 'selected' : '' }}>Oral Surgery</option>
                                 </select>
                             </div>
                         </div>
 
-                        {{-- Action Buttons at the Bottom --}}
+                        {{-- Action Buttons --}}
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between align-items-center">
                             <a href="{{ route('admin.dentists') }}" class="text-muted font-weight-bold text-decoration-none">
                                 <i class="fas fa-arrow-left mr-1"></i> Back to Directory

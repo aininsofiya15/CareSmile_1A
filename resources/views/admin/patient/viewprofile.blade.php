@@ -83,7 +83,8 @@
                     <h6 class="fw-bold mb-0">Account Information</h6>
                 </div>
                 <div class="card-body p-4">
-                    
+  
+
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted small">Joined Date</span>
                         <span class="small fw-bold">{{ $patient->created_at->format('d M Y') }}</span>
@@ -183,9 +184,16 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">Emergency Phone</label>
-                                <input type="text" name="emergency_phone" class="form-control bg-light edit-input"
+                                <input type="text" name="emergency_phone"
+                                       class="form-control bg-light edit-input @error('emergency_phone') is-invalid @enderror"
                                        value="{{ old('emergency_phone', $patient->patientProfile->emergency_contact_phone ?? '') }}"
-                                       placeholder="e.g. 013-9876543" readonly>
+                                       placeholder="e.g. 011-12345678"
+                                       pattern="01[0-9]-[0-9]{7,8}"
+                                       title="Please follow the format: 01X-XXXXXXX"
+                                       {{ $errors->has('emergency_phone') ? '' : 'readonly' }}>
+                                @error('emergency_phone')
+                                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 

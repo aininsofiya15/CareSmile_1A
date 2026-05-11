@@ -217,24 +217,25 @@ class AdminController extends Controller
         }
 
     public function updateDentist(Request $request, User $dentist)
-        {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $dentist->id,
-                'phone_number' => 'required|string|max:20',
-                'specialization' => 'required|string',
-            ]);
-
-            $dentist->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone_number' => $request->phone_number,
-                'specialization' => $request->specialization,
-            ]);
-
-            return redirect()->back()->with('success', 'Staff profile updated successfully!');
-        }
-
+    {
+        $request->validate([
+            'name'           => 'sometimes|required|string|max:255',
+            'email'          => 'sometimes|required|email|unique:users,email,' . $dentist->id,
+            'phone_number'   => 'sometimes', 'nullable',
+            'specialization' => 'sometimes|required|string',
+        ], [
+            'phone_number.regex' => 'Please follow the format: 01X-XXXXXXX',
+        ]);
+    
+        $dentist->update(array_filter([
+            'name'           => $request->name,
+            'email'          => $request->email,
+            'phone_number'   => $request->phone_number,
+            'specialization' => $request->specialization,
+        ], fn($value) => !is_null($value) && $value !== ''));
+    
+        return redirect()->back()->with('success', 'Staff profile updated successfully!');
+    }
         // This is for the delete button you added earlier
         public function destroyDentist(User $dentist)
         {
