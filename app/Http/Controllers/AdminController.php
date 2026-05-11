@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Appointment;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -21,7 +23,9 @@ class AdminController extends Controller
         $totalDentists = User::where('role', Role::Dentist)->count();
 
         // 3. Count Today's Appointments
-        $todayAppointments = 0;
+        $todayAppointments = Appointment::whereDate('appointment_date', Carbon::today())
+            ->where('status', 'scheduled')
+            ->count();
 
         return view('admin.dashboard', compact('totalPatients', 'totalDentists', 'todayAppointments'));
     }

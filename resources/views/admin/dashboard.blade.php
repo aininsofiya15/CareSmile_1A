@@ -273,7 +273,7 @@
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <p class="stat-label mb-2">Today's Appointments</p>
-                    <h2 class="stat-value mb-2">0</h2>
+                    <h2 class="stat-value mb-2">{{ $todayAppointments }}</h2>
                     <p class="stat-note mb-0">Appointments scheduled for today</p>
                 </div>
             </div>
