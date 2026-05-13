@@ -203,12 +203,6 @@
             </a>
         </div>
 
-        {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            </div>
-        @endif
 
         {{-- White Box --}}
         <div class="card card-white-box">
