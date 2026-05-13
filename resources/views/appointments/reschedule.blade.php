@@ -149,7 +149,7 @@ function loadSlots() {
 
                     options += `
                         <option value="${slot.id}">
-                            Dr. ${schedule.doctor.name} - ${start} to ${end}
+                            ${schedule.doctor.name} - ${start} to ${end}
                         </option>
                     `;
                 });
