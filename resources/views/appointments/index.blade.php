@@ -119,7 +119,9 @@
         cursor: pointer;
     }
 
-    .btn-edit { background-color: #e0e7ff; color: #4f46e5; }
+    .btn-view   { background-color: #e0f2fe; color: #0369a1; }
+    .btn-view:hover { background-color: #bae6fd; }
+    .btn-edit   { background-color: #e0e7ff; color: #4f46e5; }
     .btn-edit:hover { background-color: #c7d2fe; }
     .btn-delete { background-color: #fee2e2; color: #dc2626; }
     .btn-delete:hover { background-color: #fecaca; }
@@ -183,6 +185,9 @@
                 </td>
 
                 <td>
+                    <a href="{{ route('patient.appointments.show', $a->id) }}" class="btn-action btn-view">
+                        View Details
+                    </a>
                     @if($a->status !== 'cancelled' && $a->status !== 'completed' && $a->status !== 'no_show')
                         <a href="{{ route('patient.appointments.reschedule', $a->id) }}" class="btn-action btn-edit">
                             Reschedule
@@ -193,8 +198,6 @@
                                 Cancel
                             </button>
                         </form>
-                    @else
-                        <span style="color: #9ca3af; font-size: 13px;">No actions available</span>
                     @endif
                 </td>
             </tr>

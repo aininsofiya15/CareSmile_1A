@@ -27,11 +27,29 @@ class AppointmentController extends Controller
     public function index(): View
     {
         $appointments = Appointment::where('patient_id', Auth::id())
+            ->with('doctor')
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->get();
 
         return view('appointments.index', compact('appointments'));
+    }
+
+    public function showDetails(int $id): View
+    {
+        $appointment = Appointment::findOrFail($id);
+
+        if ($appointment->patient_id !== Auth::id()) {
+            abort(403, 'Unauthorized. You may only view your own appointments.');
+        }
+
+        $appointment->load('doctor');
+
+        $schedule = DoctorSchedule::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('working_date', $this->appointmentDate($appointment))
+            ->first();
+
+        return view('appointments.show', compact('appointment', 'schedule'));
     }
 
     public function create(): View
@@ -185,9 +203,20 @@ class AppointmentController extends Controller
 
     public function adminIndex(Request $request): View
     {
+        $now = Carbon::now();
+
         $query = Appointment::with('patient');
 
-        if ($request->status && $request->status !== 'all') {
+        if ($request->status === 'overdue') {
+            $query->where('status', 'scheduled')
+                ->where(function ($q) use ($now): void {
+                    $q->whereDate('appointment_date', '<', $now->toDateString())
+                        ->orWhere(function ($q) use ($now): void {
+                            $q->whereDate('appointment_date', $now->toDateString())
+                                ->whereTime('appointment_time', '<', $now->format('H:i:s'));
+                        });
+                });
+        } elseif ($request->status && $request->status !== 'all') {
             $query->where('status', $request->status);
         } elseif (! $request->status) {
             $query->where('status', 'scheduled');
@@ -198,7 +227,49 @@ class AppointmentController extends Controller
             ->orderBy('appointment_time')
             ->get();
 
-        return view('appointments.admin', compact('appointments'));
+        $overdueCount = Appointment::where('status', 'scheduled')
+            ->where(function ($q) use ($now): void {
+                $q->whereDate('appointment_date', '<', $now->toDateString())
+                    ->orWhere(function ($q) use ($now): void {
+                        $q->whereDate('appointment_date', $now->toDateString())
+                            ->whereTime('appointment_time', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->count();
+
+        return view('appointments.admin', compact('appointments', 'overdueCount', 'now'));
+    }
+
+    public function markOverdueAsNoShow(): RedirectResponse
+    {
+        $now = Carbon::now();
+
+        $overdue = Appointment::where('status', 'scheduled')
+            ->where(function ($q) use ($now): void {
+                $q->whereDate('appointment_date', '<', $now->toDateString())
+                    ->orWhere(function ($q) use ($now): void {
+                        $q->whereDate('appointment_date', $now->toDateString())
+                            ->whereTime('appointment_time', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->get();
+
+        $count = $overdue->count();
+
+        foreach ($overdue as $appointment) {
+            $appointment->update(['status' => 'no_show']);
+
+            $schedule = DoctorSchedule::where('doctor_id', $appointment->doctor_id)
+                ->whereDate('working_date', $this->appointmentDate($appointment))
+                ->first();
+
+            if ($schedule) {
+                $this->scheduleStatusService->refreshScheduleAvailability($schedule);
+            }
+        }
+
+        return redirect()->route('admin.appointments')
+            ->with('success', "{$count} overdue appointment(s) have been marked as No-show.");
     }
 
     public function markCompleted(int $id): RedirectResponse

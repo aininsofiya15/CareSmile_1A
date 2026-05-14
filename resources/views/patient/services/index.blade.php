@@ -143,7 +143,7 @@
             <div class="patient-badge">
                 <i class="fas fa-tooth"></i> Our Dental Services
             </div>
-            <h1 class="fw-bold mb-2" style="font-size: 2.5rem;">Choose Your Treatment</h1>
+            <h1 class="fw-bold text-white" style="font-size: 2.5rem;">Choose Your Treatment</h1>
             <p class="mb-0 text-white" style="max-width: 600px; opacity: 0.9;">
                 Browse through our comprehensive range of dental services and book an appointment that suits your needs.
             </p>

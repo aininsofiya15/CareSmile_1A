@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
 
         // Appointment Management (Admin)
         Route::get('/appointments', [AppointmentController::class, 'adminIndex'])->name('appointments');
+        Route::post('/appointments/mark-overdue', [AppointmentController::class, 'markOverdueAsNoShow'])->name('appointments.mark_overdue');
         Route::post('/appointments/{id}/complete', [AppointmentController::class, 'markCompleted'])->name('appointments.complete');
         Route::post('/appointments/{id}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no_show');
     });
@@ -82,6 +83,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
         Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
         Route::post('/appointments/store', [AppointmentController::class, 'store'])->name('appointments.store');
+        Route::get('/appointments/{id}', [AppointmentController::class, 'showDetails'])->name('appointments.show');
         Route::get('/appointments/{id}/reschedule', [AppointmentController::class, 'showReschedule'])->name('appointments.reschedule');
         Route::post('/appointments/{id}/reschedule', [AppointmentController::class, 'submitReschedule'])->name('appointments.reschedule.submit');
         Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');

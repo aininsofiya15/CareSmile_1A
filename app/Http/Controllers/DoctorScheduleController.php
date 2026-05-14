@@ -51,42 +51,89 @@ class DoctorScheduleController extends Controller
             abort(401, 'Unauthenticated');
         }
 
-        // Admin sees all schedules with dentist relationship
+        // Admin sees all schedules split into active/upcoming and past history
         if ($user->isAdmin()) {
-            $schedules = DoctorSchedule::with('doctor')
+            $today = Carbon::today();
+
+            $allSchedules = DoctorSchedule::with('doctor')
                 ->orderBy('working_date', 'desc')
                 ->orderBy('start_time')
-                ->paginate(10);
+                ->get();
 
-            $scheduleImpactSummaries = $schedules->getCollection()
+            $activeSchedules = $allSchedules
+                ->filter(fn (DoctorSchedule $s) => Carbon::parse($s->working_date)->gte($today))
+                ->sortBy('working_date')
+                ->values();
+
+            $pastSchedules = $allSchedules
+                ->filter(fn (DoctorSchedule $s) => Carbon::parse($s->working_date)->lt($today))
+                ->sortByDesc('working_date')
+                ->values();
+
+            $scheduleImpactSummaries = $allSchedules
                 ->mapWithKeys(fn (DoctorSchedule $schedule): array => [
                     $schedule->id => $this->scheduleImpactService->getImpactSummary($schedule),
                 ]);
-            $scheduleUtilizationSummaries = $schedules->getCollection()
+            $scheduleUtilizationSummaries = $allSchedules
                 ->mapWithKeys(fn (DoctorSchedule $schedule): array => [
                     $schedule->id => $this->scheduleUtilizationService->getScheduleUtilizationSummary($schedule),
                 ]);
-            $adminUtilizationSummary = $this->scheduleUtilizationService->getAggregateSummary($schedules->getCollection());
+            $adminUtilizationSummary = $this->scheduleUtilizationService->getAggregateSummary($activeSchedules);
             $dentists = User::where('role', Role::Dentist)->get();
 
-            return view('admin.schedules.index', compact('schedules', 'dentists', 'scheduleImpactSummaries', 'scheduleUtilizationSummaries', 'adminUtilizationSummary'));
+            return view('admin.schedules.index', compact('activeSchedules', 'pastSchedules', 'dentists', 'scheduleImpactSummaries', 'scheduleUtilizationSummaries', 'adminUtilizationSummary'));
         }
 
-        // Dentist sees only their own schedules (filtered by doctor_id)
+        // Dentist sees only their own schedules split into active/upcoming and past history
         if ($user->isDentist()) {
-            $schedules = DoctorSchedule::with([
+            $now   = Carbon::now();
+            $today = Carbon::today();
+
+            $allSchedules = DoctorSchedule::with([
                 'slots' => fn ($query) => $query->orderBy('start_time'),
             ])
                 ->where('doctor_id', $user->id)
-                ->orderBy('working_date', 'desc')
+                ->orderBy('working_date', 'asc')
                 ->orderBy('start_time')
-                ->paginate(10);
-            $scheduleUtilizationSummaries = $schedules->getCollection()
+                ->get();
+
+            // Today + future → shown first, sorted ascending (today before upcoming)
+            $activeSchedules = $allSchedules
+                ->filter(fn (DoctorSchedule $s) => Carbon::parse($s->working_date)->gte($today))
+                ->sortBy('working_date')
+                ->values();
+
+            // Past → shown in history section, most recent first
+            $pastSchedules = $allSchedules
+                ->filter(fn (DoctorSchedule $s) => Carbon::parse($s->working_date)->lt($today))
+                ->sortByDesc('working_date')
+                ->values();
+
+            $scheduleUtilizationSummaries = $allSchedules
                 ->mapWithKeys(fn (DoctorSchedule $schedule): array => [
                     $schedule->id => $this->scheduleUtilizationService->getScheduleUtilizationSummary($schedule),
                 ]);
 
-            return view('dentist.schedules.index', compact('schedules', 'scheduleUtilizationSummaries'));
+            $scheduleDates = $allSchedules
+                ->map(fn (DoctorSchedule $s) => $this->scheduleDate($s))
+                ->unique()
+                ->values()
+                ->all();
+
+            $appointmentsByDate = Appointment::with('patient')
+                ->where('doctor_id', $user->id)
+                ->whereIn('appointment_date', $scheduleDates)
+                ->whereNotIn('status', ['cancelled'])
+                ->get()
+                ->groupBy(fn (Appointment $a) => $this->appointmentDate($a));
+
+            return view('dentist.schedules.index', compact(
+                'activeSchedules',
+                'pastSchedules',
+                'scheduleUtilizationSummaries',
+                'appointmentsByDate',
+                'now'
+            ));
         }
 
         abort(403, 'Unauthorized access');
@@ -153,7 +200,16 @@ class DoctorScheduleController extends Controller
         ]);
         $utilizationSummary = $this->scheduleUtilizationService->getScheduleUtilizationSummary($schedule);
 
-        return view('admin.schedules.show', compact('schedule', 'utilizationSummary'));
+        $scheduleDate = $this->scheduleDate($schedule);
+        $scheduleAppointments = Appointment::with('patient')
+            ->where('doctor_id', $schedule->doctor_id)
+            ->whereDate('appointment_date', $scheduleDate)
+            ->whereNotIn('status', ['cancelled'])
+            ->get();
+
+        $slotAppointmentMap = $this->buildSlotAppointmentMap($schedule->slots, $scheduleAppointments);
+
+        return view('admin.schedules.show', compact('schedule', 'utilizationSummary', 'slotAppointmentMap'));
     }
 
     /**
@@ -586,6 +642,11 @@ class DoctorScheduleController extends Controller
             if ($breakStartMinutes < $startMinutes || $breakEndMinutes > $endMinutes) {
                 return $this->conflict('break_time', 'break_start', 'Break time must be within working hours.');
             }
+
+            $breakDurationMinutes = $breakEndMinutes - $breakStartMinutes;
+            if ($breakDurationMinutes > 60) {
+                return $this->conflict('break_time', 'break_end', 'Break time cannot exceed 1 hour.');
+            }
         }
 
         $generatedSlots = $this->scheduleSlotService->calculateSlotRangesFromValues(
@@ -772,5 +833,40 @@ class DoctorScheduleController extends Controller
         }
 
         return Carbon::parse((string) $time)->format('H:i:s');
+    }
+
+    /**
+     * Map each booked slot to the appointment that overlaps its time window.
+     *
+     * Overlap logic: apptStart < slotEnd AND apptEnd > slotStart
+     * Long-duration appointments that span multiple slots will be mapped to each
+     * affected slot, all pointing to the same Appointment record.
+     *
+     * @param  iterable<ScheduleSlot>  $slots
+     * @param  \Illuminate\Support\Collection<int, Appointment>  $appointments
+     * @return array<int, Appointment>  slot_id => Appointment
+     */
+    private function buildSlotAppointmentMap(iterable $slots, \Illuminate\Support\Collection $appointments): array
+    {
+        $map = [];
+        foreach ($slots as $slot) {
+            if ($slot->is_available) {
+                continue;
+            }
+            $slotStart = Carbon::parse($this->normalizeTime($slot->start_time));
+            $slotEnd   = Carbon::parse($this->normalizeTime($slot->end_time));
+            foreach ($appointments as $appt) {
+                $apptStart = Carbon::parse($this->normalizeTime($appt->appointment_time));
+                $apptEnd   = $appt->end_time
+                    ? Carbon::parse($this->normalizeTime($appt->end_time))
+                    : $apptStart->copy()->addMinutes(30);
+                if ($apptStart->lt($slotEnd) && $apptEnd->gt($slotStart)) {
+                    $map[$slot->id] = $appt;
+                    break;
+                }
+            }
+        }
+
+        return $map;
     }
 }

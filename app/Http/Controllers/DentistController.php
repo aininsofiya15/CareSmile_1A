@@ -231,6 +231,7 @@ class DentistController extends Controller
             'patient_name' => $appointment->patient?->name ?? 'N/A',
             'appointment_date' => $start->format('M d, Y'),
             'appointment_start_time' => $start->format('h:i A'),
+            'appointment_end_time' => $end->format('h:i A'),
             'service' => $appointment->service ?: 'N/A',
             'status' => ucfirst(str_replace('_', ' ', $appointment->status ?: 'scheduled')),
         ];

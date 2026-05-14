@@ -266,7 +266,7 @@
     .slot-grid {
         display: grid;
         gap: 0.62rem;
-        grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         padding-top: 1rem;
     }
 
@@ -282,9 +282,9 @@
     }
 
     .slot-pill.booked {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #64748b;
+        background: #f0f4ff;
+        border-color: #c7d2fe;
+        color: #4338ca;
     }
 
     .slot-state {
@@ -294,6 +294,108 @@
         margin-top: 0.15rem;
         text-transform: uppercase;
     }
+
+    .btn-slot-details {
+        background: #4f46e5;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 800;
+        margin-top: 0.35rem;
+        padding: 0.28rem 0.6rem;
+        transition: background 0.15s;
+    }
+
+    .btn-slot-details:hover { background: #4338ca; }
+
+    /* Admin Slot Detail Modal */
+    .slot-modal-overlay {
+        align-items: center;
+        background: rgba(14, 23, 55, 0.5);
+        bottom: 0;
+        display: none;
+        justify-content: center;
+        left: 0;
+        position: fixed;
+        right: 0;
+        top: 0;
+        z-index: 9999;
+    }
+
+    .slot-modal-overlay.is-open { display: flex; }
+
+    .slot-modal-box {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 24px 60px rgba(14, 23, 55, 0.22);
+        max-width: 460px;
+        padding: 1.6rem;
+        position: relative;
+        width: calc(100% - 2rem);
+    }
+
+    .slot-modal-close {
+        background: #f1f5f9;
+        border: none;
+        border-radius: 50%;
+        color: #475569;
+        cursor: pointer;
+        font-size: 1.1rem;
+        height: 32px;
+        line-height: 1;
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        width: 32px;
+    }
+
+    .slot-modal-title {
+        color: var(--text-dark);
+        font-size: 1rem;
+        font-weight: 850;
+        margin-bottom: 1rem;
+        padding-right: 2rem;
+    }
+
+    .slot-detail-row {
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.55rem 0;
+    }
+
+    .slot-detail-row:last-child { border-bottom: none; }
+
+    .slot-detail-label {
+        color: #64748b;
+        flex-shrink: 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        min-width: 100px;
+        text-transform: uppercase;
+    }
+
+    .slot-detail-value {
+        color: var(--text-dark);
+        font-size: 0.88rem;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .modal-status-badge {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 0.22rem 0.65rem;
+    }
+
+    .modal-status-scheduled { background: #dbeafe; color: #1d4ed8; }
+    .modal-status-completed  { background: #dcfce7; color: #166534; }
+    .modal-status-cancelled  { background: #fee2e2; color: #dc2626; }
+    .modal-status-no_show    { background: #ffedd5; color: #c2410c; }
 
     .empty-slot-state {
         color: var(--text-muted);
@@ -416,10 +518,38 @@
             @else
                 <div class="slot-grid">
                     @foreach($schedule->slots as $slot)
-                        <div class="slot-pill {{ !$slot->is_available ? 'booked' : '' }}">
+                        @php
+                            $isBooked = ! $slot->is_available;
+                            $appt     = $isBooked ? ($slotAppointmentMap[$slot->id] ?? null) : null;
+                            $statusLabels = [
+                                'scheduled'  => 'Scheduled',
+                                'completed'  => 'Completed',
+                                'cancelled'  => 'Cancelled',
+                                'no_show'    => 'No Show',
+                            ];
+                        @endphp
+                        <div class="slot-pill {{ $isBooked ? 'booked' : '' }}">
                             {{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}
                             <span class="d-block small">{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}</span>
-                            <span class="slot-state">{{ $slot->is_available ? 'Available' : 'Booked' }}</span>
+                            <span class="slot-state">{{ $isBooked ? 'Booked' : 'Available' }}</span>
+
+                            @if($isBooked && $appt)
+                                <button type="button" class="btn-slot-details"
+                                    data-slot-time="{{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }} – {{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}"
+                                    data-date="{{ \Carbon\Carbon::parse($schedule->working_date)->format('d M Y') }}"
+                                    data-doctor="{{ $schedule->doctor->name }}"
+                                    data-patient="{{ $appt->patient?->name ?? 'N/A' }}"
+                                    data-service="{{ $appt->service ?? 'N/A' }}"
+                                    data-status="{{ $appt->status }}"
+                                    data-status-label="{{ $statusLabels[$appt->status] ?? ucfirst($appt->status) }}"
+                                    data-created="{{ $appt->created_at?->format('d M Y, h:i A') ?? 'N/A' }}"
+                                    data-notes="{{ $appt->notes ?? '' }}"
+                                    onclick="openAdminSlotModal(this)">
+                                    View Details
+                                </button>
+                            @elseif($isBooked)
+                                <span class="slot-state" style="font-size:0.65rem; color:#94a3b8;">No record</span>
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -432,15 +562,95 @@
     </article>
 </div>
 
+{{-- Admin Booked Slot Detail Modal --}}
+<div class="slot-modal-overlay" id="adminSlotModal" role="dialog" aria-modal="true" aria-labelledby="adminSlotModalTitle">
+    <div class="slot-modal-box">
+        <button type="button" class="slot-modal-close" onclick="closeAdminSlotModal()" aria-label="Close">&times;</button>
+        <div class="slot-modal-title" id="adminSlotModalTitle">
+            <i class="fas fa-calendar-check" style="color:#4f46e5; margin-right:6px;"></i>
+            Booked Slot Details
+        </div>
+
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Slot Time</span>
+            <span class="slot-detail-value" id="am-slot-time">—</span>
+        </div>
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Date</span>
+            <span class="slot-detail-value" id="am-date">—</span>
+        </div>
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Doctor</span>
+            <span class="slot-detail-value" id="am-doctor">—</span>
+        </div>
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Patient</span>
+            <span class="slot-detail-value" id="am-patient">—</span>
+        </div>
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Service</span>
+            <span class="slot-detail-value" id="am-service">—</span>
+        </div>
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Status</span>
+            <span class="slot-detail-value">
+                <span class="modal-status-badge" id="am-status-badge">—</span>
+            </span>
+        </div>
+        <div class="slot-detail-row">
+            <span class="slot-detail-label">Booked On</span>
+            <span class="slot-detail-value" id="am-created">—</span>
+        </div>
+        <div class="slot-detail-row" id="am-notes-row">
+            <span class="slot-detail-label">Notes</span>
+            <span class="slot-detail-value" id="am-notes">—</span>
+        </div>
+    </div>
+</div>
+
 <script>
 document.querySelectorAll('.js-slot-toggle').forEach((button) => {
     button.addEventListener('click', () => {
         const panel = document.getElementById(button.dataset.target);
         const isOpen = panel.classList.toggle('is-open');
-
         button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         button.textContent = isOpen ? 'Hide Slots' : 'View Slots';
     });
+});
+
+function openAdminSlotModal(btn) {
+    const d = btn.dataset;
+    document.getElementById('am-slot-time').textContent = d.slotTime  || '—';
+    document.getElementById('am-date').textContent      = d.date       || '—';
+    document.getElementById('am-doctor').textContent    = d.doctor     || '—';
+    document.getElementById('am-patient').textContent   = d.patient    || '—';
+    document.getElementById('am-service').textContent   = d.service    || '—';
+    document.getElementById('am-created').textContent   = d.created    || '—';
+
+    const badge = document.getElementById('am-status-badge');
+    badge.textContent  = d.statusLabel || d.status || '—';
+    badge.className    = 'modal-status-badge modal-status-' + (d.status || '');
+
+    const notesRow = document.getElementById('am-notes-row');
+    const notes    = d.notes ? d.notes.trim() : '';
+    document.getElementById('am-notes').textContent = notes || 'No notes available.';
+    notesRow.style.display = 'flex';
+
+    document.getElementById('adminSlotModal').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAdminSlotModal() {
+    document.getElementById('adminSlotModal').classList.remove('is-open');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('adminSlotModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeAdminSlotModal();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAdminSlotModal();
 });
 </script>
 @endsection

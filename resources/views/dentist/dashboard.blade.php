@@ -99,7 +99,7 @@
     {{-- 1. HERO BANNER --}}
     <div class="dentist-hero d-flex justify-content-between align-items-center flex-wrap">
         <div>
-            <div class="portal-badge"><i class="fas fa-user-md"></i> Dentist Portal</div>
+            <div class="portal-badge"><i class="fas fa-user-md"></i> My Schedule Dashboard</div>
             <h1 class="fw-bold mb-2">Hello, Dr. {{ explode(' ', auth()->user()->name)[0] }}!</h1>
             <p class="mb-0 opacity-90">Manage your daily clinic operations and track patient progress efficiently.</p>
         </div>
@@ -111,8 +111,8 @@
         <div class="col-md-4">
             <div class="dashboard-card p-4">
                 <div class="icon-box-blue"><i class="far fa-calendar-check"></i></div>
-                <div class="stat-label">Today's Appointments</div>
-                <h2 class="stat-value">{{ $todayCount }}</h2>
+                <div class="stat-label">Today Utilization</div>
+                <h2 class="stat-value">{{ $dashboardStats['today_utilization_percentage'] }}%</h2>
             </div>
         </div>
         <div class="col-md-4">
@@ -130,6 +130,42 @@
             </div>
         </div>
     </div>
+
+    {{-- TODAY'S SCHEDULE --}}
+    <h4 class="fw-bold mb-4">Today's Schedule</h4>
+    @if($todaySchedule && $todaySchedule['has_schedule'])
+        <div class="dashboard-card p-4 mb-5">
+            @foreach($todaySchedule['schedules'] as $todayCard)
+                <div class="{{ !$loop->first ? 'mt-3 pt-3 border-top' : '' }}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="stat-label">Working Hours</div>
+                            <div class="fw-bold">{{ $todayCard['working_hours'] }}</div>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">
+                            Booked Appointments: {{ $dashboardStats['today_appointments'] }}
+                        </span>
+                    </div>
+                    <div class="row g-3 text-center">
+                        <div class="col-4">
+                            <div class="stat-label">Total Slots</div>
+                            <div class="fw-bold fs-5">{{ $todayCard['total_slots'] }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-label">Booked Slots</div>
+                            <div class="fw-bold fs-5">{{ $todayCard['booked_slots'] }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-label">Available Slots</div>
+                            <div class="fw-bold fs-5">{{ $todayCard['available_slots'] }}</div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <p class="text-muted mb-5">No schedule assigned for today.</p>
+    @endif
 
     {{-- 3. WORKLOAD SUMMARY --}}
     <div class="dashboard-card mb-5">
@@ -160,30 +196,36 @@
     </div>
 
     {{-- 4. WEEKLY SCHEDULE GRID --}}
-    <h4 class="fw-bold mb-4">Weekly Calendar</h4>
-    <div class="weekly-grid mb-5">
-        @foreach($weekDays as $day)
-            <div class="day-card {{ $day['is_today'] ? 'is-today' : '' }}">
-                <p class="fw-bold mb-0 text-dark">{{ $day['day_name'] }}</p>
-                <small class="text-muted">{{ $day['date_label'] }}</small>
-                
-                <div class="mt-3">
-                    @if($day['has_schedule'])
-                        <div class="d-flex justify-content-between mb-1">
-                            <small>Booked: <strong>{{ $day['booked_slots'] }}</strong></small>
-                            <small>Free: <strong>{{ $day['available_slots'] }}</strong></small>
-                        </div>
-                        <div class="utilization-progress" style="height: 5px;">
-                            <div class="utilization-fill" style="width: {{ $day['utilization_percentage'] }}%"></div>
-                        </div>
-                        <span class="utilization-badge {{ $day['utilization_class'] }}">{{ $day['utilization_percentage'] }}% Busy</span>
-                    @else
-                        <span class="badge bg-light text-muted w-100 py-2">No Schedule</span>
-                    @endif
+    <h4 class="fw-bold mb-4">Weekly Schedule</h4>
+    @php $anyScheduleThisWeek = $weekDays->contains('has_schedule', true); @endphp
+    @if(! $anyScheduleThisWeek)
+        <p class="text-muted mb-5">No schedules assigned this week.</p>
+    @else
+        <div class="weekly-grid mb-5">
+            @foreach($weekDays as $day)
+                <div class="day-card {{ $day['is_today'] ? 'is-today' : '' }}">
+                    <p class="fw-bold mb-0 text-dark">{{ $day['day_name'] }}</p>
+                    <small class="text-muted">{{ $day['date_label'] }}</small>
+
+                    <div class="mt-3">
+                        @if($day['has_schedule'])
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Booked: <strong>{{ $day['booked_slots'] }}</strong></small>
+                                <small>Free: <strong>{{ $day['available_slots'] }}</strong></small>
+                            </div>
+                            <small class="text-muted d-block mb-1">Slots: {{ $day['total_slots'] }} total, {{ $day['booked_slots'] }} booked</small>
+                            <div class="utilization-progress" style="height: 5px;">
+                                <div class="utilization-fill" style="width: {{ $day['utilization_percentage'] }}%"></div>
+                            </div>
+                            <span class="utilization-badge {{ $day['utilization_class'] }}">{{ $day['utilization_percentage'] }}% Busy</span>
+                        @else
+                            <span class="badge bg-light text-muted w-100 py-2">No Schedule</span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-        @endforeach
-    </div>
+            @endforeach
+        </div>
+    @endif
 
     {{-- 5. UPCOMING APPOINTMENTS --}}
     <div class="dashboard-card">
@@ -206,14 +248,14 @@
                             <td class="fw-bold">{{ $appointment['patient_name'] }}</td>
                             <td>
                                 <div>{{ $appointment['appointment_date'] }}</div>
-                                <small class="text-muted">{{ $appointment['appointment_start_time'] }}</small>
+                                <small class="text-muted">{{ $appointment['appointment_start_time'] }} - {{ $appointment['appointment_end_time'] }}</small>
                             </td>
                             <td><span class="badge bg-blue-light text-primary">{{ $appointment['service'] }}</span></td>
                             <td><span class="badge bg-success bg-opacity-10 text-success">{{ $appointment['status'] }}</span></td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">No upcoming appointments found.</td>
+                            <td colspan="4" class="text-center py-5 text-muted">No upcoming appointments.</td>
                         </tr>
                     @endforelse
                 </tbody>

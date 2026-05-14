@@ -196,6 +196,48 @@
     .btn-modal-cancel { background: #f1f5f9; color: #475569; }
     .btn-modal-danger { background: #dc2626; color: #fff; }
     .btn-modal-danger:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    /* --- Past Schedules History Section --- */
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.5rem 0 0.75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    .section-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+    .section-badge.is-history {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+    .btn-history-toggle {
+        margin-left: auto;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.3rem 0.85rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+    .btn-history-toggle:hover { background: #e2e8f0; color: var(--text-dark); }
+    .history-content { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .history-content.is-open { max-height: 99999px; }
+    .table-row-past td { opacity: 0.72; background: #f8fafc; }
+    .table-row-past td:first-child { border-left: 3px solid #e2e8f0; }
 </style>
 
 {{-- The New Blue Banner Header --}}
@@ -215,7 +257,7 @@
 @if(isset($adminUtilizationSummary))
     <div class="utilization-summary-grid">
         <div class="utilization-summary-card">
-            <div class="utilization-summary-label">Total Schedules</div>
+            <div class="utilization-summary-label">Active / Upcoming Schedules</div>
             <p class="utilization-summary-value">{{ $adminUtilizationSummary['total_schedules'] }}</p>
         </div>
         <div class="utilization-summary-card">
@@ -236,12 +278,17 @@
     </div>
 @endif
 
+{{-- Active & Upcoming Schedules --}}
+<div class="section-heading">
+    <span>Active &amp; Upcoming Schedules</span>
+    <span class="section-badge">{{ $activeSchedules->count() }}</span>
+</div>
 <div class="card-custom">
     <div class="card-body p-0">
-        @if($schedules->isEmpty())
+        @if($activeSchedules->isEmpty())
             <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <p>No schedules found. Create your first schedule.</p>
+                <i class="fas fa-calendar-check"></i>
+                <p>No active or upcoming schedules. <a href="{{ route('admin.schedules.create') }}">Create one now.</a></p>
             </div>
         @else
             <table class="table-custom">
@@ -258,7 +305,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($schedules as $schedule)
+                    @foreach($activeSchedules as $schedule)
                         @php($impactSummary = $scheduleImpactSummaries[$schedule->id] ?? ['count' => 0, 'appointments' => []])
                         @php($utilizationSummary = $scheduleUtilizationSummaries[$schedule->id] ?? ['total_slots' => 0, 'booked_slots' => 0, 'remaining_slots' => 0, 'utilization_percentage' => 0, 'utilization_label' => 'No Bookings', 'utilization_class' => 'utilization-none'])
                         <tr>
@@ -335,10 +382,108 @@
     </div>
 </div>
 
-@if($schedules->hasPages())
-    <div class="pagination-custom">
-        {{ $schedules->links() }}
+{{-- Schedule History --}}
+@if($pastSchedules->isNotEmpty())
+<div class="section-heading" style="margin-top: 2rem;">
+    <span>Schedule History</span>
+    <span class="section-badge is-history">{{ $pastSchedules->count() }} past</span>
+    <button type="button" class="btn-history-toggle" id="admin-history-toggle-btn" aria-expanded="false">
+        Show History
+    </button>
+</div>
+<div class="history-content" id="admin-history-content">
+    <div class="card-custom" style="border-color: #e2e8f0;">
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Dentist</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Break</th>
+                        <th>Slot Duration</th>
+                        <th>Status</th>
+                        <th>Utilization</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($pastSchedules as $schedule)
+                        @php($impactSummary = $scheduleImpactSummaries[$schedule->id] ?? ['count' => 0, 'appointments' => []])
+                        @php($utilizationSummary = $scheduleUtilizationSummaries[$schedule->id] ?? ['total_slots' => 0, 'booked_slots' => 0, 'remaining_slots' => 0, 'utilization_percentage' => 0, 'utilization_label' => 'No Bookings', 'utilization_class' => 'utilization-none'])
+                        <tr class="table-row-past">
+                            <td>
+                                <span class="badge-dentist">
+                                    {{ $schedule->doctor->name }}
+                                </span>
+                                @if($impactSummary['count'] > 0)
+                                    <div class="impact-pill">
+                                        <i class="fas fa-triangle-exclamation"></i>
+                                        {{ $impactSummary['count'] }} appointment{{ $impactSummary['count'] === 1 ? '' : 's' }}
+                                    </div>
+                                @endif
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($schedule->working_date)->format('M d, Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</td>
+                            <td>
+                                @if($schedule->break_start && $schedule->break_end)
+                                    {{ \Carbon\Carbon::parse($schedule->break_start)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->break_end)->format('H:i') }}
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>{{ $schedule->slot_duration }} min</td>
+                            <td>
+                                <span class="badge-{{ str_replace('_', '-', $schedule->status) }}">
+                                    {{ $schedule->statusLabel() }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="utilization-metrics">
+                                    <div class="utilization-line">
+                                        <span>Total {{ $utilizationSummary['total_slots'] }}</span>
+                                        <span>Booked {{ $utilizationSummary['booked_slots'] }}</span>
+                                    </div>
+                                    <div class="utilization-progress" aria-label="Utilization {{ $utilizationSummary['utilization_percentage'] }}%">
+                                        <div class="utilization-progress-fill" style="width: {{ $utilizationSummary['utilization_percentage'] }}%;"></div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                        <span class="utilization-badge {{ $utilizationSummary['utilization_class'] }}">
+                                            {{ $utilizationSummary['utilization_percentage'] }}% {{ $utilizationSummary['utilization_label'] }}
+                                        </span>
+                                        <span class="text-muted small">Available {{ $utilizationSummary['remaining_slots'] }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="{{ route('admin.schedules.show', $schedule->id) }}" class="btn-action btn-view">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{{ route('admin.schedules.edit', $schedule->id) }}" class="btn-action btn-edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <button
+                                        type="button"
+                                        class="btn-action btn-delete js-delete-schedule"
+                                        data-action="{{ route('admin.schedules.destroy', $schedule->id) }}"
+                                        data-dentist="{{ $schedule->doctor->name }}"
+                                        data-date="{{ \Carbon\Carbon::parse($schedule->working_date)->format('M d, Y') }}"
+                                        data-time="{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}"
+                                        data-impact-count="{{ $impactSummary['count'] }}"
+                                        data-appointments='@json($impactSummary['appointments'])'
+                                    >
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
+</div>
 @endif
 
 <div class="impact-modal-backdrop" id="delete-impact-modal" aria-hidden="true">
@@ -413,6 +558,16 @@ deleteModal.addEventListener('click', (event) => {
 function closeDeleteModal() {
     deleteModal.classList.remove('is-visible');
     deleteModal.setAttribute('aria-hidden', 'true');
+}
+
+const adminHistoryToggleBtn = document.getElementById('admin-history-toggle-btn');
+const adminHistoryContent   = document.getElementById('admin-history-content');
+if (adminHistoryToggleBtn && adminHistoryContent) {
+    adminHistoryToggleBtn.addEventListener('click', () => {
+        const isOpen = adminHistoryContent.classList.toggle('is-open');
+        adminHistoryToggleBtn.textContent = isOpen ? 'Hide History' : 'Show History';
+        adminHistoryToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
 }
 
 function renderAffectedAppointments(appointments) {

@@ -455,7 +455,8 @@
 
             <div class="form-section">
                 <h5 class="form-section-title">Break Time (Optional)</h5>
-                
+                <p class="text-muted small mb-3">Break time is optional. Maximum break duration is 1 hour (30 or 60 minutes recommended).</p>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         @include('admin.schedules.partials.time-card-picker', [
@@ -654,7 +655,7 @@ function applyTimePickerConstraints(changedField = null) {
 
     setHint('end_time', startMinutes !== null ? 'End time must be after start time.' : '');
     setHint('break_start', startMinutes !== null && endMinutes !== null ? 'Break time must be within working hours.' : '');
-    setHint('break_end', breakStartMinutes !== null ? 'Break end must be after break start.' : '');
+    setHint('break_end', breakStartMinutes !== null ? 'Break end must be after break start (max 1 hour break).' : '');
 
     updateDisabledCards('end_time', (minutes) => startMinutes !== null && minutes <= startMinutes);
     updateDisabledCards('break_start', (minutes) => {
@@ -669,7 +670,7 @@ function applyTimePickerConstraints(changedField = null) {
             return true;
         }
 
-        return minutes <= breakStartMinutes || minutes > endMinutes;
+        return minutes <= breakStartMinutes || minutes > endMinutes || (minutes - breakStartMinutes) > 60;
     });
 
     if (startMinutes !== null && endMinutes !== null && endMinutes <= startMinutes) {

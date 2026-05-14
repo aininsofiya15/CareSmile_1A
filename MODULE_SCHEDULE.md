@@ -67,6 +67,66 @@ The patient appointment booking page now displays appointment slots as selectabl
 Implementation Note:
 Dentist Schedule Dashboard has been added/enhanced to allow dentists to view today's schedule, weekly schedules, upcoming appointments, booked appointment count, and available slot count. The dashboard only displays schedules and appointments assigned to the authenticated dentist.
 
+*** 3.1. Patient Appointment Schedule Details & Appointment Reminder Notice
+- ✅ Patient can view full appointment schedule details
+- ✅ Display appointment reminder notice ("arrive 15 min early, 20-min no-show rescheduling policy")
+- ✅ Display appointment start time and end time (duration-aware)
+- ✅ Display dentist name and service on patient details page
+- ✅ Display appointment status with correct label and colour badge
+- ✅ Display clinic working hours and break time when schedule data is available
+- ✅ Graceful fallback when end_time, dentist, or schedule data is missing
+- ✅ Restrict appointment details view to appointment owner only (403 for others)
+- ✅ "View Details" button added to patient appointments list
+
+Implementation Note:
+Patients can now view detailed appointment schedule information by clicking "View Details" on the My Appointments page. The dedicated details page (GET /patient/appointments/{id}) displays appointment date, start time, end time, duration, dentist name, service, status, and clinic working hours where available. A reminder notice is shown on every details page informing patients to arrive 15 minutes early and warning that no-shows within 20 minutes may require rescheduling. Access is restricted to the appointment owner — other patients, dentists, and admins receive a 403 response. Appointments without end_time or missing schedule data are handled gracefully with safe fallbacks.
+
+*** 3.2. Booked Slot Details, Doctor Slot Details & Overdue Appointment Status Handling
+- ✅ Admin can click any booked slot on the schedule show page to open a compact details modal
+- ✅ Admin modal displays: slot time, date, doctor, patient, service, appointment status, booked-on timestamp, and notes
+- ✅ Dentist can click any booked slot on the My Schedule page to open a richer details modal
+- ✅ Dentist modal displays: patient name, email, phone, appointment date, start time, end time, service, status, notes, and an arrival reminder notice
+- ✅ Long-duration appointments (spanning multiple slots) mark all overlapping slots as booked and expose the same appointment details on each covered slot
+- ✅ Admin appointments page shows an overdue warning banner when past-time scheduled appointments exist
+- ✅ Banner displays overdue count and "Mark All as No-show" bulk action
+- ✅ "Mark All as No-show" updates all overdue scheduled appointments to no_show and refreshes slot availability
+- ✅ Admin can still manually mark individual appointments as Complete or No-show via existing action buttons
+- ✅ Per-row "Overdue" badge shown on past-time scheduled appointments in the admin appointments table
+- ✅ Admin appointments filter dropdown includes an "Overdue (N)" option
+- ✅ Informational reminder banner shown when no overdue appointments exist
+
+Implementation Note:
+Booked slot details modals have been added to the admin schedule show page and the dentist My Schedule page. Each booked slot now renders a "View Details" button that opens an inline overlay modal populated from `data-*` attributes — no page reload required. Slot-to-appointment mapping uses the same start/end overlap logic (`apptStart < slotEnd AND apptEnd > slotStart`) as the existing conflict detection, ensuring long-duration appointments correctly cover all affected slots. The dentist modal additionally includes patient contact details and an amber arrival reminder notice. On the admin appointments page, overdue detection compares each scheduled appointment's end time against the current server time; overdue appointments are highlighted with an orange row style and an "Overdue" badge. A banner summarises the total overdue count and provides a single bulk "Mark All as No-show" action. The existing per-appointment Complete and No-show buttons remain fully functional.
+
+*** 3.3. Dentist Schedule History & Past Slot Visibility
+- ✅ Separate active/upcoming schedules from past schedule history on dentist My Schedule page
+- ✅ Move past schedules into a collapsible Schedule History section below active schedules
+- ✅ Fade past slots to distinguish them from available or booked slots
+- ✅ Display clear slot labels: Available, Booked, Past, Completed, and No-show
+- ✅ Mark slots earlier than the current time on today's schedule as Past
+- ✅ All slots in past-date schedules are automatically marked as Past regardless of is_available state
+- ✅ Past booked slots with appointment history still display View Details modal
+- ✅ Active and upcoming slots continue to show Available or Booked with correct styling
+- ✅ Today's schedule is labelled "Today" in the Active & Upcoming section
+- ✅ Dentist cannot see another dentist's schedules or slots
+
+Implementation Note:
+Dentist My Schedule now separates active/upcoming schedules from past schedule history. The controller splits schedules into two collections: active/upcoming (today and future, sorted ascending) and past (before today, sorted most recent first). The view renders two clearly labelled sections — Active & Upcoming first, followed by Schedule History which is collapsed by default and can be expanded via a Show History toggle. Each slot is classified into one of: Available (future/today unbooked), Booked (future/today booked), or Past (all slots in past schedules, plus today's slots whose end time has already passed). Past booked slots show the actual appointment outcome (Completed, No-show) and retain the View Details modal. Long-duration appointment overlap mapping continues to work correctly across both sections.
+
+*** 3.4. Admin Schedule History Separation & Break Time Limit Rule
+- ✅ Separate past schedules from active/upcoming on the admin Doctor Schedules index page
+- ✅ Two-section layout: "Active & Upcoming Schedules" table (sorted ASC) and "Schedule History" table (collapsed by default)
+- ✅ Past schedule rows visually muted (reduced opacity, light background, left border accent)
+- ✅ "Active / Upcoming Schedules" summary card shows only active/upcoming count for aggregate utilization
+- ✅ History section toggle button (Show History / Hide History) with aria-expanded state
+- ✅ Enforce maximum 1-hour break time rule in backend detectScheduleConflict() — applies to store, update, checkConflict, and previewSlots endpoints
+- ✅ Frontend JS constraint: disable break_end options more than 60 minutes after break_start in time-card-picker on create and edit forms
+- ✅ Break time reminder hint displayed under "Break Time (Optional)" section title in create and edit forms
+- ✅ Break end hint updated to state max 1-hour limit
+
+Implementation Note:
+The admin Doctor Schedules index page now separates schedules into two sections: "Active & Upcoming Schedules" (today and future, sorted ascending) and "Schedule History" (past dates, sorted most recent first, collapsed by default). The aggregate utilization summary card now reflects active/upcoming schedules only. The Schedule History section uses a toggle button with smooth max-height CSS transition identical to the dentist schedule history pattern. Past schedule rows use reduced opacity and a light background to visually distinguish them from active rows. The maximum 1-hour break time rule is enforced in detectScheduleConflict() — any break_end that is more than 60 minutes after break_start returns a conflict with the message "Break time cannot exceed 1 hour." This check fires after the existing break-within-working-hours check, so all related endpoints (store, update, checkConflict, previewSlots) reject overly long breaks. The frontend time-card-picker JS in both create.blade.php and edit.blade.php now disables break_end options that would exceed 60 minutes from break_start, and a static reminder note is shown below the Break Time section title in both forms.
+
 *** 4. Schedule Status Management
 - ✅ Add Active schedule status
 - ✅ Add Inactive schedule status

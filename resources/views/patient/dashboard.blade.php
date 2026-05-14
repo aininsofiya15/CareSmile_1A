@@ -138,7 +138,7 @@
             <div class="patient-badge">
                 <i class="far fa-user-circle"></i> Patient Portal
             </div>
-            <h1 class="fw-bold mb-2" style="font-size: 2.5rem;">Welcome Back!</h1>
+            <h1 class="fw-bold text-white" style="font-size: 2.5rem;">Welcome Back!</h1>
             <p class="mb-0 text-white" style="max-width: 600px; opacity: 0.9;">Manage your dental appointments, track your oral health records, and access your treatment history all in one place.</p>
         </div>
         <div>
