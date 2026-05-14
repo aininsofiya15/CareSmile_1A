@@ -22,7 +22,8 @@ class AppointmentController extends Controller
     public function __construct(
         private ScheduleStatusService $scheduleStatusService,
         private ScheduleSlotService $scheduleSlotService
-    ) {}
+    ) {
+    }
 
     public function index(): View
     {
@@ -64,7 +65,13 @@ class AppointmentController extends Controller
         $service = Service::active()->find($validated['service_id']);
         $slot = ScheduleSlot::with('schedule')->findOrFail($validated['slot_id']);
 
-        if (! $service || ! $slot->schedule) {
+        if (!$slot->is_available) {
+            return back()->withErrors([
+                'slot_id' => 'Selected slot is unavailable.',
+            ])->withInput();
+        }
+
+        if (!$service || !$slot->schedule) {
             return back()->withErrors([
                 'time_slot' => 'Please select a valid service, date, and time slot.',
             ])->withInput();
@@ -125,7 +132,7 @@ class AppointmentController extends Controller
         $service = Service::where('name', $appointment->service)->first();
         $newSlot = ScheduleSlot::with('schedule')->findOrFail($validated['slot_id']);
 
-        if (! $service || ! $newSlot->schedule) {
+        if (!$service || !$newSlot->schedule) {
             return back()->withErrors([
                 'time_slot' => 'Please select a valid service, date, and time slot.',
             ])->withInput();
@@ -153,7 +160,7 @@ class AppointmentController extends Controller
             $this->scheduleStatusService->refreshScheduleAvailability($oldSchedule);
         }
 
-        if (! $oldSchedule || $oldSchedule->id !== $newSlot->schedule->id) {
+        if (!$oldSchedule || $oldSchedule->id !== $newSlot->schedule->id) {
             $this->scheduleStatusService->updateScheduleStatusAfterBooking($newSlot->schedule);
         }
 
@@ -189,7 +196,7 @@ class AppointmentController extends Controller
 
         if ($request->status && $request->status !== 'all') {
             $query->where('status', $request->status);
-        } elseif (! $request->status) {
+        } elseif (!$request->status) {
             $query->where('status', 'scheduled');
         }
 
@@ -243,7 +250,7 @@ class AppointmentController extends Controller
     {
         $service = Service::active()->find($request->query('service_id'));
 
-        if (! $service) {
+        if (!$service) {
             return response()->json([]);
         }
 
