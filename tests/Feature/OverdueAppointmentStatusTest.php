@@ -2,191 +2,189 @@
 
 use App\Enums\Role;
 use App\Models\Appointment;
-use App\Models\DoctorSchedule;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function overdueAdmin(): User
+class OverdueAppointmentStatusTest extends TestCase
 {
-    return User::factory()->create(['role' => Role::Admin]);
+    use RefreshDatabase;
+
+    public function test_admin_appointments_page_shows_overdue_warning_when_past_scheduled_appointments_exist(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+        $this->pastScheduledAppointment($patient, $dentist);
+
+        $this->actingAs($admin)
+            ->get(route('admin.appointments', ['status' => 'all']))
+            ->assertOk()
+            ->assertSee('overdue')
+            ->assertSee('need status review', false);
+    }
+
+    public function test_admin_appointments_page_shows_no_overdue_warning_when_no_overdue_appointments_exist(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+        $this->futureScheduledAppointment($patient, $dentist);
+
+        $this->actingAs($admin)
+            ->get(route('admin.appointments', ['status' => 'all']))
+            ->assertOk()
+            ->assertSee('Reminder:', false)
+            ->assertDontSee('need status review', false);
+    }
+
+    public function test_overdue_filter_on_admin_appointments_page_returns_only_overdue_appointments(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+
+        $past = $this->pastScheduledAppointment($patient, $dentist);
+        $future = $this->futureScheduledAppointment($patient, $dentist);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.appointments', ['status' => 'overdue']));
+
+        $response->assertOk();
+        $response->assertSee($past->service);
+        $response->assertDontSee($future->service);
+    }
+
+    public function test_future_scheduled_appointment_is_not_shown_as_overdue(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+        $this->futureScheduledAppointment($patient, $dentist);
+
+        $this->actingAs($admin)
+            ->get(route('admin.appointments', ['status' => 'scheduled']))
+            ->assertOk()
+            ->assertDontSee('<span class="overdue-badge">', false);
+    }
+
+    public function test_admin_can_bulk_mark_overdue_appointments_as_no_show_via_mark_overdue_route(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+        $appointment = $this->pastScheduledAppointment($patient, $dentist);
+
+        $this->actingAs($admin)
+            ->post(route('admin.appointments.mark_overdue'))
+            ->assertRedirect(route('admin.appointments'));
+
+        $this->assertDatabaseHas('appointments', [
+            'id' => $appointment->id,
+            'status' => 'no_show',
+        ]);
+    }
+
+    public function test_future_appointment_is_not_marked_no_show_by_bulk_overdue_action(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+        $future = $this->futureScheduledAppointment($patient, $dentist);
+
+        $this->actingAs($admin)
+            ->post(route('admin.appointments.mark_overdue'));
+
+        $this->assertDatabaseHas('appointments', [
+            'id' => $future->id,
+            'status' => 'scheduled',
+        ]);
+    }
+
+    public function test_admin_can_still_manually_override_overdue_appointment_status_to_completed_via_complete_route(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+        $appointment = $this->pastScheduledAppointment($patient, $dentist);
+
+        $this->actingAs($admin)
+            ->post(route('admin.appointments.complete', $appointment->id));
+
+        $this->assertDatabaseHas('appointments', [
+            'id' => $appointment->id,
+            'status' => 'completed',
+        ]);
+    }
+
+    public function test_appointment_without_end_time_does_not_crash_admin_appointments_page(): void
+    {
+        $admin = $this->overdueAdmin();
+        $dentist = $this->overdueDentist();
+        $patient = $this->overduePatient();
+
+        Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $dentist->id,
+            'appointment_date' => now()->subDay()->toDateString(),
+            'appointment_time' => '10:00:00',
+            'end_time' => null,
+            'service' => 'Whitening',
+            'status' => 'scheduled',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.appointments', ['status' => 'all']))
+            ->assertOk();
+    }
+
+    public function test_patient_cannot_access_mark_overdue_route(): void
+    {
+        $patient = $this->overduePatient();
+
+        $this->actingAs($patient)
+            ->post(route('admin.appointments.mark_overdue'))
+            ->assertForbidden();
+    }
+
+    private function overdueAdmin(): User
+    {
+        return User::factory()->create(['role' => Role::Admin]);
+    }
+
+    private function overdueDentist(): User
+    {
+        return User::factory()->create(['role' => Role::Dentist]);
+    }
+
+    private function overduePatient(): User
+    {
+        return User::factory()->create(['role' => Role::Patient]);
+    }
+
+    private function pastScheduledAppointment(User $patient, User $dentist, array $overrides = []): Appointment
+    {
+        return Appointment::create(array_merge([
+            'patient_id' => $patient->id,
+            'doctor_id' => $dentist->id,
+            'appointment_date' => now()->subDay()->toDateString(),
+            'appointment_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'service' => 'Cleaning',
+            'status' => 'scheduled',
+        ], $overrides));
+    }
+
+    private function futureScheduledAppointment(User $patient, User $dentist, array $overrides = []): Appointment
+    {
+        return Appointment::create(array_merge([
+            'patient_id' => $patient->id,
+            'doctor_id' => $dentist->id,
+            'appointment_date' => now()->addDay()->toDateString(),
+            'appointment_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'service' => 'Checkup',
+            'status' => 'scheduled',
+        ], $overrides));
+    }
 }
-
-function overdueDentist(): User
-{
-    return User::factory()->create(['role' => Role::Dentist]);
-}
-
-function overduePatient(): User
-{
-    return User::factory()->create(['role' => Role::Patient]);
-}
-
-function pastScheduledAppointment(User $patient, User $dentist, array $overrides = []): Appointment
-{
-    return Appointment::create(array_merge([
-        'patient_id'       => $patient->id,
-        'doctor_id'        => $dentist->id,
-        'appointment_date' => now()->subDay()->toDateString(),
-        'appointment_time' => '09:00:00',
-        'end_time'         => '10:00:00',
-        'service'          => 'Cleaning',
-        'status'           => 'scheduled',
-    ], $overrides));
-}
-
-function futureScheduledAppointment(User $patient, User $dentist, array $overrides = []): Appointment
-{
-    return Appointment::create(array_merge([
-        'patient_id'       => $patient->id,
-        'doctor_id'        => $dentist->id,
-        'appointment_date' => now()->addDay()->toDateString(),
-        'appointment_time' => '09:00:00',
-        'end_time'         => '10:00:00',
-        'service'          => 'Checkup',
-        'status'           => 'scheduled',
-    ], $overrides));
-}
-
-// ---------------------------------------------------------------------------
-// Overdue detection on admin appointments page
-// ---------------------------------------------------------------------------
-
-it('admin appointments page shows overdue warning when past scheduled appointments exist', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-    pastScheduledAppointment($patient, $dentist);
-
-    $this->actingAs($admin)
-        ->get(route('admin.appointments', ['status' => 'all']))
-        ->assertOk()
-        ->assertSee('overdue')
-        ->assertSee('need status review', false);
-});
-
-it('admin appointments page shows no overdue warning when no overdue appointments exist', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-    futureScheduledAppointment($patient, $dentist);
-
-    $this->actingAs($admin)
-        ->get(route('admin.appointments', ['status' => 'all']))
-        ->assertOk()
-        ->assertSee('Reminder:', false)
-        ->assertDontSee('need status review', false);
-});
-
-it('overdue filter on admin appointments page returns only overdue appointments', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-
-    $past   = pastScheduledAppointment($patient, $dentist);
-    $future = futureScheduledAppointment($patient, $dentist);
-
-    $response = $this->actingAs($admin)
-        ->get(route('admin.appointments', ['status' => 'overdue']));
-
-    $response->assertOk();
-    $response->assertSee($past->service);
-    $response->assertDontSee($future->service);
-});
-
-// ---------------------------------------------------------------------------
-// Future appointments are not affected
-// ---------------------------------------------------------------------------
-
-it('future scheduled appointment is not shown as overdue', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-    futureScheduledAppointment($patient, $dentist);
-
-    $this->actingAs($admin)
-        ->get(route('admin.appointments', ['status' => 'scheduled']))
-        ->assertOk()
-        ->assertDontSee('<span class="overdue-badge">', false);
-});
-
-// ---------------------------------------------------------------------------
-// Bulk mark-overdue action
-// ---------------------------------------------------------------------------
-
-it('admin can bulk mark overdue appointments as no show via mark overdue route', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-    $appointment = pastScheduledAppointment($patient, $dentist);
-
-    $this->actingAs($admin)
-        ->post(route('admin.appointments.mark_overdue'))
-        ->assertRedirect(route('admin.appointments'));
-
-    $this->assertDatabaseHas('appointments', [
-        'id'     => $appointment->id,
-        'status' => 'no_show',
-    ]);
-});
-
-it('future appointment is not marked no show by bulk overdue action', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-    $future  = futureScheduledAppointment($patient, $dentist);
-
-    $this->actingAs($admin)
-        ->post(route('admin.appointments.mark_overdue'));
-
-    $this->assertDatabaseHas('appointments', [
-        'id'     => $future->id,
-        'status' => 'scheduled',
-    ]);
-});
-
-it('admin can still manually override overdue appointment status to completed via complete route', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-    $appointment = pastScheduledAppointment($patient, $dentist);
-
-    $this->actingAs($admin)
-        ->post(route('admin.appointments.complete', $appointment->id));
-
-    $this->assertDatabaseHas('appointments', [
-        'id'     => $appointment->id,
-        'status' => 'completed',
-    ]);
-});
-
-it('appointment without end time does not crash admin appointments page', function () {
-    $admin   = overdueAdmin();
-    $dentist = overdueDentist();
-    $patient = overduePatient();
-
-    Appointment::create([
-        'patient_id'       => $patient->id,
-        'doctor_id'        => $dentist->id,
-        'appointment_date' => now()->subDay()->toDateString(),
-        'appointment_time' => '10:00:00',
-        'end_time'         => null,
-        'service'          => 'Whitening',
-        'status'           => 'scheduled',
-    ]);
-
-    $this->actingAs($admin)
-        ->get(route('admin.appointments', ['status' => 'all']))
-        ->assertOk();
-});
-
-it('patient cannot access mark overdue route', function () {
-    $patient = overduePatient();
-
-    $this->actingAs($patient)
-        ->post(route('admin.appointments.mark_overdue'))
-        ->assertForbidden();
-});
