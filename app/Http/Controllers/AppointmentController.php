@@ -220,9 +220,12 @@ class AppointmentController extends Controller
             ->whereDate('working_date', $this->appointmentDate($appointment))
             ->first();
 
-        if ($schedule) {
-            $this->scheduleStatusService->refreshScheduleAvailability($schedule);
-        }
+        // if ($schedule) {
+        //     $this->scheduleStatusService->refreshScheduleAvailability($schedule);
+        // }
+
+        // Do not refresh schedule availability.
+        // Completed appointments should still keep the slot occupied.
 
         return back()->with('success', 'Marked as completed');
     }
@@ -239,9 +242,12 @@ class AppointmentController extends Controller
             ->whereDate('working_date', $this->appointmentDate($appointment))
             ->first();
 
-        if ($schedule) {
-            $this->scheduleStatusService->refreshScheduleAvailability($schedule);
-        }
+        // if ($schedule) {
+        //     $this->scheduleStatusService->refreshScheduleAvailability($schedule);
+        // }
+
+        // Do not refresh schedule availability.
+        // No-show appointments should still keep the slot occupied.
 
         return back()->with('success', 'Marked as no-show');
     }

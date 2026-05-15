@@ -5,6 +5,9 @@ use App\Models\Appointment;
 use App\Models\DoctorSchedule;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 function createPatient(): User
 {
@@ -82,7 +85,33 @@ it('rejects booking using invalid slot id', function () {
             'slot_id' => 999999,
         ]);
 
-    $response->assertSessionHasErrors();
+    $response->assertSessionHasErrors('slot_id');
+});
+
+it('rejects booking using inactive service', function () {
+    $patient = createPatient();
+
+    $service = Service::create([
+        'name' => 'Inactive Service',
+        'description' => 'Inactive service',
+        'price' => 100,
+        'duration_minutes' => 30,
+        'is_active' => false,
+    ]);
+
+    $dentist = createDentist();
+
+    $schedule = createSchedule($dentist);
+
+    $slot = $schedule->slots()->first();
+
+    $response = $this->actingAs($patient)
+        ->post(route('patient.appointments.store'), [
+            'service_id' => $service->id,
+            'slot_id' => $slot->id,
+        ]);
+
+    $response->assertSessionHasErrors('service_id');
 });
 
 it('prevents double booking on the same slot', function () {
@@ -118,10 +147,10 @@ it('prevents double booking on the same slot', function () {
             'slot_id' => $slot->id,
         ]);
 
-    $response->assertSessionHasErrors();
+    $response->assertSessionHasErrors('slot_id');
 });
 
-it('rejects booking for inactive slot', function () {
+it('rejects booking for unavailable slot', function () {
     $patient = createPatient();
 
     $dentist = createDentist();
@@ -142,5 +171,28 @@ it('rejects booking for inactive slot', function () {
             'slot_id' => $slot->id,
         ]);
 
-    $response->assertSessionHasErrors();
+    $response->assertSessionHasErrors('slot_id');
+});
+
+it('rejects reschedule without slot selection', function () {
+    $patient = createPatient();
+
+    $dentist = createDentist();
+
+    $service = createService();
+
+    $appointment = Appointment::create([
+        'patient_id' => $patient->id,
+        'doctor_id' => $dentist->id,
+        'appointment_date' => now()->addDay()->toDateString(),
+        'appointment_time' => '09:00:00',
+        'end_time' => '09:30:00',
+        'service' => $service->name,
+        'status' => 'scheduled',
+    ]);
+
+    $response = $this->actingAs($patient)
+        ->post(route('patient.appointments.reschedule.submit', $appointment->id), []);
+
+    $response->assertSessionHasErrors('slot_id');
 });
