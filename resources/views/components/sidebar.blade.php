@@ -36,7 +36,8 @@
         align-items: center;
         gap: 12px;
         padding: 0.85rem 1.25rem;
-        color: #6c7a92;
+        /* ✅ LIGHTHOUSE FIX: Darkened from #6c7a92 to #475569 for contrast */
+        color: #475569; 
         text-decoration: none;
         border-radius: 12px;
         font-weight: 600;
@@ -170,7 +171,6 @@
             @elseif(!Auth::user()->isAdmin() && !Auth::user()->isDentist())
                 {{-- Patient Only: Browse Services --}}
                 <li>
-                    {{-- Note: Change '#' to your actual patient services route if you have one --}}
                     <a href="{{ route('patient.services.index') }}" class="sidebar-link">
                         <i class="fas fa-list-ul"></i>
                         <span>Browse Services</span>

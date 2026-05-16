@@ -175,12 +175,18 @@ class DentistController extends Controller
     {
         $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            // Added 'different:current_password' to the rules below
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ], [
+            // Added a custom error message so the user knows exactly what went wrong
+            'password.different' => 'Your new password must be different from your current password.'
         ]);
+
         $request->user()->update([
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
         ]);
-        return back()->with('success', 'Security credentials updated successfully!');
+
+        return back()->with('success', 'Password updated successfully!');
     }
 
     public function appointments(): View

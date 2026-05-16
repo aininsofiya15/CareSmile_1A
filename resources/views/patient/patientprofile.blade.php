@@ -95,6 +95,51 @@
         border-radius: 50%; display: flex; align-items: center; justify-content: center;
         font-size: 2.5rem; margin: 0 auto 1rem auto;
     }
+
+    /* --- Password Group & Toggle Styles --- */
+    .form-control-password { border-right: none; }
+    .input-group-text {
+        background-color: white;
+        border-left: none;
+        color: #6b7280;
+        cursor: pointer;
+        border: 1px solid #d1d5db;
+        border-radius: 0 8px 8px 0;
+    }
+
+    /* --- Password Strength Meter & Checklist Styles --- */
+    .strength-meter { 
+        height: 6px; 
+        background-color: #e5e7eb; 
+        border-radius: 3px; 
+        margin: 10px 0; 
+        overflow: hidden; 
+        display: none; 
+    }
+    #strength-bar { 
+        height: 100%; 
+        width: 0%; 
+        transition: all 0.3s ease; 
+    }
+
+    #password-checklist {
+        display: none;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+    .check-item { 
+        font-size: 0.8rem; 
+        color: #9ca3af; 
+        margin-bottom: 4px; 
+        display: flex; 
+        align-items: center; 
+    }
+    .check-item i { margin-right: 8px; width: 14px; }
+    .check-item.valid { color: #10b981; font-weight: 600; }
 </style>
 
 <div class="container-fluid py-3">
@@ -124,18 +169,44 @@
                 <div class="card-body p-4">
                     <form action="{{ route('patient.password.update') }}" method="POST">
                         @csrf @method('PUT')
+                        
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Current Password</label>
-                            <input type="password" name="current_password" class="form-control" placeholder="Enter your current password" required>
+                            <div class="input-group">
+                                <input type="password" name="current_password" id="curr_pass" class="form-control form-control-password" placeholder="Enter your current password" required>
+                                <span class="input-group-text" onclick="togglePassword('curr_pass', this)"><i class="far fa-eye"></i></span>
+                            </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">New Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="Minimum 8 characters" required>
+                            <div class="input-group">
+                                <input type="password" name="password" id="new_pass" class="form-control form-control-password" placeholder="Minimum 8 characters" required oninput="validatePassword(this.value)">
+                                <span class="input-group-text" onclick="togglePassword('new_pass', this)"><i class="far fa-eye"></i></span>
+                            </div>
+
+                            {{-- Password Strength Meter and Checklist --}}
+                            <div class="strength-meter" id="meter-container">
+                                <div id="strength-bar"></div>
+                            </div>
+        
+                            <div id="password-checklist">
+                                <p class="small fw-bold mb-2 text-dark">Password requirements:</p>
+                                <div class="check-item" id="req-length"><i class="fas fa-circle"></i> 8+ characters</div>
+                                <div class="check-item" id="req-upper"><i class="fas fa-circle"></i> One uppercase letter</div>
+                                <div class="check-item" id="req-number"><i class="fas fa-circle"></i> One number</div>
+                                <div class="check-item" id="req-special"><i class="fas fa-circle"></i> One special character</div>
+                            </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Confirm Password</label>
-                            <input type="password" name="password_confirmation" class="form-control" placeholder="Repeat your new password" required>
+                            <div class="input-group">
+                                <input type="password" name="password_confirmation" id="conf_pass" class="form-control form-control-password" placeholder="Repeat your new password" required>
+                                <span class="input-group-text" onclick="togglePassword('conf_pass', this)"><i class="far fa-eye"></i></span>
+                            </div>
                         </div>
+
                         <button type="submit" class="btn btn-patient-primary w-100">Update Password</button>
                     </form>
                 </div>
@@ -220,4 +291,61 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Eye Toggle Logic
+    function togglePassword(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        const icon = iconElement.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('far', 'fas');
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fas', 'far');
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // Checklist Validation Logic
+    function validatePassword(pass) {
+        const checklist = document.getElementById('password-checklist');
+        const meter = document.getElementById('meter-container');
+        const bar = document.getElementById('strength-bar');
+
+        if (pass.length > 0) {
+            checklist.style.display = 'block';
+            meter.style.display = 'block';
+        } else {
+            checklist.style.display = 'none';
+            meter.style.display = 'none';
+        }
+
+        const rules = {
+            'req-length': pass.length >= 8,
+            'req-upper': /[A-Z]/.test(pass),
+            'req-number': /[0-9]/.test(pass),
+            'req-special': /[!@#$%^&*(),.?":{}|<>]/.test(pass)
+        };
+
+        let score = 0;
+        for (const [id, passed] of Object.entries(rules)) {
+            const el = document.getElementById(id);
+            if (passed) {
+                el.classList.add('valid');
+                el.querySelector('i').className = 'fas fa-check-circle';
+                score++;
+            } else {
+                el.classList.remove('valid');
+                el.querySelector('i').className = 'fas fa-circle';
+            }
+        }
+
+        const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+        bar.style.width = (score / 4) * 100 + '%';
+        bar.style.backgroundColor = colors[score - 1] || '#e5e7eb';
+    }
+</script>
 @endsection

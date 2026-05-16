@@ -46,14 +46,16 @@
 
     .banner-subtitle {
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.85);
+        /* ✅ LIGHTHOUSE FIX: Changed to pure white for better contrast against blue */
+        color: #ffffff; 
         margin: 6px 0 0 0;
         font-weight: 400;
     }
 
     .btn-banner-action {
         background-color: white;
-        color: var(--brand-blue);
+        /* ✅ LIGHTHOUSE FIX: Used brand-blue-dark for sufficient text contrast */
+        color: var(--brand-blue-dark); 
         border: none;
         border-radius: 8px;
         padding: 10px 20px;
@@ -105,7 +107,8 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
         font-weight: 700;
-        color: #64748b;
+        /* ✅ LIGHTHOUSE FIX: Darkened from #64748b to #475569 for contrast */
+        color: #475569; 
         margin-bottom: 0.5rem;
     }
 
@@ -168,7 +171,7 @@
                     <div class="profile-avatar-lg rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
                         <i class="fas fa-user-md"></i>
                     </div>
-                    <h3 class="fw-bold mb-1">{{ $dentist->name }}</h3>
+                    <h2 class="fw-bold mb-1 fs-4">{{ $dentist->name }}</h2>
                     <div class="badge bg-white text-primary rounded-pill px-3 py-2 mb-3" style="color: var(--brand-blue) !important;">
                         {{ $dentist->specialization }}
                     </div>
@@ -180,30 +183,30 @@
             <div class="col-lg-8">
                 <div class="card admin-card mb-4">
                     <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0">Professional Information</h5>
+                        <h2 class="fw-bold mb-0 fs-5">Professional Information</h2>
                         <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Only fill in fields you want to update</small>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Full Name</label>
-                                <input type="text" name="name" class="form-control form-control-custom w-100 @error('name') is-invalid @enderror"
+                                <label for="dentistName" class="form-label-custom">Full Name</label>
+                                <input type="text" id="dentistName" name="name" class="form-control form-control-custom w-100 @error('name') is-invalid @enderror"
                                        value="{{ old('name', $dentist->name) }}"
                                        placeholder="Leave unchanged if not updating">
                                 @error('name') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label-custom">Email Address</label>
-                                <input type="email" name="email" class="form-control form-control-custom w-100 @error('email') is-invalid @enderror"
+                                <label for="dentistEmail" class="form-label-custom">Email Address</label>
+                                <input type="email" id="dentistEmail" name="email" class="form-control form-control-custom w-100 @error('email') is-invalid @enderror"
                                        value="{{ old('email', $dentist->email) }}"
                                        placeholder="Leave unchanged if not updating">
                                 @error('email') <small class="text-danger mt-1 d-block">{{ $message }}</small> @enderror
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label-custom">Phone Number</label>
-                                <input type="text" name="phone_number"
+                                <label for="dentistPhone" class="form-label-custom">Phone Number</label>
+                                <input type="text" id="dentistPhone" name="phone_number"
                                        class="form-control form-control-custom w-100 @error('phone_number') is-invalid @enderror"
                                        value="{{ old('phone_number', $dentist->phone_number) }}"
                                        placeholder="e.g. 011-12345678"
@@ -213,8 +216,8 @@
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label-custom">Specialization</label>
-                                <select name="specialization" class="form-select form-control-custom w-100">
+                                <label for="dentistSpecialization" class="form-label-custom">Specialization</label>
+                                <select id="dentistSpecialization" name="specialization" class="form-select form-control-custom w-100">
                                     <option value="General Dentistry"     {{ old('specialization', $dentist->specialization) == 'General Dentistry'     ? 'selected' : '' }}>General Dentistry</option>
                                     <option value="Orthodontics"          {{ old('specialization', $dentist->specialization) == 'Orthodontics'          ? 'selected' : '' }}>Orthodontics</option>
                                     <option value="Periodontics"          {{ old('specialization', $dentist->specialization) == 'Periodontics'          ? 'selected' : '' }}>Periodontics</option>
@@ -238,5 +241,5 @@
             </div>
         </div>
     </form>
-</div>
+</div> 
 @endsection

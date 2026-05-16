@@ -175,7 +175,7 @@
             {{-- Account Information & Reset Password --}}
             <div class="card patient-card">
                 <div class="card-header card-header-light">
-                    <h6 class="fw-bold mb-0">Account Information</h6>
+                    <h5 class="fw-bold mb-0">Account Information</h5>
                 </div>
                 <div class="card-body p-4">
   
@@ -211,7 +211,7 @@
                 {{-- Section 1: Personal --}}
                 <div class="card patient-card mb-4">
                     <div class="card-header card-header-light">
-                        <h6 class="fw-bold mb-0 text-primary" style="color: var(--brand-blue) !important;">Personal Details</h6>
+                        <h5 class="fw-bold mb-0 text-primary" style="color: var(--brand-blue) !important;">Personal Details</h5>
                     </div>
                     <div class="card-body p-4">
                         {{-- Hidden fields so name & email pass through validation --}}
@@ -220,16 +220,16 @@
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">Full Name</label>
-                                <input type="text" class="form-control bg-light" value="{{ $patient->name }}" readonly tabindex="-1">
+                                <label for="patientName" class="form-label text-muted small fw-bold">Full Name</label>
+                                <input type="text" id="patientName" class="form-control bg-light" value="{{ $patient->name }}" readonly tabindex="-1">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">Email Address</label>
-                                <input type="email" class="form-control bg-light" value="{{ $patient->email }}" readonly tabindex="-1">
+                                <label for="patientEmail" class="form-label text-muted small fw-bold">Email Address</label>
+                                <input type="email" id="patientEmail" class="form-control bg-light" value="{{ $patient->email }}" readonly tabindex="-1">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">Phone Number</label>
-                                <input type="text" name="phone_number" class="form-control bg-light edit-input"
+                                <label for="patientPhone" class="form-label text-muted small fw-bold">Phone Number</label>
+                                <input type="text" id="patientPhone" name="phone_number" class="form-control bg-light edit-input"
                                        value="{{ old('phone_number', $patient->patientProfile->phone_number ?? '') }}"
                                        placeholder="e.g. 011-12345678"
                                        pattern="01[0-9]-[0-9]{7,8}"
@@ -240,13 +240,13 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">Date of Birth</label>
-                                <input type="date" name="dob" class="form-control bg-light edit-input"
+                                <label for="patientDob" class="form-label text-muted small fw-bold">Date of Birth</label>
+                                <input type="date" id="patientDob" name="dob" class="form-control bg-light edit-input"
                                        value="{{ old('dob', $patient->patientProfile->dob ?? '') }}" readonly>
                             </div>
                             <div class="col-12">
-                                <label class="form-label text-muted small fw-bold">Residential Address</label>
-                                <textarea name="address" class="form-control bg-light edit-input" rows="2"
+                                <label for="patientAddress" class="form-label text-muted small fw-bold">Residential Address</label>
+                                <textarea id="patientAddress" name="address" class="form-control bg-light edit-input" rows="2"
                                           placeholder="Unit number, street name, and city" readonly>{{ old('address', $patient->patientProfile->address ?? '') }}</textarea>
                             </div>
                         </div>
@@ -256,30 +256,30 @@
                 {{-- Section 2: Medical Context --}}
                 <div class="card patient-card">
                     <div class="card-header card-header-light">
-                        <h6 class="fw-bold mb-0 text-danger">Medical Context</h6>
+                        <h5 class="fw-bold mb-0 text-danger">Medical Context</h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label text-muted small fw-bold">Drug Allergies</label>
-                                <input type="text" name="allergies" class="form-control bg-light edit-input" maxlength="100"
+                                <label for="patientAllergies" class="form-label text-muted small fw-bold">Drug Allergies</label>
+                                <input type="text" id="patientAllergies" name="allergies" class="form-control bg-light edit-input" maxlength="100"
                                        value="{{ old('allergies', $patient->patientProfile->allergies ?? '') }}"
                                        placeholder="e.g. Penicillin, Latex, Pollen" readonly>
                             </div>
                             <div class="col-12">
-                                <label class="form-label text-muted small fw-bold">Current Medications</label>
-                                <textarea name="medications" class="form-control bg-light edit-input" rows="2"
+                                <label for="patientMedications" class="form-label text-muted small fw-bold">Current Medications</label>
+                                <textarea id="patientMedications" name="medications" class="form-control bg-light edit-input" rows="2"
                                           placeholder="List medications currently taken (e.g. Paracetamol 500mg)" readonly>{{ old('medications', $patient->patientProfile->medications ?? '') }}</textarea>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">Emergency Contact Name</label>
-                                <input type="text" name="emergency_name" class="form-control bg-light edit-input"
+                                <label for="emergencyName" class="form-label text-muted small fw-bold">Emergency Contact Name</label>
+                                <input type="text" id="emergencyName" name="emergency_name" class="form-control bg-light edit-input"
                                        value="{{ old('emergency_name', $patient->patientProfile->emergency_contact_name ?? '') }}"
                                        placeholder="Full name of next of kin" readonly>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">Emergency Phone</label>
-                                <input type="text" name="emergency_phone"
+                                <label for="emergencyPhone" class="form-label text-muted small fw-bold">Emergency Phone</label>
+                                <input type="text" id="emergencyPhone" name="emergency_phone"
                                        class="form-control bg-light edit-input @error('emergency_phone') is-invalid @enderror"
                                        value="{{ old('emergency_phone', $patient->patientProfile->emergency_contact_phone ?? '') }}"
                                        placeholder="e.g. 011-12345678"
@@ -343,6 +343,5 @@ function toggleEdit() {
     });
 @endif
 </script>
-
 
 @endsection
