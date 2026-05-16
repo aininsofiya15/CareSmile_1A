@@ -67,13 +67,16 @@ class LoginRequest extends FormRequest
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
-        throw ValidationException::withMessages([
-            // This is the "Throttle" error. It triggers the 'throttle' key check in your Blade.
-            'throttle' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+        // This tells Laravel to redirect back to the login page, 
+        // but use the 429 (Too Many Requests) code instead of 302.
+        $message = trans('auth.throttle', [
+            'seconds' => $seconds,
+            'minutes' => ceil($seconds / 60),
         ]);
+
+        throw ValidationException::withMessages([
+            'email' => $message,
+        ])->status(429); // <--- Add this specifically!
     }
 
     /**

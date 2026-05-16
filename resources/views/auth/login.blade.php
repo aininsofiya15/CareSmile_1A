@@ -194,9 +194,7 @@
                 </div>
 
                 <div class="text-end mb-4">
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-decoration-none fw-bold" style="font-size: 0.85rem; color: #2563eb;">Forgot Password?</a>
-                    @endif
+       
                 </div>
 
                 <input type="checkbox" name="remember" checked hidden>

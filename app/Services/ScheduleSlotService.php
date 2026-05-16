@@ -105,7 +105,7 @@ class ScheduleSlotService
 
     public function isSlotWithinBreak(Carbon $slotStart, Carbon $slotEnd, DoctorSchedule $schedule): bool
     {
-        if (! $schedule->break_start || ! $schedule->break_end) {
+        if (!$schedule->break_start || !$schedule->break_end) {
             return false;
         }
 
@@ -217,7 +217,7 @@ class ScheduleSlotService
             $slotEnd = Carbon::parse($this->scheduleDate($schedule).' '.$this->timeString($slot->end_time));
 
             $slot->update([
-                'is_available' => ! $this->isSlotBooked($schedule, $slotStart, $slotEnd),
+                'is_available' => !$this->isSlotBooked($schedule, $slotStart, $slotEnd),
             ]);
         }
 
@@ -245,7 +245,7 @@ class ScheduleSlotService
         Carbon $endTime,
         ?int $ignoreAppointmentId = null
     ): ?array {
-        if (! $schedule->isBookable()) {
+        if (!$schedule->isBookable()) {
             return ['time_slot' => 'This schedule is currently unavailable for booking. Please select another available slot.'];
         }
 
@@ -275,7 +275,8 @@ class ScheduleSlotService
     {
         $appointments = Appointment::where('doctor_id', $schedule->doctor_id)
             ->whereDate('appointment_date', $this->scheduleDate($schedule))
-            ->where('status', 'scheduled')
+            // ->where('status', 'scheduled')
+            ->whereIn('status', ['scheduled', 'completed', 'no_show'])
             ->when($ignoreAppointmentId, fn ($query) => $query->where('id', '!=', $ignoreAppointmentId))
             ->get();
 
@@ -292,7 +293,8 @@ class ScheduleSlotService
     }
 
     /**
-     * @param  array<int, string>  $serviceNames
+     * @param array<int, string> $serviceNames
+     *
      * @return array<string, int>
      */
     private function serviceDurationsFor(array $serviceNames): array
@@ -304,7 +306,7 @@ class ScheduleSlotService
     }
 
     /**
-     * @param  array<string, int>  $serviceDurations
+     * @param array<string, int> $serviceDurations
      */
     private function appointmentEndTime(Appointment $appointment, Carbon $appointmentStart, array $serviceDurations): Carbon
     {

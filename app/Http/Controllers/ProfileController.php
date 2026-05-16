@@ -64,7 +64,11 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            // Added 'different:current_password' to the end of the array
+            'password' => ['required', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed', 'different:current_password'],
+        ], [
+            // Added the custom error message
+            'password.different' => 'Your new password must be different from your current password.'
         ]);
 
         $request->user()->update([
@@ -73,7 +77,6 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password updated successfully!');
     }
-
     /**
      * Terminate Session & Delete Account
      */
