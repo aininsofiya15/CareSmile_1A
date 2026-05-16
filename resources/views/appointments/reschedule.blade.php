@@ -324,7 +324,7 @@ function loadSlots() {
         return;
     }
 
-    fetch(`/get-slots/${date}?service_id=${serviceId}&appointment_id=${appointmentId}`)
+    fetch(`{{ url('get-slots') }}/${date}?service_id=${serviceId}&appointment_id=${appointmentId}`)
         .then(response => response.json())
         .then(data => {
 
